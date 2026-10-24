@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yachi University</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 16px; background: #f4f6f8; color: #1d2733; }
+  h1 { font-size: 1.3rem; }
+  h2 { font-size: 1.1rem; margin-top: 0; }
+  .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+  input, select, button { font-size: 1rem; padding: 10px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+  button { background: #2563eb; color: #fff; border: 0; border-radius: 8px; }
+  button.secondary { background: #64748b; }
+  button.danger { background: #dc2626; }
+  td button { width: auto; padding: 6px 10px; font-size: .85rem; margin: 2px 2px 2px 0; }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  .msg { color: #b91c1c; min-height: 1.2em; }
+  .ok { color: #15803d; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<h1>Yachi University – Student Management</h1>
+
+<div id="loginBox" class="card">
+  <h2>Sign in</h2>
+  <input id="email" type="email" placeholder="Email" autocomplete="username">
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="loginBtn">Sign in</button>
+  <div id="loginMsg" class="msg"></div>
+</div>
+
+<div id="appBox" class="hidden">
+  <div class="card">
+    <span id="who"></span>
+    <button id="logoutBtn" class="secondary">Sign out</button>
+  </div>
+
+  <form id="studentForm" class="card">
+    <h2 id="formTitle">Add student</h2>
+    <input id="f_name" placeholder="Full name" required>
+    <input id="f_email" type="email" placeholder="Email" required>
+    <select id="f_program" required></select>
+    <input id="f_year" type="number" min="1" max="8" placeholder="Year of study" required>
+    <div id="extra" class="hidden">
+      <input id="f_phone" placeholder="Phone (optional)">
+      <input id="f_address" placeholder="Address (optional)">
+      <label>Date of birth (optional)</label>
+      <input id="f_dob" type="date">
+    </div>
+    <button type="submit" id="saveBtn">Add student</button>
+    <button type="button" id="cancelBtn" class="secondary hidden">Cancel edit</button>
+    <div id="formMsg" class="msg"></div>
+  </form>
+
+  <div class="card">
+    <h2>Students</h2>
+    <button id="refreshBtn">Refresh list</button>
+    <div id="listMsg" class="msg"></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Number</th><th>Name</th><th>Email</th><th>Year</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const $ = (id) => document.getElementById(id);
+  let programs = [];
+  let editing = null; // student_number being edited, or null
+
+  function say(id, text, ok) {
+    const el = $(id);
+    el.textContent = text;
+    el.classList.toggle('ok', !!ok);
+  }
+
+  function show(signedIn, user) {
+    $('loginBox').classList.toggle('hidden', signedIn);
+    $('appBox').classList.toggle('hidden', !signedIn);
+    $('who').textContent = signedIn ? 'Signed in as ' + user.email : '';
+  }
+
+  async function loadPrograms() {
+    const { data, error } = await db.from('programs').select('id, department_id, code').order('code');
+    if (error) { say('formMsg', 'Programs: ' + error.message); return; }
+    programs = data;
+    const sel = $('f_program');
+    sel.replaceChildren();
+    for (const p of programs) {
+      const o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = p.code;
+      sel.appendChild(o);
+    }
+  }
+
+  function resetForm() {
+    editing = null;
+    $('studentForm').reset();
+    $('formTitle').textContent = 'Add student';
+    $('saveBtn').textContent = 'Add student';
+    $('cancelBtn').classList.add('hidden');
+    $('extra').classList.add('hidden');
+    $('f_program').disabled = false;
+  }
+
+  function startEdit(s) {
+    editing = s.student_number;
+    $('formTitle').textContent = 'Edit ' + s.student_number;
+    $('saveBtn').textContent = 'Save changes';
+    $('cancelBtn').classList.remove('hidden');
+    $('extra').classList.remove('hidden');
+    $('f_name').value = s.full_name || '';
+    $('f_email').value = s.email || '';
+    $('f_year').value = s.year_of_study ?? '';
+    $('f_phone').value = s.phone || '';
+    $('f_address').value = s.address || '';
+    $('f_dob').value = s.date_of_birth || '';
+    $('f_program').disabled = true;
+    say('formMsg', '');
+    window.scrollTo(0, 0);
+  }
+
+  async function loadStudents() {
+    say('listMsg', '');
+    const { data, error } = await db
+      .from('students')
+      .select('student_number, full_name, email, year_of_study, phone, address, date_of_birth')
+      .order('student_number');
+    if (error) { say('listMsg', error.message); return; }
+    const body = $('rows');
+    body.replaceChildren();
+    for (const s of data) {
+      const tr = document.createElement('tr');
+      for (const v of [s.student_number, s.full_name, s.email, s.year_of_study]) {
+        const td = document.createElement('td');
+        td.textContent = v ?? '';
+        tr.appendChild(td);
+      }
+      const act = document.createElement('td');
+      const eb = document.createElement('button');
+      eb.textContent = 'Edit';
+      eb.className = 'secondary';
+      eb.onclick = () => startEdit(s);
+      const dbtn = document.createElement('button');
+      dbtn.textContent = 'Delete';
+      dbtn.className = 'danger';
+      dbtn.onclick = () => removeStudent(s);
+      act.append(eb, dbtn);
+      tr.appendChild(act);
+      body.appendChild(tr);
+    }
+    if (data.length === 0) say('listMsg', 'No students visible to this account.');
+  }
+
+  async function removeStudent(s) {
+    if (!confirm('Delete ' + s.student_number + ' (' + s.full_name + ')? This cannot be undone.')) return;
+    const { data, error } = await db.from('students').delete().eq('student_number', s.student_number).select();
+    if (error) { say('listMsg', error.message); return; }
+    if (!data || data.length === 0) { say('listMsg', 'Not deleted: you do not have permission.'); return; }
+    say('listMsg', 'Deleted ' + s.student_number, true);
+    if (editing === s.student_number) resetForm();
+    loadStudents();
+  }
+
+  $('studentForm').onsubmit = async (e) => {
+    e.preventDefault();
+    say('formMsg', '');
+    const year = Number($('f_year').value);
+    if (editing) {
+      const changes = {
+        full_name: $('f_name').value.trim(),
+        email: $('f_email').value.trim(),
+        year_of_study: year,
+        phone: $('f_phone').value.trim() || null,
+        address: $('f_address').value.trim() || null,
+        date_of_birth: $('f_dob').value || null
+      };
+      const { data, error } = await db.from('students').update(changes).eq('student_number', editing).select();
+      if (error) { say('formMsg', error.message); return; }
+      if (!data || data.length === 0) { say('formMsg', 'Not saved: you do not have permission.'); return; }
+      say('formMsg', 'Saved ' + editing, true);
+      resetForm();
+    } else {
+      const prog = programs.find((p) => p.id === $('f_program').value);
+      if (!prog) { say('formMsg', 'Pick a program.'); return; }
+      const { data, error } = await db.from('students').insert({
+        full_name: $('f_name').value.trim(),
+        email: $('f_email').value.trim(),
+        department_id: prog.department_id,
+        program_id: prog.id,
+        year_of_study: year
+      }).select('student_number, full_name').single();
+      if (error) { say('formMsg', error.message); return; }
+      say('formMsg', 'Added ' + data.student_number, true);
+      resetForm();
+    }
+    loadStudents();
+  };
+
+  $('cancelBtn').onclick = () => { resetForm(); say('formMsg', ''); };
+
+  $('loginBtn').onclick = async () => {
+    say('loginMsg', '');
+    const { data, error } = await db.auth.signInWithPassword({
+      email: $('email').value.trim(),
+      password: $('password').value
+    });
+    $('password').value = '';
+    if (error) { say('loginMsg', error.message); return; }
+    show(true, data.user);
+    await loadPrograms();
+    loadStudents();
+  };
+
+  $('logoutBtn').onclick = async () => {
+    await db.auth.signOut();
+    $('rows').replaceChildren();
+    resetForm();
+    say('formMsg', '');
+    say('listMsg', '');
+    show(false);
+  };
+
+  $('refreshBtn').onclick = loadStudents;
+
+  db.auth.getSession().then(async ({ data }) => {
+    if (data.session) {
+      show(true, data.session.user);
+      await loadPrograms();
+      loadStudents();
+    }
+  });
+</script>
+</body>
+</html>

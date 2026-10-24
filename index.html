@@ -67,6 +67,29 @@
       </table>
     </div>
   </div>
+
+  <form id="enrollForm" class="card">
+    <h2>Enroll a student</h2>
+    <select id="e_student" required></select>
+    <select id="e_course" required></select>
+    <select id="e_semester" required></select>
+    <button type="submit">Enroll</button>
+    <div id="enrollMsg" class="msg"></div>
+  </form>
+
+  <div class="card">
+    <h2>Class roster</h2>
+    <select id="r_course"></select>
+    <select id="r_semester"></select>
+    <button id="rosterBtn" type="button">Show roster</button>
+    <div id="rosterMsg" class="msg"></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Number</th><th>Name</th><th>Status</th><th></th></tr></thead>
+        <tbody id="rosterRows"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -75,12 +98,23 @@
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const $ = (id) => document.getElementById(id);
   let programs = [];
-  let editing = null; // student_number being edited, or null
+  let editing = null;
 
   function say(id, text, ok) {
     const el = $(id);
     el.textContent = text;
     el.classList.toggle('ok', !!ok);
+  }
+
+  function fill(selectId, items, labelFn) {
+    const sel = $(selectId);
+    sel.replaceChildren();
+    for (const it of items) {
+      const o = document.createElement('option');
+      o.value = it.id;
+      o.textContent = labelFn(it);
+      sel.appendChild(o);
+    }
   }
 
   function show(signedIn, user) {
@@ -89,20 +123,31 @@
     $('who').textContent = signedIn ? 'Signed in as ' + user.email : '';
   }
 
+  /* ---------- lookups ---------- */
   async function loadPrograms() {
     const { data, error } = await db.from('programs').select('id, department_id, code').order('code');
     if (error) { say('formMsg', 'Programs: ' + error.message); return; }
     programs = data;
-    const sel = $('f_program');
-    sel.replaceChildren();
-    for (const p of programs) {
-      const o = document.createElement('option');
-      o.value = p.id;
-      o.textContent = p.code;
-      sel.appendChild(o);
-    }
+    fill('f_program', programs, (p) => p.code);
   }
 
+  async function loadCourseAndSemesterLists() {
+    const c = await db.from('courses').select('id, course_code, title').order('course_code');
+    if (c.error) { say('enrollMsg', 'Courses: ' + c.error.message); }
+    else {
+      const label = (x) => x.course_code + ' – ' + x.title;
+      fill('e_course', c.data, label);
+      fill('r_course', c.data, label);
+    }
+    const y = await db.from('academic_years').select('id').eq('is_current', true).single();
+    if (y.error) { say('enrollMsg', 'Academic year: ' + y.error.message); return; }
+    const s = await db.from('semesters').select('id, name').eq('academic_year_id', y.data.id).order('name');
+    if (s.error) { say('enrollMsg', 'Semesters: ' + s.error.message); return; }
+    fill('e_semester', s.data, (x) => x.name);
+    fill('r_semester', s.data, (x) => x.name);
+  }
+
+  /* ---------- students ---------- */
   function resetForm() {
     editing = null;
     $('studentForm').reset();
@@ -134,9 +179,10 @@
     say('listMsg', '');
     const { data, error } = await db
       .from('students')
-      .select('student_number, full_name, email, year_of_study, phone, address, date_of_birth')
+      .select('id, student_number, full_name, email, year_of_study, phone, address, date_of_birth')
       .order('student_number');
     if (error) { say('listMsg', error.message); return; }
+    fill('e_student', data, (s) => s.student_number + ' – ' + s.full_name);
     const body = $('rows');
     body.replaceChildren();
     for (const s of data) {
@@ -208,6 +254,72 @@
   };
 
   $('cancelBtn').onclick = () => { resetForm(); say('formMsg', ''); };
+  $('refreshBtn').onclick = loadStudents;
+
+  /* ---------- enrollments ---------- */
+  $('enrollForm').onsubmit = async (e) => {
+    e.preventDefault();
+    say('enrollMsg', '');
+    const { data, error } = await db.from('enrollments').insert({
+      student_id: $('e_student').value,
+      course_id: $('e_course').value,
+      semester_id: $('e_semester').value
+    }).select();
+    if (error) { say('enrollMsg', error.message); return; }
+    say('enrollMsg', 'Enrolled.', true);
+    $('r_course').value = $('e_course').value;
+    $('r_semester').value = $('e_semester').value;
+    loadRoster();
+  };
+
+  async function loadRoster() {
+    say('rosterMsg', '');
+    const { data, error } = await db
+      .from('enrollments')
+      .select('id, status, students(student_number, full_name)')
+      .eq('course_id', $('r_course').value)
+      .eq('semester_id', $('r_semester').value);
+    if (error) { say('rosterMsg', error.message); return; }
+    data.sort((a, b) => (a.students?.student_number || '').localeCompare(b.students?.student_number || ''));
+    const body = $('rosterRows');
+    body.replaceChildren();
+    for (const en of data) {
+      const tr = document.createElement('tr');
+      for (const v of [en.students?.student_number, en.students?.full_name, en.status]) {
+        const td = document.createElement('td');
+        td.textContent = v ?? '';
+        tr.appendChild(td);
+      }
+      const act = document.createElement('td');
+      const rb = document.createElement('button');
+      rb.textContent = 'Remove';
+      rb.className = 'danger';
+      rb.onclick = () => removeEnrollment(en);
+      act.appendChild(rb);
+      tr.appendChild(act);
+      body.appendChild(tr);
+    }
+    if (data.length === 0) say('rosterMsg', 'No enrollments for this course and semester.');
+  }
+
+  async function removeEnrollment(en) {
+    const who = (en.students?.student_number || '') + ' ' + (en.students?.full_name || '');
+    if (!confirm('Remove ' + who + ' from this course? Their grades for it may also be affected.')) return;
+    const { data, error } = await db.from('enrollments').delete().eq('id', en.id).select();
+    if (error) { say('rosterMsg', error.message); return; }
+    if (!data || data.length === 0) { say('rosterMsg', 'Not removed: you do not have permission.'); return; }
+    say('rosterMsg', 'Removed.', true);
+    loadRoster();
+  }
+
+  $('rosterBtn').onclick = loadRoster;
+
+  /* ---------- sign in / out ---------- */
+  async function startApp() {
+    await loadPrograms();
+    await loadCourseAndSemesterLists();
+    await loadStudents();
+  }
 
   $('loginBtn').onclick = async () => {
     say('loginMsg', '');
@@ -218,26 +330,22 @@
     $('password').value = '';
     if (error) { say('loginMsg', error.message); return; }
     show(true, data.user);
-    await loadPrograms();
-    loadStudents();
+    startApp();
   };
 
   $('logoutBtn').onclick = async () => {
     await db.auth.signOut();
     $('rows').replaceChildren();
+    $('rosterRows').replaceChildren();
     resetForm();
-    say('formMsg', '');
-    say('listMsg', '');
+    for (const id of ['formMsg', 'listMsg', 'enrollMsg', 'rosterMsg']) say(id, '');
     show(false);
   };
 
-  $('refreshBtn').onclick = loadStudents;
-
-  db.auth.getSession().then(async ({ data }) => {
+  db.auth.getSession().then(({ data }) => {
     if (data.session) {
       show(true, data.session.user);
-      await loadPrograms();
-      loadStudents();
+      startApp();
     }
   });
 </script>

@@ -65,7 +65,7 @@
       if (value === selected) o.selected = true;
       pick.appendChild(o);
     }
-    opt('', 'Choose a college, institute, school or department');
+    opt('', 'Choose a college, institute or school');
     units.forEach(function (x) {
       opt('u:' + x.id, x.name);
     });

@@ -1,4 +1,4 @@
-// Admin card: colleges, institutes and schools, and which departments belong to each.
+// Admin card: pick a college, institute or school from a dropdown; link departments.
 (function () {
   'use strict';
   var INPUT = 'width:100%;box-sizing:border-box;padding:12px;font-size:16px;margin-bottom:10px';
@@ -16,6 +16,7 @@
   card.id = 'unitsCard';
   card.style.display = 'none';
   var built = false;
+  var selectedId = '';
 
   function place() {
     var nodes = document.querySelectorAll('body *');
@@ -51,26 +52,69 @@
     }
     var units = u.data || [], depts = d.data || [];
 
-    // List
-    units.forEach(function (unit) {
-      var mine = depts.filter(function (x) { return x.unit_id === unit.id; });
-      var box = el('div', 'border-top:1px solid #e5e7eb;padding:10px 0');
-      box.appendChild(el('div', 'font-weight:600', unit.name));
-      box.appendChild(el('div', 'font-size:13px;color:#6b7280;text-transform:capitalize',
-        unit.type + ' · ' + mine.length + ' department' + (mine.length === 1 ? '' : 's')));
-      mine.forEach(function (x) { box.appendChild(el('div', 'margin-left:12px;font-size:15px', '• ' + deptName(x))); });
-      card.appendChild(box);
+    // Dropdown of all units
+    var pick = el('select', INPUT);
+    var first = el('option', null, 'Choose a college, institute or school (' + units.length + ')');
+    first.value = '';
+    pick.appendChild(first);
+    units.forEach(function (x) {
+      var o = el('option', null, x.name);
+      o.value = x.id;
+      if (x.id === selectedId) o.selected = true;
+      pick.appendChild(o);
     });
+    card.appendChild(pick);
+
+    var detail = el('div', 'margin-bottom:12px');
+    card.appendChild(detail);
+    function show() {
+      detail.textContent = '';
+      var unit = units.filter(function (x) { return x.id === pick.value; })[0];
+      if (!unit) return;
+      var mine = depts.filter(function (x) { return x.unit_id === unit.id; });
+      detail.appendChild(el('div', 'font-size:13px;color:#6b7280;text-transform:capitalize',
+        unit.type + ' · ' + mine.length + ' department' + (mine.length === 1 ? '' : 's')));
+      if (!mine.length) detail.appendChild(el('div', 'color:#6b7280;margin-top:4px', 'No departments linked yet.'));
+      mine.forEach(function (x) { detail.appendChild(el('div', 'margin:4px 0 0 12px;font-size:16px', '• ' + deptName(x))); });
+    }
+    pick.onchange = function () { selectedId = pick.value; show(); };
+    show();
+
     var loose = depts.filter(function (x) { return !x.unit_id; });
     if (loose.length) {
       var lb = el('div', 'border-top:1px solid #e5e7eb;padding:10px 0');
-      lb.appendChild(el('div', 'font-weight:600;color:#b45309', 'Not linked to any unit yet'));
+      lb.appendChild(el('div', 'font-weight:600;color:#b45309', 'Departments not linked to any unit yet (' + loose.length + ')'));
       loose.forEach(function (x) { lb.appendChild(el('div', 'margin-left:12px;font-size:15px', '• ' + deptName(x))); });
       card.appendChild(lb);
     }
 
-    // Add unit
-    card.appendChild(el('h3', 'margin:18px 0 6px', 'Add a college, institute or school'));
+    // Link department (collapsed)
+    var linkBox = document.createElement('details');
+    linkBox.appendChild(el('summary', 'font-weight:700;cursor:pointer;padding:8px 0', 'Link a department to a unit'));
+    if (!depts.length) {
+      linkBox.appendChild(el('div', 'color:#6b7280', 'No departments yet.'));
+    } else {
+      var ds = el('select', INPUT);
+      depts.forEach(function (x) { var o = el('option', null, deptName(x)); o.value = x.id; ds.appendChild(o); });
+      var us = el('select', INPUT);
+      units.forEach(function (x) { var o = el('option', null, x.name); o.value = x.id; us.appendChild(o); });
+      var link = el('button', BTN, 'Link'); link.type = 'button';
+      var m2 = el('div', 'margin-bottom:8px');
+      link.onclick = async function () {
+        link.disabled = true;
+        var r = await db.from('departments').update({ unit_id: us.value }).eq('id', ds.value);
+        link.disabled = false;
+        if (r.error) { m2.textContent = 'Not linked: ' + r.error.message; m2.style.color = '#b91c1c'; return; }
+        selectedId = us.value;
+        load();
+      };
+      [ds, us, link, m2].forEach(function (x) { linkBox.appendChild(x); });
+    }
+    card.appendChild(linkBox);
+
+    // Add unit (collapsed)
+    var addBox = document.createElement('details');
+    addBox.appendChild(el('summary', 'font-weight:700;cursor:pointer;padding:8px 0', 'Add a college, institute or school'));
     var nm = el('input', INPUT); nm.placeholder = 'Full name';
     var ty = el('select', INPUT);
     ['college', 'institute', 'school'].forEach(function (t) {
@@ -86,28 +130,8 @@
       if (r.error) { m1.textContent = 'Not added: ' + r.error.message; m1.style.color = '#b91c1c'; return; }
       load();
     };
-    [nm, ty, add, m1].forEach(function (x) { card.appendChild(x); });
-
-    // Link department
-    card.appendChild(el('h3', 'margin:18px 0 6px', 'Link a department to a unit'));
-    if (!depts.length) {
-      card.appendChild(el('div', 'color:#6b7280', 'No departments yet. Add departments first.'));
-      return;
-    }
-    var ds = el('select', INPUT);
-    depts.forEach(function (x) { var o = el('option', null, deptName(x)); o.value = x.id; ds.appendChild(o); });
-    var us = el('select', INPUT);
-    units.forEach(function (x) { var o = el('option', null, x.name); o.value = x.id; us.appendChild(o); });
-    var link = el('button', BTN, 'Link'); link.type = 'button';
-    var m2 = el('div', 'margin-bottom:8px');
-    link.onclick = async function () {
-      link.disabled = true;
-      var r = await db.from('departments').update({ unit_id: us.value }).eq('id', ds.value);
-      link.disabled = false;
-      if (r.error) { m2.textContent = 'Not linked: ' + r.error.message; m2.style.color = '#b91c1c'; return; }
-      load();
-    };
-    [ds, us, link, m2].forEach(function (x) { card.appendChild(x); });
+    [nm, ty, add, m1].forEach(function (x) { addBox.appendChild(x); });
+    card.appendChild(addBox);
   }
 
   function refresh() {

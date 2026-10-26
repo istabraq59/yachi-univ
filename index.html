@@ -47,11 +47,13 @@
     <div id="udpSummary" style="display:none;margin:8px 0"></div>
     <select id="f_program" required></select>
     <input id="f_year" type="number" min="1" max="8" placeholder="Year of study" required>
-    <div id="extra" class="hidden">
+    <div id="extra">
       <input id="f_phone" placeholder="Phone (optional)">
       <input id="f_address" placeholder="Address (optional)">
-      <label>Date of birth (optional)</label>
+      <label>Date of birth (needed for ID sign-up)</label>
       <input id="f_dob" type="date">
+      <input id="f_admission" placeholder="Grade 12 admission number (optional)" autocapitalize="characters">
+      <input id="f_username" placeholder="Academic username (optional)" autocapitalize="none">
     </div>
     <button type="submit" id="saveBtn">Add student</button>
     <button type="button" id="cancelBtn" class="secondary hidden">Cancel edit</button>
@@ -156,7 +158,7 @@
     $('formTitle').textContent = 'Add student';
     $('saveBtn').textContent = 'Add student';
     $('cancelBtn').classList.add('hidden');
-    $('extra').classList.add('hidden');
+    /* extra fields stay visible */
     $('f_program').disabled = false;
     if (window.studentFormReset) studentFormReset();
   }
@@ -173,6 +175,8 @@
     $('f_phone').value = s.phone || '';
     $('f_address').value = s.address || '';
     $('f_dob').value = s.date_of_birth || '';
+    $('f_admission').value = s.admission_number || '';
+    $('f_username').value = s.academic_username || '';
     $('f_program').disabled = true;
     if (window.studentFormEdit) studentFormEdit(s);
     say('formMsg', '');
@@ -183,7 +187,7 @@
     say('listMsg', '');
     const { data, error } = await db
       .from('students')
-      .select('id, student_number, full_name, email, year_of_study, phone, address, date_of_birth, unit_id, department_id')
+      .select('id, student_number, full_name, email, year_of_study, phone, address, date_of_birth, unit_id, department_id, admission_number, academic_username')
       .order('student_number');
     if (error) { say('listMsg', error.message); return; }
     fill('e_student', data, (s) => s.student_number + ' – ' + s.full_name);
@@ -233,7 +237,9 @@
         year_of_study: year,
         phone: $('f_phone').value.trim() || null,
         address: $('f_address').value.trim() || null,
-        date_of_birth: $('f_dob').value || null
+        date_of_birth: $('f_dob').value || null,
+        admission_number: ($('f_admission').value.trim() || null),
+        academic_username: ($('f_username').value.trim() || null)
       };
       const { data, error } = await db.from('students').update(changes).eq('student_number', editing).select();
       if (error) { say('formMsg', error.message); return; }
@@ -252,6 +258,11 @@
         department_id: pv.department_id,
         unit_id: pv.unit_id,
         program_id: prog.id,
+        phone: $('f_phone').value.trim() || null,
+        address: $('f_address').value.trim() || null,
+        date_of_birth: $('f_dob').value || null,
+        admission_number: $('f_admission').value.trim() || null,
+        academic_username: $('f_username').value.trim() || null,
         year_of_study: year
       }).select('student_number, full_name').single();
       if (error) { say('formMsg', error.message); return; }

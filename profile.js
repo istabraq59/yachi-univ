@@ -48,7 +48,7 @@
     var u = await db.auth.getUser();
     var user = u && u.data && u.data.user;
     if (!user) { card.style.display = 'none'; return; }
-    var p = await db.from('profiles').select('full_name, role').eq('id', user.id).limit(1);
+    var p = await db.from('profiles').select('full_name, role, id_number').eq('id', user.id).limit(1);
     var prof = (p.data && p.data[0]) || {};
 
     var box = document.createElement('details');
@@ -60,6 +60,7 @@
     var info = el('div', 'margin:12px 0');
     info.appendChild(el('div', null, 'Name: ' + (prof.full_name || '(not set)')));
     info.appendChild(el('div', null, 'Email: ' + (user.email || '')));
+    info.appendChild(el('div', null, 'ID number: ' + (prof.id_number || '(not assigned yet)')));
     info.appendChild(el('div', null, 'Role: ' + (prof.role || '')));
     info.appendChild(el('div', 'font-size:14px;color:#6b7280;margin-top:6px',
       'To change your name or role, contact the school office.'));

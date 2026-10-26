@@ -68,13 +68,9 @@
     opt('', 'Choose a college, institute, school or department');
     units.forEach(function (x) {
       opt('u:' + x.id, x.name);
-      depts.filter(function (y) { return y.unit_id === x.id; })
-           .forEach(function (y) { opt('d:' + y.id, IND + deptName(y)); });
     });
     var loose = depts.filter(function (y) { return !y.unit_id; });
     if (loose.length) {
-      opt('', '\u2014 Not linked to any unit \u2014');
-      loose.forEach(function (y) { opt('d:' + y.id, IND + deptName(y)); });
     }
     card.appendChild(pick);
 

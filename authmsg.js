@@ -34,7 +34,7 @@
   x.type = 'button';
   x.textContent = '×';
   x.setAttribute('aria-label', 'Close');
-  x.style.cssText = 'position:absolute;right:8px;top:6px;background:none;border:0;color:#fff;font-size:28px;cursor:pointer';
+  x.style.cssText = 'position:absolute;right:8px;top:6px;width:auto;margin:0;padding:0 8px;line-height:1;background:none;border:0;color:#fff;font-size:28px;cursor:pointer';
   x.onclick = function () { bar.remove(); };
   bar.appendChild(x);
   document.body.appendChild(bar);

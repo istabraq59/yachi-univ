@@ -87,23 +87,14 @@
     };
     load();
   }
-  var bar = document.createElement('div');
-  bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#222;color:#fff;padding:6px;font-size:12px;z-index:99999';
-  bar.textContent = 'dorm.js loaded';
-  document.body.appendChild(bar);
-  window.addEventListener('error', function (e) { bar.textContent = 'dorm.js error: ' + e.message; });
   function apply(r) {
-    bar.textContent = 'dorm.js role: ' + r;
     if (r === 'student' && !document.getElementById('dormCard')) studentCard();
-    if ((r === 'admin' || r === 'dorm_officer') && !document.getElementById('dormOfficeCard')) officeCard();
+    if ((r === 'admin' || r === 'administrator' || r === 'dorm_officer') && !document.getElementById('dormOfficeCard')) officeCard();
   }
   function check() {
-    if (typeof db === 'undefined') { bar.textContent = 'dorm.js: db not found'; return; }
     db.auth.getSession().then(function (s) {
       var u = s.data && s.data.session && s.data.session.user;
-      if (!u) { bar.textContent = 'dorm.js: not signed in'; return; }
       db.from('profiles').select('role').eq('id', u.id).single().then(function (r) {
-        if (r.error) { bar.textContent = 'dorm.js: ' + r.error.message; return; }
         apply(r.data.role);
       });
     });

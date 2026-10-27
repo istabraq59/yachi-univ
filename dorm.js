@@ -87,11 +87,16 @@
     };
     load();
   }
-  function check() {
-    var r = document.body.getAttribute('data-role') || '';
+  function apply(r) {
     if (r === 'student' && !document.getElementById('dormCard')) studentCard();
     if ((r === 'admin' || r === 'dorm_officer') && !document.getElementById('dormOfficeCard')) officeCard();
   }
-  new MutationObserver(check).observe(document.body, { attributes: true, attributeFilter: ['data-role'] });
+  function check() {
+    db.auth.getSession().then(function (s) {
+      var u = s.data && s.data.session && s.data.session.user; if (!u) return;
+      db.from('profiles').select('role').eq('id', u.id).single().then(function (r) { if (r.data) apply(r.data.role); });
+    });
+  }
+  db.auth.onAuthStateChange(function () { setTimeout(check, 400); });
   check();
 })();

@@ -57,7 +57,7 @@
         db.from('dorm_buildings').select('*').order('name'),
         db.from('dorm_rooms').select('*').order('room_number'),
         db.from('dorm_assignments').select('student_id,room_id').is('ended_at', null),
-        db.from('students').select('*').order('student_number')
+        db.rpc('dorm_students')
       ]).then(function (x) {
         for (var i = 0; i < x.length; i++) if (x[i].error) { msg('Could not load: ' + x[i].error.message); return; }
         B = x[0].data; R = x[1].data; A = x[2].data; S = x[3].data; render();

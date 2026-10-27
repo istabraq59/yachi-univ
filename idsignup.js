@@ -1,94 +1,48 @@
-// "Sign up with ID number" for students the university has already registered.
 (function () {
-  'use strict';
-  var FN = 'https://mczhuzxcjrdtfrcswusf.supabase.co/functions/v1/quick-handler';
-  var box = document.getElementById('loginBox');
-  if (!box) return;
-
-  function mk(tag, text, style) {
-    var e = document.createElement(tag);
-    if (text) e.textContent = text;
-    if (style) e.style.cssText = style;
-    return e;
-  }
-  function input(ph, type, ac) {
-    var i = document.createElement('input');
-    i.placeholder = ph;
-    if (type) i.type = type;
-    if (ac) i.autocomplete = ac;
-    return i;
-  }
-
-  var toggle = mk('button', 'New student? Sign up with ID number', 'margin-top:10px');
-  toggle.type = 'button';
-  toggle.className = 'secondary';
-
-  var panel = mk('div', null, 'display:none;margin-top:10px');
-  panel.appendChild(mk('div',
-    'For students the university has already registered. Use your Grade 12 admission number or your academic username, and your date of birth.',
-    'font-size:14px;color:#6b7280;margin-bottom:10px'));
-
-  var idIn = input('Admission number or academic username', null, 'off');
-  idIn.spellcheck = false;
-  var dobLabel = mk('div', 'Date of birth', 'font-weight:600;margin:4px 0');
-  var dob = input('Date of birth', 'date', 'bday');
-  var pw1 = input('Choose a password (8+ characters)', 'password', 'new-password');
-  var pw2 = input('Type the password again', 'password', 'new-password');
-  var em = input('Email (optional, for password reset)', 'email', 'email');
-  var go = mk('button', 'Create my account');
-  go.type = 'button';
-  var msg = mk('div', null, 'margin-top:8px;color:#b91c1c');
-  msg.setAttribute('role', 'alert');
-
-  [idIn, dobLabel, dob, pw1, pw2, em, go, msg].forEach(function (x) { panel.appendChild(x); });
-
-  toggle.onclick = function () {
-    var open = panel.style.display === 'none';
-    panel.style.display = open ? '' : 'none';
-    toggle.textContent = open ? 'Hide ID number sign-up' : 'New student? Sign up with ID number';
-    if (open) idIn.focus();
-  };
-
-  async function submit() {
-    msg.style.color = '#b91c1c';
-    msg.textContent = '';
-    if (!idIn.value.trim() || !dob.value) { msg.textContent = 'Enter your number and your date of birth.'; return; }
-    if (pw1.value.length < 8) { msg.textContent = 'Use at least 8 characters for the password.'; return; }
-    if (pw1.value !== pw2.value) { msg.textContent = 'The two passwords are not the same.'; return; }
-    go.disabled = true;
-    try {
-      var res = await fetch(FN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'claim',
-          identifier: idIn.value.trim(),
-          birth_date: dob.value,
-          password: pw1.value,
-          email: em.value.trim()
+  var ENDPOINT = 'https://mczhuzxcjrdtfrcswusf.supabase.co/functions/v1/student-signup';
+  function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
+  function build() {
+    var box = document.getElementById('loginBox');
+    if (!box || document.getElementById('idSignupBtn')) return;
+    var ref = [].slice.call(box.querySelectorAll('button')).filter(function (b) { return /Create an account/.test(b.textContent); })[0];
+    var btn = el('button', { type: 'button', id: 'idSignupBtn', text: 'New student? Sign up with ID number' });
+    if (ref) btn.className = ref.className;
+    var panel = el('div', { id: 'idSignupPanel' }); panel.style.display = 'none';
+    var f = {};
+    function field(key, ph, type) { var i = el('input', { placeholder: ph, type: type || 'text', autocomplete: 'off' }); f[key] = i; panel.appendChild(i); return i; }
+    panel.appendChild(el('p', { text: 'You need the sign-up code that the registrar\'s office gave you.' }));
+    field('id', 'Grade 12 admission number or academic username');
+    field('code', 'Sign-up code (e.g. ABCD-EFGH)').setAttribute('autocapitalize', 'characters');
+    field('pw', 'Choose a password (8 or more characters)', 'password');
+    field('pw2', 'Repeat the password', 'password');
+    field('email', 'Email (optional)', 'email');
+    var go = el('button', { type: 'button', text: 'Create my account' });
+    var msg = el('p'); msg.style.color = '#b91c1c';
+    panel.appendChild(go); panel.appendChild(msg);
+    btn.onclick = function () { panel.style.display = panel.style.display === 'none' ? '' : 'none'; };
+    go.onclick = function () {
+      msg.style.color = '#b91c1c';
+      if (!f.id.value.trim() || !f.code.value.trim()) { msg.textContent = 'Enter your admission number and sign-up code.'; return; }
+      if (f.pw.value.length < 8) { msg.textContent = 'The password must have at least 8 characters.'; return; }
+      if (f.pw.value !== f.pw2.value) { msg.textContent = 'The two passwords do not match.'; return; }
+      go.disabled = true; msg.textContent = 'Working...';
+      fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: f.id.value.trim(), code: f.code.value.trim(), password: f.pw.value, email: f.email.value.trim() }) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          go.disabled = false;
+          if (!x.ok || x.j.error) { msg.textContent = x.j.error || 'Could not create the account.'; return; }
+          if (x.j.access_token && x.j.refresh_token) {
+            return db.auth.setSession({ access_token: x.j.access_token, refresh_token: x.j.refresh_token }).then(function (r) {
+              if (r.error) { msg.style.color = '#166534'; msg.textContent = 'Account created. Sign in with your ID number: ' + (x.j.id_number || ''); }
+            });
+          }
+          msg.style.color = '#166534';
+          msg.textContent = 'Account created. Sign in with your ID number: ' + (x.j.id_number || '');
         })
-      });
-      var out = await res.json().catch(function () { return {}; });
-      if (!res.ok || !out.ok) { msg.textContent = out.error || 'Sign-up failed. Please try again.'; return; }
-      if (out.access_token) {
-        var r = await db.auth.setSession({ access_token: out.access_token, refresh_token: out.refresh_token });
-        if (r.error) { msg.textContent = 'Account created. Sign in with your ID number: ' + out.student_number; return; }
-      } else {
-        msg.style.color = '#15803d';
-        msg.textContent = 'Account created. Sign in with your ID number: ' + out.student_number;
-      }
-      pw1.value = ''; pw2.value = '';
-    } catch (e) {
-      msg.textContent = 'Could not reach the sign-up service. Check your connection.';
-    } finally {
-      go.disabled = false;
-    }
+        .catch(function () { go.disabled = false; msg.textContent = 'Could not reach the server. Check your connection.'; });
+    };
+    box.appendChild(btn); box.appendChild(panel);
   }
-  go.onclick = submit;
-  [idIn, dob, pw1, pw2, em].forEach(function (i) {
-    i.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
-  });
-
-  box.appendChild(toggle);
-  box.appendChild(panel);
+  build(); setTimeout(build, 600);
 })();

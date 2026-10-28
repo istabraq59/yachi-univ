@@ -1,7 +1,7 @@
 // "Sign in with ID number" on the sign-in screen (uses the login-by-id Edge Function).
 (function () {
   'use strict';
-  var FN = 'https://mczhuzxcjrdtfrcswusf.supabase.co/functions/v1/quick-handler';
+  var FN = 'https://mczhuzxcjrdtfrcswusf.supabase.co/functions/v1/id-signin';
   var box = document.getElementById('loginBox');
   if (!box) return;
 

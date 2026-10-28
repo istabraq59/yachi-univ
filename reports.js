@@ -69,7 +69,7 @@
       var u = s.data && s.data.session && s.data.session.user; if (!u) { dbg('no session'); return; }
       db.from('profiles').select('role').eq('id', u.id).single().then(function (r) {
         if (!r.data) { dbg('no profile'); return; }
-        dbg('role=' + r.data.role); try { if ((r.data.role === 'admin' || r.data.role === 'administrator') && !document.getElementById('reportsCard')) card(); dbg('role=' + r.data.role + ', card ok'); } catch (e) { dbg('ERROR ' + e.message); }
+        dbg('role=' + r.data.role); try { if ((r.data.role === 'admin' || r.data.role === 'administrator') && !document.getElementById('reportsCard')) card(); setTimeout(function () { var rc = document.getElementById('reportsCard'); dbg('role=' + r.data.role + ', in page=' + !!rc + ', height=' + (rc ? rc.offsetHeight : 0) + ', display=' + (rc ? getComputedStyle(rc).display : 'none') + ', parent=' + (rc && rc.parentNode ? rc.parentNode.tagName : '')); }, 2500); } catch (e) { dbg('ERROR ' + e.message); }
       });
     });
   }

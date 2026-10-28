@@ -40,10 +40,12 @@
         var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
         var cx = cv.getContext('2d'); cx.drawImage(im, 0, 0);
         var d = cx.getImageData(0, 0, w, h), p = d.data, minx = w, miny = h, maxx = 0, maxy = 0;
+        var barRow = [];
+        for (var by = 0; by < h; by++) { var dk = 0, cnt = 0; for (var bx = 0; bx < w; bx += 4) { var bi = (by * w + bx) * 4; cnt++; if ((p[bi] + p[bi + 1] + p[bi + 2]) / 3 < 60) dk++; } barRow[by] = dk > cnt * 0.9; }
         for (var y = 0; y < h; y++) {
           for (var x = 0; x < w; x++) {
             var i = (y * w + x) * 4, lum = (p[i] + p[i + 1] + p[i + 2]) / 3;
-            var a = lum > 200 ? 0 : (255 - lum);
+            var a = (lum > 200 || barRow[y]) ? 0 : (255 - lum);
             p[i] = 0; p[i + 1] = 0; p[i + 2] = 0; p[i + 3] = a;
             if (a > 100) { if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
           }

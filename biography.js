@@ -16,7 +16,7 @@
     var d = el('details'); d.appendChild(el('summary', { text: 'My biography' }));
     var intro = el('p', { text: 'Only you and the registrar\'s office can see this. Fill in what you can and tap Save.' });
     var form = el('div'), msg = el('p');
-    d.appendChild(intro); d.appendChild(form); d.appendChild(msg); c.appendChild(d); place(c);
+    d.appendChild(intro); if (window.YUPhoto) window.YUPhoto.mine(d, uid); d.appendChild(form); d.appendChild(msg); c.appendChild(d); place(c);
     var inputs = {};
     SECTIONS.forEach(function (s) {
       form.appendChild(el('h3', { text: s[0] }));
@@ -66,6 +66,7 @@
         if (p.error || !p.data) { out.textContent = 'No person with that ID.'; return; }
         db.from('biographies').select('*').eq('profile_id', p.data.id).maybeSingle().then(function (b) {
           out.appendChild(el('h3', { text: id + ' - ' + (p.data.full_name || '') + ' (' + p.data.role + ')' }));
+          if (window.YUPhoto) window.YUPhoto.view(out, p.data.id);
           if (b.error || !b.data) { out.appendChild(el('p', { text: 'No biography filled in yet.' })); return; }
           SECTIONS.forEach(function (s) {
             var any = s[1].filter(function (f) { return b.data[f[0]]; });

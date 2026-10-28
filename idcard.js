@@ -8,7 +8,7 @@
     '.yu-photo{width:72px;height:92px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;background:#f1f5f9;flex:none}',
     '.yu-info{font-size:11px;line-height:1.35;min-width:0}.yu-info .nm{font-size:13px;font-weight:700}',
     '.yu-sign{position:absolute;right:10px;bottom:5px;text-align:center;font-size:9px}',
-    '.yu-sign img{display:block;height:32px;mix-blend-mode:multiply;margin:0 auto}',
+    '.yu-sign img{display:block;height:34px;max-width:110px;margin:0 auto}',
     '.yu-back{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:9px;padding:10px}',
     '@media print{body *{visibility:hidden}.yu-printing,.yu-printing *{visibility:visible}.yu-printing{position:absolute;left:0;top:0;width:85.6mm}.yu-printing .yu-card{width:85.6mm;height:54mm;margin:0;border:none;border-radius:0;page-break-after:always}}'
   ].join('\n');
@@ -31,6 +31,35 @@
       if (!f) { cb(null); return; }
       db.storage.from('assets').createSignedUrl(f.name, 3600).then(function (u) { cb(u.data ? u.data.signedUrl : null); });
     });
+  }
+  function cleanSignature(url, img) {
+    var im = new Image(); im.crossOrigin = 'anonymous';
+    im.onload = function () {
+      try {
+        var w = im.naturalWidth, h = im.naturalHeight;
+        var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        var cx = cv.getContext('2d'); cx.drawImage(im, 0, 0);
+        var d = cx.getImageData(0, 0, w, h), p = d.data, minx = w, miny = h, maxx = 0, maxy = 0;
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            var i = (y * w + x) * 4, lum = (p[i] + p[i + 1] + p[i + 2]) / 3;
+            var a = lum > 200 ? 0 : (255 - lum);
+            p[i] = 0; p[i + 1] = 0; p[i + 2] = 0; p[i + 3] = a;
+            if (a > 100) { if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
+          }
+        }
+        if (maxx <= minx || maxy <= miny) throw new Error('empty');
+        cx.putImageData(d, 0, 0);
+        var pad = 12, sx = Math.max(0, minx - pad), sy = Math.max(0, miny - pad);
+        var sw = Math.min(w, maxx + pad) - sx, sh = Math.min(h, maxy + pad) - sy;
+        var out = document.createElement('canvas'); out.width = sw; out.height = sh;
+        var oc = out.getContext('2d');
+        for (var dx = -3; dx <= 3; dx += 3) { for (var dy = -3; dy <= 3; dy += 3) { oc.drawImage(cv, sx, sy, sw, sh, dx, dy, sw, sh); } }
+        img.src = out.toDataURL('image/png');
+      } catch (e) { img.src = url; }
+    };
+    im.onerror = function () { img.src = url; };
+    im.src = url;
   }
   function render(out, d) {
     out.innerHTML = '';
@@ -72,7 +101,7 @@
     };
     out.appendChild(cards); out.appendChild(pb); out.appendChild(note);
     assetUrl('logo', function (u) { if (u) { logo.src = u; logo.style.display = 'block'; } });
-    assetUrl('signature', function (u) { if (u) { sig.src = u; sig.style.display = 'block'; } });
+    assetUrl('signature', function (u) { if (u) { sig.onload = function () { sig.style.display = 'block'; }; cleanSignature(u, sig); } });
     db.storage.from('avatars').createSignedUrl(d.profile_id + '/photo.jpg', 3600).then(function (r) {
       if (r.data && r.data.signedUrl) { photo.src = r.data.signedUrl; photo.style.visibility = 'visible'; }
       else { note.textContent = 'No photo yet. Add one in My biography > Photo, then reopen this card.'; }

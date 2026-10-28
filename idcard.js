@@ -5,7 +5,7 @@
     '.yu-head img{height:30px;width:30px;object-fit:cover;border-radius:6px;background:#fff}',
     '.yu-head b{font-size:14px;letter-spacing:.5px}.yu-head small{display:block;font-size:9px;opacity:.9}',
     '.yu-body{display:flex;gap:10px;padding:8px 10px}',
-    '.yu-photo{width:72px;height:92px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;background:#f1f5f9;flex:none}',
+    '.yu-photo{width:70px;height:90px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;background:#f1f5f9;flex:none}',
     '.yu-info{font-size:11px;line-height:1.35;min-width:0}.yu-info .nm{font-size:13px;font-weight:700}',
     '.yu-sign{position:absolute;right:10px;bottom:5px;text-align:center;font-size:9px}',
     '.yu-sign img{display:block;height:34px;max-width:110px;margin:0 auto}',

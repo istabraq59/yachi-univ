@@ -4,9 +4,9 @@
   function shrink(file, cb) {
     var url = URL.createObjectURL(file), img = new Image();
     img.onload = function () {
-      var max = 400, s = Math.min(1, max / Math.max(img.width, img.height));
-      var cv = document.createElement('canvas'); cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
-      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      var tw = 413, th = 531, s = Math.max(tw / img.width, th / img.height), sw = tw / s, sh = th / s, sx = (img.width - sw) / 2, sy = (img.height - sh) * 0.35;
+      var cv = document.createElement('canvas'); cv.width = tw; cv.height = th;
+      cv.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, tw, th);
       URL.revokeObjectURL(url);
       cv.toBlob(function (b) { cb(b); }, 'image/jpeg', 0.8);
     };

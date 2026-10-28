@@ -1,10 +1,12 @@
 (function () {
   var SECTIONS = [
-    ['Contact details', [['phone', 'Phone', 'tel', 30], ['contact_email', 'Contact email', 'email', 120], ['address', 'Address', 'text', 300]]],
-    ['Personal details', [['date_of_birth', 'Date of birth', 'date'], ['gender', 'Gender', 'gender'], ['place_of_birth', 'Place of birth', 'text', 120], ['nationality', 'Nationality', 'text', 80], ['religion', 'Religion (optional)', 'text', 80]]],
+    ['Contact details', [['phone', 'Primary contact (phone)', 'tel', 30], ['secondary_contact', 'Secondary contact (phone)', 'tel', 30], ['contact_email', 'Contact email', 'email', 120], ['region', 'Region', 'text', 80], ['town_city', 'Town or city', 'text', 100], ['address', 'Address', 'text', 300]]],
+    ['Personal details', [['date_of_birth', 'Date of birth', 'date'], ['gender', 'Gender', 'gender'], ['place_of_birth', 'Place of birth', 'text', 120], ['nationality', 'Nationality', 'text', 80], ['religion', 'Religion (optional)', 'text', 80], ['mother_name', "Mother's name", 'text', 120], ['father_name', "Father's name", 'text', 120]]],
     ['Emergency contact', [['emergency_name', 'Name', 'text', 120], ['emergency_relationship', 'Relationship', 'text', 60], ['emergency_phone', 'Phone', 'tel', 30]]],
-    ['Education and about me', [['previous_school', 'Previous school', 'text', 200], ['grade12_result', 'Grade 12 result', 'text', 60], ['about', 'A few lines about yourself', 'textarea', 1000]]]
+    ['Education and about me', [['education_level', 'Education level', 'level'], ['previous_school', 'Previous school', 'text', 200], ['grade12_result', 'Grade 12 result', 'text', 60], ['about', 'A few lines about yourself', 'textarea', 1000]]]
   ];
+  var GENDERS = [['', ''], ['male', 'Male'], ['female', 'Female']];
+  var LEVELS = [['', ''], ['Grade 12 / secondary', 'Grade 12 / secondary'], ['Certificate', 'Certificate'], ['Diploma', 'Diploma'], ["Bachelor's degree", "Bachelor's degree"], ["Master's degree", "Master's degree"], ['PhD', 'PhD'], ['Other', 'Other']];
   function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
   function place(c) {
     var anchor = null;
@@ -23,9 +25,9 @@
       s[1].forEach(function (f) {
         form.appendChild(el('label', { text: f[1] }));
         var i;
-        if (f[2] === 'gender') {
+        if (f[2] === 'gender' || f[2] === 'level') {
           i = el('select');
-          [['', ''], ['male', 'Male'], ['female', 'Female']].forEach(function (o) { i.appendChild(el('option', { value: o[0], text: o[1] })); });
+          (f[2] === 'level' ? LEVELS : GENDERS).forEach(function (o) { i.appendChild(el('option', { value: o[0], text: o[1] })); });
         } else if (f[2] === 'textarea') { i = el('textarea', { rows: '4', maxlength: String(f[3]) }); }
         else { i = el('input', { type: f[2] }); if (f[3]) i.setAttribute('maxlength', String(f[3])); }
         inputs[f[0]] = i; form.appendChild(i);

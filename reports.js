@@ -61,13 +61,15 @@
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     };
   }
+  function dbg(t) { var e = document.getElementById('reportsDbg'); if (!e) { e = el('p', { id: 'reportsDbg' }); e.style.cssText = 'font-size:12px;color:#64748b;padding:0 16px'; document.body.appendChild(e); } e.textContent = 'reports.js: ' + t; }
   function run() {
-    if (typeof db === 'undefined') return;
+    dbg('started');
+    if (typeof db === 'undefined') { dbg('db missing'); return; }
     db.auth.getSession().then(function (s) {
-      var u = s.data && s.data.session && s.data.session.user; if (!u) return;
+      var u = s.data && s.data.session && s.data.session.user; if (!u) { dbg('no session'); return; }
       db.from('profiles').select('role').eq('id', u.id).single().then(function (r) {
-        if (!r.data) return;
-        if ((r.data.role === 'admin' || r.data.role === 'administrator') && !document.getElementById('reportsCard')) card();
+        if (!r.data) { dbg('no profile'); return; }
+        dbg('role=' + r.data.role); try { if ((r.data.role === 'admin' || r.data.role === 'administrator') && !document.getElementById('reportsCard')) card(); dbg('role=' + r.data.role + ', card ok'); } catch (e) { dbg('ERROR ' + e.message); }
       });
     });
   }

@@ -1,6 +1,6 @@
 (function () {
   var ROLES = ['lab_staff', 'support_staff', 'dorm_officer', 'department_head', 'college_head'];
-  var KEEP_IDS = ['bioCard', 'staffInfoCard', 'dormOfficeCard', 'headCard'];
+  var KEEP_IDS = ['photoCard', 'bioCard', 'staffInfoCard', 'dormOfficeCard', 'headCard'];
   var role = null, timer = null;
   function apply() {
     if (!role) return;

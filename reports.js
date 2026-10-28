@@ -10,7 +10,7 @@
   function hhmm(ts) { return new Date(new Date(ts).getTime() + 3 * 3600000).toISOString().slice(11, 16); }
   function csvCell(v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function card() {
-    var c = el('div', { class: 'card', id: 'reportsCard' });
+    var c = el('div', { class: 'card', id: 'gateReportsCard' });
     var d = el('details'); d.appendChild(el('summary', { text: 'Gate and meal reports' }));
     d.appendChild(el('label', { text: 'Day' }));
     var date = el('input', { type: 'date' }); date.value = today();
@@ -61,7 +61,7 @@
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     };
   }
-  function dbg(t) { var e = document.getElementById('reportsDbg'); if (!e) { e = el('p', { id: 'reportsDbg' }); e.style.cssText = 'font-size:12px;color:#64748b;padding:0 16px'; document.body.appendChild(e); } e.textContent = 'reports.js: ' + t; }
+  function dbg(t) { return; var e = document.getElementById('reportsDbg'); if (!e) { e = el('p', { id: 'reportsDbg' }); e.style.cssText = 'font-size:12px;color:#64748b;padding:0 16px'; document.body.appendChild(e); } e.textContent = 'reports.js: ' + t; }
   function run() {
     dbg('started');
     if (typeof db === 'undefined') { dbg('db missing'); return; }
@@ -69,7 +69,7 @@
       var u = s.data && s.data.session && s.data.session.user; if (!u) { dbg('no session'); return; }
       db.from('profiles').select('role').eq('id', u.id).single().then(function (r) {
         if (!r.data) { dbg('no profile'); return; }
-        dbg('role=' + r.data.role); try { if ((r.data.role === 'admin' || r.data.role === 'administrator') && !document.getElementById('reportsCard')) card(); setTimeout(function () { var rc = document.getElementById('reportsCard'); dbg('role=' + r.data.role + ', in page=' + !!rc + ', height=' + (rc ? rc.offsetHeight : 0) + ', display=' + (rc ? getComputedStyle(rc).display : 'none') + ', parent=' + (rc && rc.parentNode ? rc.parentNode.tagName : '')); }, 2500); } catch (e) { dbg('ERROR ' + e.message); }
+        dbg('role=' + r.data.role); try { if ((r.data.role === 'admin' || r.data.role === 'administrator') && !document.getElementById('gateReportsCard')) card(); setTimeout(function () { var rc = document.getElementById('gateReportsCard'); dbg('role=' + r.data.role + ', in page=' + !!rc + ', height=' + (rc ? rc.offsetHeight : 0) + ', display=' + (rc ? getComputedStyle(rc).display : 'none') + ', parent=' + (rc && rc.parentNode ? rc.parentNode.tagName : '')); }, 2500); } catch (e) { dbg('ERROR ' + e.message); }
       });
     });
   }

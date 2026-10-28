@@ -6,7 +6,7 @@
     if (!role) return;
     document.querySelectorAll('.card').forEach(function (c) {
       if (c.querySelector('.card')) return;
-      var keep = KEEP_IDS.indexOf(c.id) >= 0 || /Signed in as|My account|Announcements/.test(c.textContent.slice(0, 400));
+      var keep = KEEP_IDS.indexOf(c.id) >= 0 || /Signed in as|My account|Announcements/.test(c.textContent) || [].some.call(c.querySelectorAll('button'), function (b) { return /Sign out/i.test(b.textContent); });
       c.style.display = keep ? '' : 'none';
     });
   }

@@ -1,7 +1,9 @@
 (function () {
   var SECTIONS = [
-    ['Contact details', [['phone', 'Primary contact (phone)', 'tel', 30], ['secondary_contact', 'Secondary contact (phone)', 'tel', 30], ['contact_email', 'Contact email', 'email', 120], ['region', 'Region', 'text', 80], ['town_city', 'Town or city', 'text', 100], ['address', 'Address', 'text', 300]]],
+    ['Contact details', [['phone', 'Phone', 'tel', 30], ['contact_email', 'Contact email', 'email', 120], ['region', 'Region', 'text', 80], ['town_city', 'Town or city', 'text', 100], ['address', 'Address', 'text', 300]]],
     ['Personal details', [['date_of_birth', 'Date of birth', 'date'], ['gender', 'Gender', 'gender'], ['place_of_birth', 'Place of birth', 'text', 120], ['nationality', 'Nationality', 'text', 80], ['religion', 'Religion (optional)', 'text', 80], ['mother_name', "Mother's name", 'text', 120], ['father_name', "Father's name", 'text', 120]]],
+    ['Relationships: primary contact', [['primary_name', 'Full name', 'text', 120], ['primary_relationship', 'Relationship (friend, brother, sister, other...)', 'relation', 60], ['primary_phone', 'Phone', 'tel', 30]]],
+    ['Relationships: secondary contact', [['secondary_name', 'Full name', 'text', 120], ['secondary_relationship', 'Relationship (friend, brother, sister, other...)', 'relation', 60], ['secondary_phone', 'Phone', 'tel', 30]]],
     ['Emergency contact', [['emergency_name', 'Name', 'text', 120], ['emergency_relationship', 'Relationship', 'text', 60], ['emergency_phone', 'Phone', 'tel', 30]]],
     ['Education and about me', [['education_level', 'Education level', 'level'], ['previous_school', 'Previous school', 'text', 200], ['grade12_result', 'Grade 12 result', 'text', 60], ['about', 'A few lines about yourself', 'textarea', 1000]]]
   ];
@@ -20,6 +22,7 @@
     var form = el('div'), msg = el('p');
     d.appendChild(intro); if (window.YUPhoto) window.YUPhoto.mine(d, uid); d.appendChild(form); d.appendChild(msg); c.appendChild(d); place(c);
     var inputs = {};
+    if (!document.getElementById('relList')) { var dl = el('datalist', { id: 'relList' }); ['Father', 'Mother', 'Brother', 'Sister', 'Friend', 'Husband', 'Wife', 'Uncle', 'Aunt', 'Relative', 'Neighbour', 'Teacher'].forEach(function (x) { dl.appendChild(el('option', { value: x })); }); document.body.appendChild(dl); }
     SECTIONS.forEach(function (s) {
       form.appendChild(el('h3', { text: s[0] }));
       s[1].forEach(function (f) {
@@ -29,7 +32,7 @@
           i = el('select');
           (f[2] === 'level' ? LEVELS : GENDERS).forEach(function (o) { i.appendChild(el('option', { value: o[0], text: o[1] })); });
         } else if (f[2] === 'textarea') { i = el('textarea', { rows: '4', maxlength: String(f[3]) }); }
-        else { i = el('input', { type: f[2] }); if (f[3]) i.setAttribute('maxlength', String(f[3])); }
+        else if (f[2] === 'relation') { i = el('input', { type: 'text', list: 'relList' }); i.setAttribute('maxlength', String(f[3])); } else { i = el('input', { type: f[2] }); if (f[3]) i.setAttribute('maxlength', String(f[3])); }
         inputs[f[0]] = i; form.appendChild(i);
       });
     });

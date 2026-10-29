@@ -112,16 +112,25 @@ function ttl(c) {
   function stats(h) {
     var box = el('div', { class: 'stats' });
     h.insertBefore(box, h.querySelector('.tiles'));
-    function tile(label, n) { var d = el('div', { class: 'st' }); d.appendChild(el('b', { text: String(n) })); d.appendChild(el('span', { text: label })); box.appendChild(d); }
-    function cnt(table, label, filter) {
-      var q = db.from(table).select('id', { count: 'exact', head: true });
-      if (filter) q = filter(q);
-      q.then(function (r) { if (!r.error && r.count !== null) tile(label, r.count); });
+    function slot(label, run) {
+      var d = el('div', { class: 'st' }); d.style.display = 'none';
+      var n = el('b', { text: '' }); d.appendChild(n); d.appendChild(el('span', { text: label })); box.appendChild(d);
+      run(function (c) { if (c !== null && c !== undefined) { n.textContent = String(c); d.style.display = ''; } });
     }
-    cnt('students', 'Students');
-    cnt('staff_members', 'Staff');
-    cnt('academic_units', 'Colleges and schools', function (q) { return q.neq('type', 'office'); });
-    cnt('academic_units', 'Offices', function (q) { return q.eq('type', 'office'); });
+    function cnt(table, filter) {
+      return function (done) {
+        var q = db.from(table).select('id', { count: 'exact', head: true });
+        if (filter) q = filter(q);
+        q.then(function (r) { done(r.error ? null : r.count); }, function () { done(null); });
+      };
+    }
+    slot('Students', cnt('students'));
+    slot('Staff', function (done) {
+      db.from('profiles').select('id', { count: 'exact', head: true }).not('role', 'in', '(student,admin,administrator)')
+        .then(function (r) { done(r.error ? null : r.count); }, function () { done(null); });
+    });
+    slot('Colleges and schools', cnt('academic_units', function (q) { return q.neq('type', 'office'); }));
+    slot('Offices', cnt('academic_units', function (q) { return q.eq('type', 'office'); }));
   }
   function teardown() {
     document.body.classList.remove('yu-in', 'yu-open');

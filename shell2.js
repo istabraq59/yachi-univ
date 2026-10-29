@@ -52,6 +52,7 @@
     '#yuAct{background:#fff;border:1px solid #dbe4f5;border-radius:14px;padding:4px 14px 10px;margin-top:14px}',
     '#yuAct .row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eef2fa;font-size:14px;color:#0f2a5e}',
     '#yuAct .row small{color:#64748b;white-space:nowrap}',
+    '#yuTop b{white-space:nowrap}@media(max-width:819px){#yuTop .me .nm{display:none}}',
     '@media(min-width:820px){body.yu-in #yuTop{display:flex;left:260px}body.yu-in #yuTop button{display:none}body.yu-in .yu-main{padding-top:70px}}'
   ].join('\n');
   function initials(n) { return (n || '?').trim().charAt(0).toUpperCase(); }
@@ -59,7 +60,7 @@
     if (!me || !meEl) return;
     meEl.textContent = '';
     meEl.appendChild(el('i', { text: initials(me.name) }));
-    meEl.appendChild(document.createTextNode(me.name));
+    meEl.appendChild(el('span', { class: 'nm', text: me.name }));
   }
   function loadMe(cb) {
     if (me) { cb(me); return; }

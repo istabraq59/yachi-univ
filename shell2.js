@@ -17,6 +17,7 @@
     '#yuSide nav button{background:none;border:0;color:#d6e2ff;text-align:left;padding:11px 12px;border-radius:10px;font-size:14px;width:100%;margin:0;cursor:pointer}',
     '#yuSide nav button.on{background:#2563eb;color:#fff;font-weight:600}',
     '#yuSide nav button:hover{background:rgba(255,255,255,.1)}',
+    '#yuSide nav .grp{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7f9be0;padding:14px 12px 4px}',
     '#yuSide nav button.out{margin-top:12px;border-top:1px solid rgba(255,255,255,.12);border-radius:0 0 10px 10px;color:#ffb4b4}',
     'body.yu-in .yu-main{max-width:900px;margin:0 auto;padding-top:60px}',
     '#yuHome{margin:12px 0}',
@@ -81,7 +82,19 @@ function ttl(c) {
     nav.innerHTML = '';
     function item(k, t, cls) { var b = el('button', { 'data-k': k, text: t }); if (cls) b.className = cls; b.onclick = function () { go(k); }; nav.appendChild(b); }
     item('home', 'Home');
-    cards.forEach(function (c) { item(c.key, c.label); });
+    var GROUPS = [
+      ['Main', /biograph|ID card|photo|staff information/i],
+      ['People', /student|account|sign-up|enroll|roster|password|teacher|staff/i],
+      ['Campus', /gate|scanner|office|dorm|college|institute|school|department|unit|head/i],
+      ['Communication', /announce|message|notice/i]
+    ];
+    var used = {};
+    GROUPS.concat([['More', /./]]).forEach(function (g) {
+      var list = cards.filter(function (c) { return !used[c.key] && g[1].test(c.label); });
+      if (!list.length) return;
+      nav.appendChild(el('div', { class: 'grp', text: g[0] }));
+      list.forEach(function (c) { used[c.key] = 1; item(c.key, c.label); });
+    });
     var so = el('button', { class: 'out', text: 'Sign out' }); so.onclick = function () { db.auth.signOut(); }; nav.appendChild(so);
     if (!home) { home = el('div', { id: 'yuHome' }); }
     if (home.parentNode !== container) container.insertBefore(home, signed.nextSibling);

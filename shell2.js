@@ -28,7 +28,19 @@
   ].join('\n');
   var cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
   function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
-  function ttl(c) { var h = c.querySelector('h1,h2,h3,h4'); return h ? h.textContent.trim() : ''; }
+  var NAMES = {scannerCard:'Gate and meal scanner',idCard:'My ID card',idLookupCard:'Print an ID card',photoCard:'My photo',bioCard:'My biography',gateReportsCard:'Gate and meal reports',officeUnitsCard:'Offices and directorates',dormOfficeCard:'Dormitory office',staffInfoCard:'My staff information',headCard:'Head of unit'};
+function ttl(c) {
+  if (c.id && NAMES[c.id]) return NAMES[c.id];
+  var h = c.querySelector('h1,h2,h3,h4,h5,legend,strong,b,.title');
+  if (h && h.textContent.trim()) return h.textContent.trim().slice(0, 40);
+  var w = document.createTreeWalker(c, NodeFilter.SHOW_TEXT, null), n;
+  while ((n = w.nextNode())) {
+    var p = n.parentNode && n.parentNode.nodeName;
+    if (p === 'SCRIPT' || p === 'STYLE' || p === 'OPTION' || p === 'BUTTON') continue;
+    var t = n.nodeValue.trim(); if (t.length > 2) return t.slice(0, 40);
+  }
+  return '';
+}
   function appHidden(c) { return c.hidden || c.style.display === 'none'; }
   function findSigned() { var s = null; document.querySelectorAll('.card').forEach(function (x) { if (!s && /Signed in as/.test(x.textContent) && !x.querySelector('.card')) s = x; }); return s; }
   function shellParts() {

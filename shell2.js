@@ -28,7 +28,7 @@
     '#yuHome .tiles button{background:#fff;border:1px solid #dbe4f5;border-left:5px solid #2563eb;border-radius:12px;padding:16px 12px;text-align:left;font-size:14px;color:#0f2a5e;font-weight:600;box-shadow:0 2px 8px rgba(30,58,138,.07);margin:0;width:auto;cursor:pointer}',
     '@media(min-width:820px){body.yu-in{padding-left:260px}body.yu-in #yuTop{display:none}body.yu-in #yuSide{transform:none;z-index:40}body.yu-in .yu-main{padding-top:20px}#yuHome .tiles{grid-template-columns:repeat(3,1fr)}}'
   ].join('\n');
-  var cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
+  var lastSig = '', cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
   function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
   var NAMES = {scannerCard:'Gate and meal scanner',idCard:'My ID card',idLookupCard:'Print an ID card',photoCard:'My photo',bioCard:'My biography',gateReportsCard:'Gate and meal reports',officeUnitsCard:'Offices and directorates',dormOfficeCard:'Dormitory office',staffInfoCard:'My staff information',headCard:'Head of unit'};
 function ttl(c) {
@@ -79,6 +79,9 @@ function ttl(c) {
       var key = c.id || ('c' + i); c.setAttribute('data-yu', key);
       cards.push({ key: key, card: c, label: ttl(c) || 'Section' });
     });
+    var sig = cards.map(function (c) { return c.key + ':' + c.label; }).join('|');
+    if (sig === lastSig && home && home.parentNode === container) { apply(); return; }
+    lastSig = sig;
     if (cur !== 'home' && !cards.some(function (c) { return c.key === cur; })) cur = 'home';
     nav.innerHTML = '';
     function item(k, t, cls) { var b = el('button', { 'data-k': k, text: t }); if (cls) b.className = cls; b.onclick = function () { go(k); }; nav.appendChild(b); }
@@ -136,7 +139,7 @@ function ttl(c) {
     document.body.classList.remove('yu-in', 'yu-open');
     document.querySelectorAll('.yu-off').forEach(function (x) { x.classList.remove('yu-off'); });
     if (home && home.parentNode) home.parentNode.removeChild(home);
-    signed = null; cur = 'home';
+    signed = null; cur = 'home'; lastSig = '';
   }
   function check() {
     if (typeof db === 'undefined') return;

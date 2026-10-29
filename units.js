@@ -46,7 +46,7 @@
     card.textContent = '';
     card.appendChild(el('h2', 'margin:0 0 12px', 'Colleges, institutes and schools'));
 
-    var u = await db.from('academic_units').select('id, name, type').order('type').order('name');
+    var u = await db.from('academic_units').select('id, name, type').neq('type', 'office').order('type').order('name');
     var d = await db.from('departments').select('*');
     var p = await db.from('programs').select('*');
     if (u.error || d.error) {

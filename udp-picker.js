@@ -230,7 +230,7 @@
 
     function loadUnits() {
       if (unitsCache) return Promise.resolve(unitsCache);
-      return db.from('academic_units').select('id, name, type').order('name').then(function (r) {
+      return db.from('academic_units').select('id, name, type').neq('type', 'office').order('name').then(function (r) {
         if (r.error) throw new Error(r.error.message);
         unitsCache = (r.data || []).map(function (x) { return { id: x.id, name: x.name, sub: cap(x.type) }; });
         return unitsCache;

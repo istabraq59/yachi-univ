@@ -28,6 +28,88 @@
     '#yuHome .tiles button{background:#fff;border:1px solid #dbe4f5;border-left:5px solid #2563eb;border-radius:12px;padding:16px 12px;text-align:left;font-size:14px;color:#0f2a5e;font-weight:600;box-shadow:0 2px 8px rgba(30,58,138,.07);margin:0;width:auto;cursor:pointer}',
     '@media(min-width:820px){body.yu-in{padding-left:260px}body.yu-in #yuTop{display:none}body.yu-in #yuSide{transform:none;z-index:40}body.yu-in .yu-main{padding-top:20px}#yuHome .tiles{grid-template-columns:repeat(3,1fr)}}'
   ].join('\n');
+  var me = null, meEl = null;
+  var CSS2 = [
+    '#yuTop .me{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px}',
+    '#yuTop .me i{width:30px;height:30px;border-radius:50%;background:#2563eb;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-weight:700}',
+    '#yuBanner{background:linear-gradient(120deg,#dbe9ff,#f4f8ff 60%,#cfe1ff);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid #dbe4f5}',
+    '#yuBanner h2{margin:0 0 6px;color:#0f2a5e;font-size:24px}',
+    '#yuBanner p{margin:0;color:#475569}',
+    '#yuBanner em{display:block;margin-top:12px;color:#1e3a8a;font-family:cursive;font-size:18px}',
+    '#yuHome h4{margin:16px 0 8px;color:#0f2a5e}',
+    '#yuHome .stats .st{border:1px solid transparent}',
+    '#yuHome .stats .st i{font-style:normal;font-size:22px;display:block;margin-bottom:6px}',
+    '#yuHome .stats .st.s0{background:#e8f0ff;border-color:#c9dbff;color:#1e3a8a}',
+    '#yuHome .stats .st.s1{background:#e6f7ee;border-color:#bfe8d0;color:#14532d}',
+    '#yuHome .stats .st.s2{background:#f0e9ff;border-color:#dccbff;color:#4c1d95}',
+    '#yuHome .stats .st.s3{background:#fff1e3;border-color:#ffd8b0;color:#7c2d12}',
+    '#yuHome .tiles .yuq{display:flex;align-items:center;gap:10px;border:1px solid #dbe4f5;border-radius:14px;padding:14px;box-shadow:none}',
+    '#yuHome .tiles .yuq i{font-style:normal;font-size:22px;width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:#fff;flex:none}',
+    '#yuHome .tiles .yuq.c0{background:#e8f0ff;border-color:#c9dbff;color:#1e3a8a}',
+    '#yuHome .tiles .yuq.c1{background:#e6f7ee;border-color:#bfe8d0;color:#14532d}',
+    '#yuHome .tiles .yuq.c2{background:#f0e9ff;border-color:#dccbff;color:#4c1d95}',
+    '#yuHome .tiles .yuq.c3{background:#fff1e3;border-color:#ffd8b0;color:#7c2d12}',
+    '#yuAct{background:#fff;border:1px solid #dbe4f5;border-radius:14px;padding:4px 14px 10px;margin-top:14px}',
+    '#yuAct .row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eef2fa;font-size:14px;color:#0f2a5e}',
+    '#yuAct .row small{color:#64748b;white-space:nowrap}',
+    '@media(min-width:820px){body.yu-in #yuTop{display:flex;left:260px}body.yu-in #yuTop button{display:none}body.yu-in .yu-main{padding-top:70px}}'
+  ].join('\n');
+  function initials(n) { return (n || '?').trim().charAt(0).toUpperCase(); }
+  function paintMe() {
+    if (!me || !meEl) return;
+    meEl.textContent = '';
+    meEl.appendChild(el('i', { text: initials(me.name) }));
+    meEl.appendChild(document.createTextNode(me.name));
+  }
+  function loadMe(cb) {
+    if (me) { cb(me); return; }
+    db.auth.getUser().then(function (u) {
+      var user = u.data && u.data.user; if (!user) return;
+      var base = { name: (user.email || '').split('@')[0], role: '' };
+      db.from('profiles').select('full_name, role').eq('id', user.id).maybeSingle().then(function (r) {
+        if (r.data) { if (r.data.full_name) base.name = r.data.full_name; base.role = r.data.role || ''; }
+        me = base; paintMe(); cb(me);
+      }, function () { me = base; paintMe(); cb(me); });
+    });
+  }
+  function ago(t) {
+    var m = Math.floor((Date.now() - t) / 60000);
+    if (m < 1) return 'just now'; if (m < 60) return m + ' min ago';
+    var h = Math.floor(m / 60); if (h < 24) return h + ' h ago';
+    return Math.floor(h / 24) + ' d ago';
+  }
+  var ICONS = [[/password/i, '\u{1F511}'], [/sign-up|code/i, '\u{1F39F}'], [/id card/i, '\u{1FAAA}'], [/biograph/i, '\u{1F4DD}'], [/student/i, '\u{1F393}'], [/gate|scanner/i, '\u{1F6AA}'], [/report/i, '\u{1F4CA}'], [/office|director/i, '\u{1F3E2}'], [/college|institute|school/i, '\u{1F3EB}'], [/dorm/i, '\u{1F6CF}'], [/announce/i, '\u{1F4E2}'], [/account|assign|staff/i, '\u{1F465}'], [/enroll|roster|class/i, '\u{1F4CB}']];
+  function icon(l) { for (var i = 0; i < ICONS.length; i++) if (ICONS[i][0].test(l)) return ICONS[i][1]; return '\u{1F4C1}'; }
+  function banner() {
+    var b = el('div', { id: 'yuBanner' }); var h = el('h2', { text: 'Welcome' });
+    b.appendChild(h);
+    b.appendChild(el('p', { text: 'Manage students, courses, departments and academic activities easily and efficiently.' }));
+    b.appendChild(el('em', { text: 'Better Education, Brighter Future' }));
+    loadMe(function (m) { h.textContent = 'Welcome, ' + m.name; });
+    return b;
+  }
+  function activity(h) {
+    loadMe(function (m) {
+      if (!/^(admin|administrator)$/.test(m.role)) return;
+      var box = el('div', { id: 'yuAct' }); box.appendChild(el('h4', { text: 'Recent activities' }));
+      var list = el('div'); box.appendChild(list); h.appendChild(box);
+      var rows = [], pending = 2;
+      function fin() {
+        if (--pending) return;
+        rows.sort(function (a, b) { return b.t - a.t; }); list.textContent = '';
+        if (!rows.length) { list.appendChild(el('p', { text: 'No activity yet.' })); return; }
+        rows.slice(0, 6).forEach(function (r) { var d = el('div', { class: 'row' }); d.appendChild(el('span', { text: r.text })); d.appendChild(el('small', { text: ago(r.t) })); list.appendChild(d); });
+      }
+      db.from('profiles').select('full_name, role, created_at').order('created_at', { ascending: false }).limit(4).then(function (r) {
+        if (!r.error && r.data) r.data.forEach(function (p) { if (p.created_at) rows.push({ t: new Date(p.created_at).getTime(), text: 'New account: ' + (p.full_name || '(no name)') + ' (' + p.role + ')' }); });
+        fin();
+      }, fin);
+      db.from('gate_logs').select('created_at, profiles!gate_logs_profile_id_fkey(full_name)').order('created_at', { ascending: false }).limit(4).then(function (r) {
+        if (!r.error && r.data) r.data.forEach(function (x) { if (x.created_at) rows.push({ t: new Date(x.created_at).getTime(), text: ((x.profiles && x.profiles.full_name) || 'Someone') + ' scanned at the gate' }); });
+        fin();
+      }, fin);
+    });
+  }
   var lastSig = '', cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
   function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
   var NAMES = {scannerCard:'Gate and meal scanner',idCard:'My ID card',idLookupCard:'Print an ID card',photoCard:'My photo',bioCard:'My biography',gateReportsCard:'Gate and meal reports',officeUnitsCard:'Offices and directorates',dormOfficeCard:'Dormitory office',staffInfoCard:'My staff information',headCard:'Head of unit'};
@@ -47,10 +129,11 @@ function ttl(c) {
   function findSigned() { var s = null; document.querySelectorAll('.card').forEach(function (x) { if (!s && /Signed in as/.test(x.textContent) && !x.querySelector('.card')) s = x; }); return s; }
   function shellParts() {
     if (side) return;
-    var st = el('style', { id: 'yuShell2Style' }); st.textContent = CSS; document.head.appendChild(st);
+    var st = el('style', { id: 'yuShell2Style' }); st.textContent = CSS + '\n' + CSS2; document.head.appendChild(st);
     top = el('div', { id: 'yuTop' });
     var mb = el('button', { text: '\u2630', 'aria-label': 'Menu' }); mb.onclick = function () { document.body.classList.toggle('yu-open'); };
     top.appendChild(mb); top.appendChild(el('b', { text: 'Yachi University' }));
+    meEl = el('span', { class: 'me' }); top.appendChild(meEl); paintMe();
     scrim = el('div', { id: 'yuScrim' }); scrim.onclick = function () { document.body.classList.remove('yu-open'); };
     side = el('div', { id: 'yuSide' });
     var br = el('div', { class: 'brand' }); var im = el('img', { src: 'logo.jpg', alt: '' }); im.onerror = function () { im.style.display = 'none'; };
@@ -103,20 +186,26 @@ function ttl(c) {
     if (!home) { home = el('div', { id: 'yuHome' }); }
     if (home.parentNode !== container) container.insertBefore(home, signed.nextSibling);
     home.innerHTML = '';
-    home.appendChild(el('h3', { text: 'Welcome to Yachi University' }));
-    home.appendChild(el('p', { text: 'Choose what you want to do.' }));
+    home.appendChild(banner());
+    home.appendChild(el('h4', { id: 'yuQa', text: 'Quick actions' }));
     var t = el('div', { class: 'tiles' });
-    cards.forEach(function (c) { var b = el('button', { text: c.label }); b.onclick = function () { go(c.key); }; t.appendChild(b); });
+    cards.forEach(function (c, i) {
+      var b = el('button', { class: 'yuq c' + (i % 4) });
+      b.appendChild(el('i', { text: icon(c.label) })); b.appendChild(el('span', { text: c.label }));
+      b.onclick = function () { go(c.key); }; t.appendChild(b);
+    });
     home.appendChild(t);
     stats(home);
+    activity(home);
     apply();
   }
   var statsBox = null, statsAt = 0;
   function stats(h) {
     var box = el('div', { class: 'stats' });
-    h.insertBefore(box, h.querySelector('.tiles'));
-    function slot(label, run) {
-      var d = el('div', { class: 'st' }); d.style.display = 'none';
+    h.insertBefore(box, h.querySelector('#yuQa'));
+    function slot(label, ic, cls, run) {
+      var d = el('div', { class: 'st ' + cls }); d.style.display = 'none';
+      d.appendChild(el('i', { text: ic }));
       var n = el('b', { text: '' }); d.appendChild(n); d.appendChild(el('span', { text: label })); box.appendChild(d);
       run(function (c) { if (c !== null && c !== undefined) { n.textContent = String(c); d.style.display = ''; } });
     }
@@ -127,13 +216,13 @@ function ttl(c) {
         q.then(function (r) { done(r.error ? null : r.count); }, function () { done(null); });
       };
     }
-    slot('Students', cnt('students'));
-    slot('Staff', function (done) {
+    slot('Students', '\u{1F393}', 's0', cnt('students'));
+    slot('Staff', '\u{1F465}', 's1', function (done) {
       db.from('profiles').select('id', { count: 'exact', head: true }).not('role', 'in', '(student,admin,administrator)')
         .then(function (r) { done(r.error ? null : r.count); }, function () { done(null); });
     });
-    slot('Colleges and schools', cnt('academic_units', function (q) { return q.neq('type', 'office'); }));
-    slot('Offices', cnt('academic_units', function (q) { return q.eq('type', 'office'); }));
+    slot('Colleges and schools', '\u{1F3EB}', 's2', cnt('academic_units', function (q) { return q.neq('type', 'office'); }));
+    slot('Offices', '\u{1F3E2}', 's3', cnt('academic_units', function (q) { return q.eq('type', 'office'); }));
   }
   function teardown() {
     document.body.classList.remove('yu-in', 'yu-open');

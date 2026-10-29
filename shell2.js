@@ -52,9 +52,37 @@
     '#yuAct{background:#fff;border:1px solid #dbe4f5;border-radius:14px;padding:4px 14px 10px;margin-top:14px}',
     '#yuAct .row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eef2fa;font-size:14px;color:#0f2a5e}',
     '#yuAct .row small{color:#64748b;white-space:nowrap}',
+    '#yuTop .me{cursor:pointer}',
+    '#yuProf{position:fixed;top:58px;right:10px;width:270px;max-width:calc(100vw - 20px);background:#fff;border:1px solid #dbe4f5;border-radius:14px;box-shadow:0 12px 30px rgba(15,42,94,.25);z-index:80;padding:14px;color:#0f2a5e}',
+    '#yuProf .pf-top{display:flex;gap:10px;align-items:center;margin-bottom:6px}',
+    '#yuProf .pf-av{width:44px;height:44px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:none}',
+    '#yuProf small{color:#64748b;display:block;word-break:break-all}',
+    '#yuProf button{display:block;width:100%;text-align:left;background:#f3f6fc;border:0;border-radius:10px;padding:10px 12px;margin:6px 0 0;color:#0f2a5e;font-size:14px;cursor:pointer}',
+    '#yuProf button.out{color:#b91c1c}',
     '#yuTop b{white-space:nowrap}@media(max-width:819px){#yuTop .me .nm{display:none}}',
     '@media(min-width:820px){body.yu-in #yuTop{display:flex;left:260px}body.yu-in #yuTop button{display:none}body.yu-in .yu-main{padding-top:70px}}'
   ].join('\n');
+  function closeProf() { var p = document.getElementById('yuProf'); if (p) p.remove(); }
+  function toggleProf(e) {
+    if (e) e.stopPropagation();
+    if (document.getElementById('yuProf')) { closeProf(); return; }
+    if (!me) return;
+    var p = el('div', { id: 'yuProf' }); p.onclick = function (ev) { ev.stopPropagation(); };
+    var tp = el('div', { class: 'pf-top' });
+    tp.appendChild(el('div', { class: 'pf-av', text: initials(me.name) }));
+    var tx = el('div'); tx.appendChild(el('b', { text: me.name }));
+    tx.appendChild(el('small', { text: (me.role || '').replace(/_/g, ' ') }));
+    tx.appendChild(el('small', { text: me.email || '' }));
+    tp.appendChild(tx); p.appendChild(tp);
+    [[/biograph/i, 'My biography'], [/my id card/i, 'My ID card'], [/change password/i, 'Change password']].forEach(function (x) {
+      var f = null; cards.forEach(function (c) { if (!f && x[0].test(c.label) && !/look up/i.test(c.label)) f = c; });
+      if (!f) return;
+      var b = el('button', { text: x[1] }); b.onclick = function () { closeProf(); go(f.key); }; p.appendChild(b);
+    });
+    var so = el('button', { class: 'out', text: 'Sign out' }); so.onclick = function () { closeProf(); db.auth.signOut(); }; p.appendChild(so);
+    document.body.appendChild(p);
+  }
+  document.addEventListener('click', closeProf);
   function initials(n) { return (n || '?').trim().charAt(0).toUpperCase(); }
   function paintMe() {
     if (!me || !meEl) return;
@@ -66,7 +94,7 @@
     if (me) { cb(me); return; }
     db.auth.getUser().then(function (u) {
       var user = u.data && u.data.user; if (!user) return;
-      var base = { name: (user.email || '').split('@')[0], role: '' };
+      var base = { name: (user.email || '').split('@')[0], role: '', email: user.email || '' };
       db.from('profiles').select('full_name, role').eq('id', user.id).maybeSingle().then(function (r) {
         if (r.data) { if (r.data.full_name) base.name = r.data.full_name; base.role = r.data.role || ''; }
         me = base; paintMe(); cb(me);
@@ -134,7 +162,7 @@ function ttl(c) {
     top = el('div', { id: 'yuTop' });
     var mb = el('button', { text: '\u2630', 'aria-label': 'Menu' }); mb.onclick = function () { document.body.classList.toggle('yu-open'); };
     top.appendChild(mb); top.appendChild(el('b', { text: 'Yachi University' }));
-    meEl = el('span', { class: 'me' }); top.appendChild(meEl); paintMe();
+    meEl = el('span', { class: 'me' }); meEl.onclick = toggleProf; top.appendChild(meEl); paintMe();
     scrim = el('div', { id: 'yuScrim' }); scrim.onclick = function () { document.body.classList.remove('yu-open'); };
     side = el('div', { id: 'yuSide' });
     var br = el('div', { class: 'brand' }); var im = el('img', { src: 'logo.jpg', alt: '' }); im.onerror = function () { im.style.display = 'none'; };
@@ -226,7 +254,7 @@ function ttl(c) {
     slot('Offices', '\u{1F3E2}', 's3', cnt('academic_units', function (q) { return q.eq('type', 'office'); }));
   }
   function teardown() {
-    document.body.classList.remove('yu-in', 'yu-open');
+    document.body.classList.remove('yu-in', 'yu-open'); closeProf();
     document.querySelectorAll('.yu-off').forEach(function (x) { x.classList.remove('yu-off'); });
     if (home && home.parentNode) home.parentNode.removeChild(home);
     signed = null; cur = 'home'; lastSig = '';

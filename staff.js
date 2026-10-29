@@ -67,7 +67,7 @@
     try {
       pend = await pendingList();
       var d = await db.from('departments').select('id, name').order('name');
-      var u = await db.from('academic_units').select('id, name').order('name');
+      var u = await db.from('academic_units').select('id, name, type').order('name');
       if (d.error) throw new Error(d.error.message);
       if (u.error) throw new Error(u.error.message);
       depts = d.data || []; units = u.data || [];
@@ -91,16 +91,21 @@
     var dept = el('select', INPUT);
     depts.forEach(function (x) { var o = el('option', null, x.name); o.value = x.id; dept.appendChild(o); });
     var unit = el('select', INPUT);
-    units.forEach(function (x) { var o = el('option', null, x.name); o.value = x.id; unit.appendChild(o); });
+    units.filter(function (z) { return z.type !== 'office'; }).forEach(function (x) { var o = el('option', null, x.name); o.value = x.id; unit.appendChild(o); });
     var deptLabel = el('div', 'font-weight:600;margin-bottom:4px', 'Department');
     var unitLabel = el('div', 'font-weight:600;margin-bottom:4px', 'College, institute or school');
+    var officeLabel = el('div', 'font-weight:600;margin-bottom:4px', 'Office or directorate (optional)');
+    var office = el('select', INPUT);
+    var o0 = el('option', null, '- none -'); o0.value = ''; office.appendChild(o0);
+    units.filter(function (z) { return z.type === 'office'; }).forEach(function (x) { var o = el('option', null, x.name); o.value = x.id; office.appendChild(o); });
     var title = el('input', INPUT); title.placeholder = 'Title (optional)';
 
     function sync() {
       var r = role.value;
-      var showD = r === 'department_head', showU = r === 'college_head';
+      var showD = r === 'department_head', showU = r === 'college_head', showO = r === 'support_staff' || r === 'dorm_officer';
       dept.style.display = deptLabel.style.display = showD ? '' : 'none';
       unit.style.display = unitLabel.style.display = showU ? '' : 'none';
+      office.style.display = officeLabel.style.display = showO ? '' : 'none';
     }
     role.onchange = sync;
 
@@ -113,7 +118,7 @@
         p_profile: who.value,
         p_role: role.value,
         p_department: role.value === 'department_head' ? dept.value : null,
-        p_unit: role.value === 'college_head' ? unit.value : null,
+        p_unit: role.value === 'college_head' ? unit.value : ((role.value === 'support_staff' || role.value === 'dorm_officer') && office.value ? office.value : null),
         p_title: title.value.trim() || null
       });
       go.disabled = false;
@@ -121,7 +126,7 @@
       load('Assigned. ID number: ' + r.data);
     };
 
-    [who, role, deptLabel, dept, unitLabel, unit, title, go, msg].forEach(function (x) { card.appendChild(x); });
+    [who, role, deptLabel, dept, unitLabel, unit, officeLabel, office, title, go, msg].forEach(function (x) { card.appendChild(x); });
     sync();
   }
 

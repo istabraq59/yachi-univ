@@ -79,7 +79,7 @@
     var info = el('div', { class: 'yu-info' });
     info.appendChild(el('div', { class: 'nm', text: d.full_name || '' }));
     function line(k, v) { if (!v) return; var p = el('div'); p.appendChild(el('b', { text: k + ': ' })); p.appendChild(document.createTextNode(v)); info.appendChild(p); }
-    line('ID', d.id_number); line('College/School', unit || dept);
+    line('ID', d.id_number); line(d.unit && d.unit.type === 'office' ? 'Office' : 'College/School', unit || dept);
     if (unit && dept && unit !== dept) line('Department', dept);
     line('Program', prog); if (!isStudent) line('Title', d.title);
     body.appendChild(photo); body.appendChild(info); front.appendChild(body);

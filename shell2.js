@@ -23,6 +23,7 @@
     '#yuHome{margin:12px 0}',
     '#yuHome h3{margin:0 0 4px;color:#0f2a5e}',
     '#yuHome p{margin:0 0 12px;color:#64748b}',
+    '#yuHome .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}#yuHome .stats:empty{display:none}#yuHome .st{background:linear-gradient(160deg,#1e3a8a,#2563eb);color:#fff;border-radius:14px;padding:14px}#yuHome .st b{display:block;font-size:28px}#yuHome .st span{font-size:12px;opacity:.9}',
     '#yuHome .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}',
     '#yuHome .tiles button{background:#fff;border:1px solid #dbe4f5;border-left:5px solid #2563eb;border-radius:12px;padding:16px 12px;text-align:left;font-size:14px;color:#0f2a5e;font-weight:600;box-shadow:0 2px 8px rgba(30,58,138,.07);margin:0;width:auto;cursor:pointer}',
     '@media(min-width:820px){body.yu-in{padding-left:260px}body.yu-in #yuTop{display:none}body.yu-in #yuSide{transform:none;z-index:40}body.yu-in .yu-main{padding-top:20px}#yuHome .tiles{grid-template-columns:repeat(3,1fr)}}'
@@ -83,8 +84,8 @@ function ttl(c) {
     function item(k, t, cls) { var b = el('button', { 'data-k': k, text: t }); if (cls) b.className = cls; b.onclick = function () { go(k); }; nav.appendChild(b); }
     item('home', 'Home');
     var GROUPS = [
-      ['Main', /biograph|ID card|photo|staff information/i],
-      ['People', /student|account|sign-up|enroll|roster|password|teacher|staff/i],
+      ['Main', /^my |change password/i],
+      ['People', /student|account|sign-up|enroll|roster|password|teacher|assign staff|look up|print an id/i],
       ['Campus', /gate|scanner|office|dorm|college|institute|school|department|unit|head/i],
       ['Communication', /announce|message|notice/i]
     ];
@@ -104,7 +105,23 @@ function ttl(c) {
     var t = el('div', { class: 'tiles' });
     cards.forEach(function (c) { var b = el('button', { text: c.label }); b.onclick = function () { go(c.key); }; t.appendChild(b); });
     home.appendChild(t);
+    stats(home);
     apply();
+  }
+  var statsBox = null, statsAt = 0;
+  function stats(h) {
+    var box = el('div', { class: 'stats' });
+    h.insertBefore(box, h.querySelector('.tiles'));
+    function tile(label, n) { var d = el('div', { class: 'st' }); d.appendChild(el('b', { text: String(n) })); d.appendChild(el('span', { text: label })); box.appendChild(d); }
+    function cnt(table, label, filter) {
+      var q = db.from(table).select('id', { count: 'exact', head: true });
+      if (filter) q = filter(q);
+      q.then(function (r) { if (!r.error && r.count !== null) tile(label, r.count); });
+    }
+    cnt('students', 'Students');
+    cnt('staff_members', 'Staff');
+    cnt('academic_units', 'Colleges and schools', function (q) { return q.neq('type', 'office'); });
+    cnt('academic_units', 'Offices', function (q) { return q.eq('type', 'office'); });
   }
   function teardown() {
     document.body.classList.remove('yu-in', 'yu-open');

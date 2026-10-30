@@ -230,6 +230,7 @@ function ttl(c) {
     });
     home.appendChild(t);
     stats(home);
+    if (window.YUUpcoming) window.YUUpcoming(home);
     activity(home);
     apply();
   }

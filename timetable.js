@@ -12,6 +12,7 @@
     '#yuUp .now{color:#14532d;font-weight:700}'
   ].join('\n');
   function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
+  function loc(x) { return [x.building, x.room].filter(Boolean).join(', '); }
   function hm(t) { return String(t || '').slice(0, 5); }
   function mins(t) { var p = hm(t).split(':'); return Number(p[0]) * 60 + Number(p[1]); }
   function signedCard() { var s = null; document.querySelectorAll('.card').forEach(function (x) { if (!s && /Signed in as/.test(x.textContent) && !x.querySelector('.card')) s = x; }); return s; }
@@ -26,12 +27,12 @@
   function buildAdmin(card) {
     card.appendChild(el('h3', { text: 'Timetable' }));
     var course = el('select'), sem = el('select'), day = el('select');
-    var st = el('input', { type: 'time' }), en = el('input', { type: 'time' }), room = el('input', { type: 'text', placeholder: 'Room (e.g. Lab 3)' });
+    var st = el('input', { type: 'time' }), en = el('input', { type: 'time' }), room = el('input', { type: 'text', placeholder: 'Room (e.g. Lab 3)' }), bld = el('input', { type: 'text', placeholder: 'Building (e.g. Block A)' });
     var msg = el('p'), list = el('div');
     var add = el('button', { type: 'button', text: 'Add class' });
     function lab(t) { card.appendChild(el('label', { text: t })); }
     lab('Course'); card.appendChild(course); lab('Semester'); card.appendChild(sem); lab('Day'); card.appendChild(day);
-    lab('Start time'); card.appendChild(st); lab('End time'); card.appendChild(en); lab('Room'); card.appendChild(room);
+    lab('Start time'); card.appendChild(st); lab('End time'); card.appendChild(en); lab('Building'); card.appendChild(bld); lab('Room'); card.appendChild(room);
     card.appendChild(add); card.appendChild(msg); card.appendChild(list);
     DAYS.forEach(function (d, i) { day.appendChild(el('option', { value: String(i + 1), text: d })); });
     db.from('courses').select('id, course_code, title').order('course_code').then(function (r) {
@@ -42,7 +43,7 @@
       sem.textContent = ''; (r.data || []).forEach(function (s) { sem.appendChild(el('option', { value: s.id, text: s.name + ' (' + s.starts_on + ')' })); });
     });
     function refresh() {
-      db.from('class_sessions').select('id, day_of_week, start_time, end_time, room, courses(course_code, title), semesters(name)')
+      db.from('class_sessions').select('id, day_of_week, start_time, end_time, room, building, courses(course_code, title), semesters(name)')
         .order('day_of_week').order('start_time').limit(500).then(function (r) {
           list.textContent = '';
           if (r.error) { msg.textContent = 'Could not load: ' + r.error.message; return; }
@@ -51,7 +52,7 @@
           r.data.forEach(function (x) {
             if (x.day_of_week !== last) { last = x.day_of_week; list.appendChild(el('div', { class: 'dh', text: DAYS[x.day_of_week - 1] })); }
             var ro = el('div', { class: 'ro' });
-            var t = el('span', { text: hm(x.start_time) + '-' + hm(x.end_time) + '  ' + ((x.courses && x.courses.course_code) || '') + ' ' + ((x.courses && x.courses.title) || '') + (x.room ? '  |  ' + x.room : '') + (x.semesters ? '  (' + x.semesters.name + ')' : '') });
+            var t = el('span', { text: hm(x.start_time) + '-' + hm(x.end_time) + '  ' + ((x.courses && x.courses.course_code) || '') + ' ' + ((x.courses && x.courses.title) || '') + (loc(x) ? '  |  ' + loc(x) : '') + (x.semesters ? '  (' + x.semesters.name + ')' : '') });
             var del = el('button', { type: 'button', text: 'Delete' });
             del.onclick = function () {
               if (!confirm('Delete this class from the timetable?')) return;
@@ -69,16 +70,15 @@
       msg.textContent = '';
       if (!course.value || !sem.value || !st.value || !en.value) { msg.textContent = 'Choose the course, semester and both times.'; return; }
       if (mins(en.value) <= mins(st.value)) { msg.textContent = 'End time must be after the start time.'; return; }
-      var rm = room.value.trim();
-      var q = db.from('class_sessions').select('id, start_time, end_time, courses(course_code)').eq('semester_id', sem.value).eq('day_of_week', Number(day.value));
-      if (rm) q = q.eq('room', rm);
+      var rm = room.value.trim(), bd = bld.value.trim();
+      var q = db.from('class_sessions').select('id, start_time, end_time, room, building, courses(course_code)').eq('semester_id', sem.value).eq('day_of_week', Number(day.value));
       q.then(function (r) {
-        var clash = (r.data || []).filter(function (a) { return rm && mins(a.start_time) < mins(en.value) && mins(a.end_time) > mins(st.value); })[0];
-        if (clash) { msg.textContent = 'Room ' + rm + ' is already used then by ' + ((clash.courses && clash.courses.course_code) || 'another class') + ' (' + hm(clash.start_time) + '-' + hm(clash.end_time) + ').'; return; }
-        db.from('class_sessions').insert({ course_id: course.value, semester_id: sem.value, day_of_week: Number(day.value), start_time: st.value, end_time: en.value, room: rm || null }).select().then(function (i) {
+        var clash = (r.data || []).filter(function (a) { return rm && (a.room || '').toLowerCase() === rm.toLowerCase() && (a.building || '').toLowerCase() === bd.toLowerCase() && mins(a.start_time) < mins(en.value) && mins(a.end_time) > mins(st.value); })[0];
+        if (clash) { msg.textContent = 'Room ' + (bd ? bd + ', ' : '') + rm + ' is already used then by ' + ((clash.courses && clash.courses.course_code) || 'another class') + ' (' + hm(clash.start_time) + '-' + hm(clash.end_time) + ').'; return; }
+        db.from('class_sessions').insert({ course_id: course.value, semester_id: sem.value, day_of_week: Number(day.value), start_time: st.value, end_time: en.value, room: rm || null, building: bd || null }).select().then(function (i) {
           if (i.error) { msg.textContent = i.error.message; return; }
           if (!i.data || !i.data.length) { msg.textContent = 'Not saved: no permission.'; return; }
-          msg.textContent = 'Added.'; room.value = ''; refresh();
+          msg.textContent = 'Added.'; room.value = ''; bld.value = ''; refresh();
         });
       });
     };
@@ -108,7 +108,7 @@
     getRole(function (user, role) {
       if (!user) return;
       function show(courseIds) {
-        var q = db.from('class_sessions').select('day_of_week, start_time, end_time, room, course_id, courses(course_code, title), semesters(starts_on, ends_on)').limit(500);
+        var q = db.from('class_sessions').select('day_of_week, start_time, end_time, room, building, course_id, courses(course_code, title), semesters(starts_on, ends_on)').limit(500);
         if (courseIds) { if (!courseIds.length) { done([]); return; } q = q.in('course_id', courseIds); }
         q.then(function (r) { done(r.data || []); }, function () { done([]); });
       }
@@ -134,7 +134,7 @@
           var l = el('span', { text: hm(r.start_time) + '-' + hm(r.end_time) + '  ' + (c.course_code || '') + ' ' + (c.title || '') });
           var rt = el('span', { class: 'r' });
           rt.appendChild(el('span', { class: it.now ? 'now' : '', text: it.now ? 'Now' : it.d === 0 ? 'Today' : it.d === 1 ? 'Tomorrow' : DAYS[r.day_of_week - 1] }));
-          if (r.room) rt.appendChild(el('small', { text: r.room }));
+          if (loc(r)) rt.appendChild(el('small', { text: loc(r) }));
           row.appendChild(l); row.appendChild(rt); list.appendChild(row);
         });
       }

@@ -38,6 +38,7 @@
     '#yuBanner p{margin:0;color:#475569}',
     '#yuBanner em{display:block;margin-top:12px;color:#1e3a8a;font-family:cursive;font-size:18px}',
     '#yuHome h4{margin:16px 0 8px;color:#0f2a5e}',
+    '#yuHome h5{margin:16px 0 6px;color:#64748b;font-size:12px;letter-spacing:.08em;text-transform:uppercase}',
     '#yuHome .stats .st{border:1px solid transparent}',
     '#yuHome .stats .st i{font-style:normal;font-size:22px;display:block;margin-bottom:6px}',
     '#yuHome .stats .st.s0{background:#e8f0ff;border-color:#c9dbff;color:#1e3a8a}',
@@ -108,7 +109,7 @@
     var h = Math.floor(m / 60); if (h < 24) return h + ' h ago';
     return Math.floor(h / 24) + ' d ago';
   }
-  var ICONS = [[/password/i, '\u{1F511}'], [/sign-up|code/i, '\u{1F39F}'], [/id card/i, '\u{1FAAA}'], [/biograph/i, '\u{1F4DD}'], [/student/i, '\u{1F393}'], [/gate|scanner/i, '\u{1F6AA}'], [/report/i, '\u{1F4CA}'], [/office|director/i, '\u{1F3E2}'], [/college|institute|school/i, '\u{1F3EB}'], [/dorm/i, '\u{1F6CF}'], [/announce/i, '\u{1F4E2}'], [/account|assign|staff/i, '\u{1F465}'], [/enroll|roster|class/i, '\u{1F4CB}'], [/course|grade|transcript|semester/i, '\u{1F4DA}']];
+  var ICONS = [[/password/i, '\u{1F511}'], [/sign-up|code/i, '\u{1F39F}'], [/id card/i, '\u{1FAAA}'], [/biograph/i, '\u{1F4DD}'], [/student/i, '\u{1F393}'], [/gate|scanner/i, '\u{1F6AA}'], [/report/i, '\u{1F4CA}'], [/office|director/i, '\u{1F3E2}'], [/college|institute|school/i, '\u{1F3EB}'], [/dorm/i, '\u{1F6CF}'], [/announce/i, '\u{1F4E2}'], [/account|assign|staff/i, '\u{1F465}'], [/enroll|roster|class/i, '\u{1F4CB}'], [/timetable/i, '\u{1F552}'], [/attendance/i, '\u2705'], [/teacher/i, '\u{1F9D1}\u200D\u{1F3EB}'], [/course|grade|transcript|semester/i, '\u{1F4DA}']];
   function icon(l) { for (var i = 0; i < ICONS.length; i++) if (ICONS[i][0].test(l)) return ICONS[i][1]; return '\u{1F4C1}'; }
   function banner() {
     var b = el('div', { id: 'yuBanner' }); var h = el('h2', { text: 'Welcome' });
@@ -209,10 +210,11 @@ function ttl(c) {
       ['Academic', /course|grade|transcript|semester|academic|attendance|exam|timetable|enrollment/i],
       ['Communication', /announce|message|notice/i]
     ];
-    var used = {};
+    var used = {}, groupedList = [];
     GROUPS.concat([['More', /./]]).forEach(function (g) {
       var list = cards.filter(function (c) { return !used[c.key] && g[1].test(c.label); });
       if (!list.length) return;
+      groupedList.push([g[0], list]);
       nav.appendChild(el('div', { class: 'grp', text: g[0] }));
       list.forEach(function (c) { used[c.key] = 1; item(c.key, c.label); });
     });
@@ -222,13 +224,17 @@ function ttl(c) {
     home.innerHTML = '';
     home.appendChild(banner());
     home.appendChild(el('h4', { id: 'yuQa', text: 'Quick actions' }));
-    var t = el('div', { class: 'tiles' });
-    cards.forEach(function (c, i) {
-      var b = el('button', { class: 'yuq c' + (i % 4) });
-      b.appendChild(el('i', { text: icon(c.label) })); b.appendChild(el('span', { text: c.label }));
-      b.onclick = function () { go(c.key); }; t.appendChild(b);
+    var ci = 0;
+    groupedList.forEach(function (g) {
+      home.appendChild(el('h5', { text: g[0] }));
+      var t = el('div', { class: 'tiles' });
+      g[1].forEach(function (c) {
+        var b = el('button', { class: 'yuq c' + (ci++ % 4) });
+        b.appendChild(el('i', { text: icon(c.label) })); b.appendChild(el('span', { text: c.label }));
+        b.onclick = function () { go(c.key); }; t.appendChild(b);
+      });
+      home.appendChild(t);
     });
-    home.appendChild(t);
     stats(home);
     if (window.YUUpcoming) window.YUUpcoming(home);
     activity(home);

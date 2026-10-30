@@ -268,7 +268,7 @@ function ttl(c) {
     top = el('div', { id: 'yuTop' });
     var mb = el('button', { text: '\u2630', 'aria-label': 'Menu' }); mb.onclick = function () { document.body.classList.toggle('yu-open'); };
     top.appendChild(mb); top.appendChild(el('b', { text: 'Yachi University' }));
-    var sb = el('div', { id: 'yuSb' }); var si = el('input', { type: 'search', id: 'yuSi', placeholder: '\u{1F50D} Search by name or ID', 'aria-label': 'Search student' }); si.onfocus = function () { ensureSearch(); }; si.onclick = function (e) { e.stopPropagation(); }; sb.appendChild(si); top.appendChild(sb);
+    var sb = el('div', { id: 'yuSb' }); var si = el('input', { type: 'search', id: 'yuSi', placeholder: '\u{1F50D} Search', title: 'Search a student, teacher or staff member by name or ID number', 'aria-label': 'Search student' }); si.onfocus = function () { ensureSearch(); }; si.onclick = function (e) { e.stopPropagation(); }; sb.appendChild(si); top.appendChild(sb);
     meEl = el('span', { class: 'me' }); meEl.onclick = toggleProf; top.appendChild(meEl); paintMe();
     scrim = el('div', { id: 'yuScrim' }); scrim.onclick = function () { document.body.classList.remove('yu-open'); };
     side = el('div', { id: 'yuSide' });

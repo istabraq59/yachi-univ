@@ -38,7 +38,8 @@
     '#yuBanner p{margin:0;color:#475569}',
     '#yuBanner em{display:block;margin-top:12px;color:#1e3a8a;font-family:cursive;font-size:18px}',
     '#yuHome h4{margin:16px 0 8px;color:#0f2a5e}',
-    '#yuHome h5{margin:16px 0 6px;color:#64748b;font-size:12px;letter-spacing:.08em;text-transform:uppercase}',
+    '#yuSide nav .grp{cursor:pointer;user-select:none}',
+    '#yuHome h5{cursor:pointer;user-select:none;background:#e8eefb;border-radius:10px;padding:10px 12px;margin:10px 0 6px;color:#64748b;font-size:12px;letter-spacing:.08em;text-transform:uppercase}',
     '#yuHome .stats .st{border:1px solid transparent}',
     '#yuHome .stats .st i{font-style:normal;font-size:22px;display:block;margin-bottom:6px}',
     '#yuHome .stats .st.s0{background:#e8f0ff;border-color:#c9dbff;color:#1e3a8a}',
@@ -141,7 +142,7 @@
       }, fin);
     });
   }
-  var lastSig = '', cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
+  var homeOpen = {}, sideOpen = {}, lastSig = '', cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
   function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
   var NAMES = {scannerCard:'Gate and meal scanner',idCard:'My ID card',idLookupCard:'Print an ID card',photoCard:'My photo',bioCard:'My biography',gateReportsCard:'Gate and meal reports',officeUnitsCard:'Offices and directorates',dormOfficeCard:'Dormitory office',staffInfoCard:'My staff information',headCard:'Head of unit'};
 function ttl(c) {
@@ -187,12 +188,14 @@ function ttl(c) {
     signed = s; container = s.parentNode; container.classList.add('yu-main');
     document.body.classList.add('yu-in');
     document.querySelectorAll('.yu-off').forEach(function (x) { x.classList.remove('yu-off'); });
-    cards = [];
+    cards = []; var seenIds = {};
     [].forEach.call(document.querySelectorAll('.card'), function (c, i) {
       if (c === signed || c.querySelector('.card')) return;
       if (ttl(c) === 'Transcript') { c.classList.add('yu-dup'); return; }
       if (c.closest('#yuHome, #yuSide, #yuProf, #yuBanner, #yuAct, #yuTop')) return;
       if (/Continue with Google/.test(c.textContent) || appHidden(c)) return;
+      if (c.id && seenIds[c.id]) { c.classList.add('yu-dup'); return; }
+      if (c.id) seenIds[c.id] = 1;
       var key = c.id || ('c' + i); c.setAttribute('data-yu', key);
       cards.push({ key: key, card: c, label: ttl(c) || 'Section' });
     });
@@ -201,7 +204,7 @@ function ttl(c) {
     lastSig = sig;
     if (cur !== 'home' && !cards.some(function (c) { return c.key === cur; })) cur = 'home';
     nav.innerHTML = '';
-    function item(k, t, cls) { var b = el('button', { 'data-k': k, text: t }); if (cls) b.className = cls; b.onclick = function () { go(k); }; nav.appendChild(b); }
+    function item(k, t, cls, parent) { var b = el('button', { 'data-k': k, text: t }); if (cls) b.className = cls; b.onclick = function () { go(k); }; (parent || nav).appendChild(b); }
     item('home', 'Home');
     var GROUPS = [
       ['Main', /^my |change password/i],
@@ -215,8 +218,14 @@ function ttl(c) {
       var list = cards.filter(function (c) { return !used[c.key] && g[1].test(c.label); });
       if (!list.length) return;
       groupedList.push([g[0], list]);
-      nav.appendChild(el('div', { class: 'grp', text: g[0] }));
-      list.forEach(function (c) { used[c.key] = 1; item(c.key, c.label); });
+      var gl = el('div', { class: 'grp' }), gb = el('div', { class: 'gb' });
+      list.forEach(function (c) { used[c.key] = 1; item(c.key, c.label, null, gb); });
+      if (sideOpen[g[0]] === undefined) sideOpen[g[0]] = list.some(function (c) { return c.key === cur; });
+      (function (name, l, b) {
+        function p() { var o = !!sideOpen[name]; b.style.display = o ? '' : 'none'; l.textContent = (o ? '\u25BE ' : '\u25B8 ') + name; }
+        l.onclick = function () { sideOpen[name] = !sideOpen[name]; p(); }; p();
+      })(g[0], gl, gb);
+      nav.appendChild(gl); nav.appendChild(gb);
     });
     var so = el('button', { class: 'out', text: 'Sign out' }); so.onclick = function () { db.auth.signOut(); }; nav.appendChild(so);
     if (!home) { home = el('div', { id: 'yuHome' }); }
@@ -226,7 +235,7 @@ function ttl(c) {
     home.appendChild(el('h4', { id: 'yuQa', text: 'Quick actions' }));
     var ci = 0;
     groupedList.forEach(function (g) {
-      home.appendChild(el('h5', { text: g[0] }));
+      var hd = el('h5', { class: 'yuGh' }); home.appendChild(hd);
       var t = el('div', { class: 'tiles' });
       g[1].forEach(function (c) {
         var b = el('button', { class: 'yuq c' + (ci++ % 4) });
@@ -234,6 +243,9 @@ function ttl(c) {
         b.onclick = function () { go(c.key); }; t.appendChild(b);
       });
       home.appendChild(t);
+      function paint() { var o = !!homeOpen[g[0]]; t.style.display = o ? '' : 'none'; hd.textContent = (o ? '\u25BE ' : '\u25B8 ') + g[0] + ' (' + g[1].length + ')'; }
+      hd.onclick = function () { homeOpen[g[0]] = !homeOpen[g[0]]; paint(); };
+      paint();
     });
     stats(home);
     if (window.YUUpcoming) window.YUUpcoming(home);

@@ -107,7 +107,7 @@
     var h = Math.floor(m / 60); if (h < 24) return h + ' h ago';
     return Math.floor(h / 24) + ' d ago';
   }
-  var ICONS = [[/password/i, '\u{1F511}'], [/sign-up|code/i, '\u{1F39F}'], [/id card/i, '\u{1FAAA}'], [/biograph/i, '\u{1F4DD}'], [/student/i, '\u{1F393}'], [/gate|scanner/i, '\u{1F6AA}'], [/report/i, '\u{1F4CA}'], [/office|director/i, '\u{1F3E2}'], [/college|institute|school/i, '\u{1F3EB}'], [/dorm/i, '\u{1F6CF}'], [/announce/i, '\u{1F4E2}'], [/account|assign|staff/i, '\u{1F465}'], [/enroll|roster|class/i, '\u{1F4CB}']];
+  var ICONS = [[/password/i, '\u{1F511}'], [/sign-up|code/i, '\u{1F39F}'], [/id card/i, '\u{1FAAA}'], [/biograph/i, '\u{1F4DD}'], [/student/i, '\u{1F393}'], [/gate|scanner/i, '\u{1F6AA}'], [/report/i, '\u{1F4CA}'], [/office|director/i, '\u{1F3E2}'], [/college|institute|school/i, '\u{1F3EB}'], [/dorm/i, '\u{1F6CF}'], [/announce/i, '\u{1F4E2}'], [/account|assign|staff/i, '\u{1F465}'], [/enroll|roster|class/i, '\u{1F4CB}'], [/course|grade|transcript|semester/i, '\u{1F4DA}']];
   function icon(l) { for (var i = 0; i < ICONS.length; i++) if (ICONS[i][0].test(l)) return ICONS[i][1]; return '\u{1F4C1}'; }
   function banner() {
     var b = el('div', { id: 'yuBanner' }); var h = el('h2', { text: 'Welcome' });
@@ -154,7 +154,7 @@ function ttl(c) {
   }
   return '';
 }
-  function appHidden(c) { return c.hidden || c.style.display === 'none'; }
+  function appHidden(c) { for (var n = c; n && n !== document.body; n = n.parentNode) { if (n.hidden || (n.style && n.style.display === 'none')) return true; } return false; }
   function findSigned() { var s = null; document.querySelectorAll('.card').forEach(function (x) { if (!s && /Signed in as/.test(x.textContent) && !x.querySelector('.card')) s = x; }); return s; }
   function shellParts() {
     if (side) return;
@@ -185,9 +185,10 @@ function ttl(c) {
     signed = s; container = s.parentNode; container.classList.add('yu-main');
     document.body.classList.add('yu-in');
     cards = [];
-    [].forEach.call(container.children, function (c, i) {
-      if (!c.classList || !c.classList.contains('card') || c === signed) return;
-      if (/Continue with Google/.test(c.textContent) || c.querySelector('.card') || appHidden(c)) return;
+    [].forEach.call(document.querySelectorAll('.card'), function (c, i) {
+      if (c === signed || c.querySelector('.card')) return;
+      if (c.closest('#yuHome, #yuSide, #yuProf, #yuBanner, #yuAct, #yuTop')) return;
+      if (/Continue with Google/.test(c.textContent) || appHidden(c)) return;
       var key = c.id || ('c' + i); c.setAttribute('data-yu', key);
       cards.push({ key: key, card: c, label: ttl(c) || 'Section' });
     });
@@ -202,6 +203,7 @@ function ttl(c) {
       ['Main', /^my |change password/i],
       ['People', /student|account|sign-up|enroll|roster|password|teacher|assign staff|look up|print an id/i],
       ['Campus', /gate|scanner|office|dorm|college|institute|school|department|unit|head/i],
+      ['Academic', /course|grade|transcript|semester|academic|attendance|exam|timetable|enrollment/i],
       ['Communication', /announce|message|notice/i]
     ];
     var used = {};

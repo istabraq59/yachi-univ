@@ -3,6 +3,7 @@
     'body.yu-in{background:#f3f6fc}',
     'body.yu-in h1{display:none}',
     '.yu-off{display:none!important}',
+    '.yu-dup{display:none!important}',
     '#yuSide,#yuTop,#yuScrim{display:none}',
     'body.yu-in #yuTop{display:flex;position:fixed;top:0;left:0;right:0;height:52px;background:#0f2a5e;color:#fff;align-items:center;gap:12px;padding:0 14px;z-index:50;box-shadow:0 2px 10px rgba(0,0,0,.2)}',
     '#yuTop button{background:none;border:0;color:#fff;font-size:26px;line-height:1;padding:4px 8px;width:auto;margin:0;cursor:pointer}',
@@ -188,6 +189,7 @@ function ttl(c) {
     cards = [];
     [].forEach.call(document.querySelectorAll('.card'), function (c, i) {
       if (c === signed || c.querySelector('.card')) return;
+      if (ttl(c) === 'Transcript') { c.classList.add('yu-dup'); return; }
       if (c.closest('#yuHome, #yuSide, #yuProf, #yuBanner, #yuAct, #yuTop')) return;
       if (/Continue with Google/.test(c.textContent) || appHidden(c)) return;
       var key = c.id || ('c' + i); c.setAttribute('data-yu', key);

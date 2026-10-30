@@ -42,9 +42,11 @@
     '#yuTabs{display:none;gap:6px;overflow-x:auto;padding:2px 0 12px}',
     '#yuTabs button{width:auto;white-space:nowrap;background:#e8eefb;color:#0f2a5e;border:0;border-radius:999px;padding:8px 14px;margin:0;font-size:13px;cursor:pointer;flex:none}',
     '#yuTabs button.on{background:#2563eb;color:#fff;font-weight:600}',
-    '#yuTop #yuSb{margin-left:auto;font-size:18px}',
+    '#yuTop #yuSb{margin-left:auto;flex:0 1 150px;min-width:0}',
+    '#yuTop #yuSi{width:100%;height:34px;margin:0;padding:6px 12px;font-size:13px;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff}',
+    '#yuTop #yuSi::placeholder{color:#c7d4f0}',
     '#yuTop .me{margin-left:8px}',
-    '#yuSearch{display:none;position:fixed;top:52px;left:0;right:0;background:#fff;padding:10px 14px;z-index:55;box-shadow:0 8px 20px rgba(15,42,94,.2)}',
+    '#yuSearch{display:none;position:fixed;top:66px;left:0;right:0;background:#fff;padding:10px 14px;z-index:55;box-shadow:0 8px 20px rgba(15,42,94,.2)}',
     '#yuSearch.open{display:block}',
     '#yuSearch input{width:100%;margin:0}',
     '#yuSearch .res button{display:block;width:100%;text-align:left;background:#f3f6fc;border:0;border-radius:10px;padding:10px 12px;margin:6px 0 0;color:#0f2a5e;font-size:14px}',
@@ -111,14 +113,16 @@
   function ensureSearch() {
     if (searchBox) return searchBox;
     searchBox = el('div', { id: 'yuSearch' });
-    var inp = el('input', { type: 'search', placeholder: 'Search a student by name or ID number' });
+    var inp = document.getElementById('yuSi');
     var res = el('div', { class: 'res' });
-    searchBox.appendChild(inp); searchBox.appendChild(res); document.body.appendChild(searchBox);
+    searchBox.appendChild(res); document.body.appendChild(searchBox);
     searchBox.onclick = function (e) { e.stopPropagation(); };
+    document.addEventListener('click', function () { searchBox.classList.remove('open'); });
     inp.oninput = function () {
       clearTimeout(searchTimer);
       var q = inp.value.replace(/[,()%*]/g, '').trim();
-      if (q.length < 2) { res.textContent = ''; return; }
+      if (q.length < 2) { res.textContent = ''; searchBox.classList.remove('open'); return; }
+      searchBox.classList.add('open');
       searchTimer = setTimeout(function () { runSearch(q, res); }, 300);
     };
     return searchBox;
@@ -140,6 +144,7 @@
       b.appendChild(el('small', { text: s.student_number + (s.departments && s.departments.name ? ' | ' + s.departments.name : '') + ' | tap to open the transcript' }));
       b.onclick = function () {
         searchBox.classList.remove('open');
+        var si0 = document.getElementById('yuSi'); if (si0) { si0.value = ''; si0.blur(); }
         var t = cards.filter(function (c) { return c.key === 'trCard'; })[0];
         if (t) { go('trCard'); if (window.YUOpenTranscript) window.YUOpenTranscript(s); }
       };
@@ -226,7 +231,7 @@ function ttl(c) {
     top = el('div', { id: 'yuTop' });
     var mb = el('button', { text: '\u2630', 'aria-label': 'Menu' }); mb.onclick = function () { document.body.classList.toggle('yu-open'); };
     top.appendChild(mb); top.appendChild(el('b', { text: 'Yachi University' }));
-    var sb = el('button', { id: 'yuSb', text: '\u{1F50D}', 'aria-label': 'Search' }); sb.onclick = toggleSearch; top.appendChild(sb);
+    var sb = el('div', { id: 'yuSb' }); var si = el('input', { type: 'search', id: 'yuSi', placeholder: '\u{1F50D} Search student', 'aria-label': 'Search student' }); si.onfocus = function () { ensureSearch(); }; si.onclick = function (e) { e.stopPropagation(); }; sb.appendChild(si); top.appendChild(sb);
     meEl = el('span', { class: 'me' }); meEl.onclick = toggleProf; top.appendChild(meEl); paintMe();
     scrim = el('div', { id: 'yuScrim' }); scrim.onclick = function () { document.body.classList.remove('yu-open'); };
     side = el('div', { id: 'yuSide' });

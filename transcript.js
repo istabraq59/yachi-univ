@@ -124,6 +124,14 @@
       db.from('students').select('id, student_number, full_name, year_of_study').order('full_name').limit(500).then(function (r2) { fill(r2.data); });
     });
   }
+  window.YUOpenTranscript = function (s) {
+    if (!stuSel || !s) return;
+    if (!students.some(function (x) { return x.id === s.id; })) {
+      students.push(s);
+      stuSel.appendChild(el('option', { value: s.id, text: s.student_number + ' - ' + s.full_name }));
+    }
+    stuSel.value = s.id; view();
+  };
   function init() {
     if (typeof db === 'undefined') return;
     db.auth.getUser().then(function (u) {

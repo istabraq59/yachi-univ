@@ -39,6 +39,17 @@
     '#yuBanner em{display:block;margin-top:12px;color:#1e3a8a;font-family:cursive;font-size:18px}',
     '#yuHome h4{margin:16px 0 8px;color:#0f2a5e}',
     '#yuSide nav .grp{cursor:pointer;user-select:none}',
+    '#yuTabs{display:none;gap:6px;overflow-x:auto;padding:2px 0 12px}',
+    '#yuTabs button{width:auto;white-space:nowrap;background:#e8eefb;color:#0f2a5e;border:0;border-radius:999px;padding:8px 14px;margin:0;font-size:13px;cursor:pointer;flex:none}',
+    '#yuTabs button.on{background:#2563eb;color:#fff;font-weight:600}',
+    '#yuTop #yuSb{margin-left:auto;font-size:18px}',
+    '#yuTop .me{margin-left:8px}',
+    '#yuSearch{display:none;position:fixed;top:52px;left:0;right:0;background:#fff;padding:10px 14px;z-index:55;box-shadow:0 8px 20px rgba(15,42,94,.2)}',
+    '#yuSearch.open{display:block}',
+    '#yuSearch input{width:100%;margin:0}',
+    '#yuSearch .res button{display:block;width:100%;text-align:left;background:#f3f6fc;border:0;border-radius:10px;padding:10px 12px;margin:6px 0 0;color:#0f2a5e;font-size:14px}',
+    '#yuSearch small{display:block;color:#64748b}',
+    '@media(min-width:820px){body.yu-in #yuTop #yuSb{display:inline-block}#yuSearch{left:260px}}',
     '#yuHome h5{cursor:pointer;user-select:none;background:#e8eefb;border-radius:10px;padding:10px 12px;margin:10px 0 6px;color:#64748b;font-size:12px;letter-spacing:.08em;text-transform:uppercase}',
     '#yuHome .stats .st{border:1px solid transparent}',
     '#yuHome .stats .st i{font-style:normal;font-size:22px;display:block;margin-bottom:6px}',
@@ -65,7 +76,7 @@
     '#yuTop b{white-space:nowrap}@media(max-width:819px){#yuTop .me .nm{display:none}}',
     '@media(min-width:820px){body.yu-in #yuTop{display:flex;left:260px}body.yu-in #yuTop button{display:none}body.yu-in .yu-main{padding-top:70px}}'
   ].join('\n');
-  function closeProf() { var p = document.getElementById('yuProf'); if (p) p.remove(); }
+  function closeProf() { var p = document.getElementById('yuProf'); if (p) p.remove(); if (searchBox) searchBox.classList.remove('open'); }
   function toggleProf(e) {
     if (e) e.stopPropagation();
     if (document.getElementById('yuProf')) { closeProf(); return; }
@@ -86,6 +97,56 @@
     document.body.appendChild(p);
   }
   document.addEventListener('click', closeProf);
+  var searchBox = null, searchTimer = null;
+  function renderTabs() {
+    if (!tabs) return;
+    if (cur === 'home') { tabs.style.display = 'none'; return; }
+    var g = null; gList.forEach(function (x) { if (!g && x[1].some(function (c) { return c.key === cur; })) g = x; });
+    tabs.textContent = '';
+    if (!g || g[1].length < 2) { tabs.style.display = 'none'; return; }
+    tabs.style.display = '';
+    g[1].forEach(function (c) { var b = el('button', { class: c.key === cur ? 'on' : '', text: c.label }); b.onclick = function () { go(c.key); }; tabs.appendChild(b); });
+    var on = tabs.querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+  }
+  function ensureSearch() {
+    if (searchBox) return searchBox;
+    searchBox = el('div', { id: 'yuSearch' });
+    var inp = el('input', { type: 'search', placeholder: 'Search a student by name or ID number' });
+    var res = el('div', { class: 'res' });
+    searchBox.appendChild(inp); searchBox.appendChild(res); document.body.appendChild(searchBox);
+    searchBox.onclick = function (e) { e.stopPropagation(); };
+    inp.oninput = function () {
+      clearTimeout(searchTimer);
+      var q = inp.value.replace(/[,()%*]/g, '').trim();
+      if (q.length < 2) { res.textContent = ''; return; }
+      searchTimer = setTimeout(function () { runSearch(q, res); }, 300);
+    };
+    return searchBox;
+  }
+  function runSearch(q, res) {
+    res.textContent = 'Searching...';
+    var filt = 'full_name.ilike.%' + q + '%,student_number.ilike.%' + q + '%';
+    db.from('students').select('id, student_number, full_name, year_of_study, departments(name), programs(name)').or(filt).limit(8).then(function (r) {
+      if (r.error) { db.from('students').select('id, student_number, full_name, year_of_study').or(filt).limit(8).then(function (r2) { showRes(res, r2.data || []); }); return; }
+      showRes(res, r.data || []);
+    });
+  }
+  function showRes(res, rows) {
+    res.textContent = '';
+    if (!rows.length) { res.appendChild(el('p', { text: 'No student found.' })); return; }
+    rows.forEach(function (s) {
+      var b = el('button', { type: 'button' });
+      b.appendChild(document.createTextNode(s.full_name));
+      b.appendChild(el('small', { text: s.student_number + (s.departments && s.departments.name ? ' | ' + s.departments.name : '') + ' | tap to open the transcript' }));
+      b.onclick = function () {
+        searchBox.classList.remove('open');
+        var t = cards.filter(function (c) { return c.key === 'trCard'; })[0];
+        if (t) { go('trCard'); if (window.YUOpenTranscript) window.YUOpenTranscript(s); }
+      };
+      res.appendChild(b);
+    });
+  }
+  function toggleSearch(e) { if (e) e.stopPropagation(); var b = ensureSearch(); b.classList.toggle('open'); if (b.classList.contains('open')) b.querySelector('input').focus(); }
   function initials(n) { return (n || '?').trim().charAt(0).toUpperCase(); }
   function paintMe() {
     if (!me || !meEl) return;
@@ -142,7 +203,7 @@
       }, fin);
     });
   }
-  var homeOpen = {}, sideOpen = {}, lastSig = '', cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
+  var gList = [], tabs = null, homeOpen = {}, sideOpen = {}, lastSig = '', cur = 'home', signed = null, container = null, side, top, scrim, home, nav, cards = [];
   function el(t, a) { var e = document.createElement(t); for (var k in (a || {})) { if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); } return e; }
   var NAMES = {scannerCard:'Gate and meal scanner',idCard:'My ID card',idLookupCard:'Print an ID card',photoCard:'My photo',bioCard:'My biography',gateReportsCard:'Gate and meal reports',officeUnitsCard:'Offices and directorates',dormOfficeCard:'Dormitory office',staffInfoCard:'My staff information',headCard:'Head of unit'};
 function ttl(c) {
@@ -165,6 +226,7 @@ function ttl(c) {
     top = el('div', { id: 'yuTop' });
     var mb = el('button', { text: '\u2630', 'aria-label': 'Menu' }); mb.onclick = function () { document.body.classList.toggle('yu-open'); };
     top.appendChild(mb); top.appendChild(el('b', { text: 'Yachi University' }));
+    var sb = el('button', { id: 'yuSb', text: '\u{1F50D}', 'aria-label': 'Search' }); sb.onclick = toggleSearch; top.appendChild(sb);
     meEl = el('span', { class: 'me' }); meEl.onclick = toggleProf; top.appendChild(meEl); paintMe();
     scrim = el('div', { id: 'yuScrim' }); scrim.onclick = function () { document.body.classList.remove('yu-open'); };
     side = el('div', { id: 'yuSide' });
@@ -181,11 +243,14 @@ function ttl(c) {
     if (home) home.classList.toggle('yu-off', cur !== 'home');
     signed.classList.toggle('yu-off', cur !== 'home');
     [].forEach.call(nav.querySelectorAll('button[data-k]'), function (b) { b.classList.toggle('on', b.getAttribute('data-k') === cur); });
+    renderTabs();
   }
   function build() {
     var s = findSigned(); if (!s) return;
     shellParts();
     signed = s; container = s.parentNode; container.classList.add('yu-main');
+    if (!tabs) tabs = el('div', { id: 'yuTabs' });
+    if (tabs.parentNode !== container) container.insertBefore(tabs, signed);
     document.body.classList.add('yu-in');
     document.querySelectorAll('.yu-off').forEach(function (x) { x.classList.remove('yu-off'); });
     cards = []; var seenIds = {};
@@ -213,7 +278,7 @@ function ttl(c) {
       ['Academic', /course|grade|transcript|semester|academic|attendance|exam|timetable|enrollment/i],
       ['Communication', /announce|message|notice/i]
     ];
-    var used = {}, groupedList = [];
+    var used = {}, groupedList = []; gList = groupedList;
     GROUPS.concat([['More', /./]]).forEach(function (g) {
       var list = cards.filter(function (c) { return !used[c.key] && g[1].test(c.label); });
       if (!list.length) return;
@@ -281,7 +346,7 @@ function ttl(c) {
     document.body.classList.remove('yu-in', 'yu-open'); closeProf();
     document.querySelectorAll('.yu-off').forEach(function (x) { x.classList.remove('yu-off'); });
     if (home && home.parentNode) home.parentNode.removeChild(home);
-    signed = null; cur = 'home'; lastSig = '';
+    signed = null; cur = 'home'; lastSig = ''; if (tabs) tabs.style.display = 'none';
   }
   function check() {
     if (typeof db === 'undefined') return;

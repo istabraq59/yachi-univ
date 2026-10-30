@@ -154,7 +154,7 @@ function ttl(c) {
   }
   return '';
 }
-  function appHidden(c) { for (var n = c; n && n !== document.body; n = n.parentNode) { if (n.hidden || (n.style && n.style.display === 'none')) return true; } return false; }
+  function appHidden(c) { return !!c.hidden || c.offsetParent === null; }
   function findSigned() { var s = null; document.querySelectorAll('.card').forEach(function (x) { if (!s && /Signed in as/.test(x.textContent) && !x.querySelector('.card')) s = x; }); return s; }
   function shellParts() {
     if (side) return;
@@ -184,6 +184,7 @@ function ttl(c) {
     shellParts();
     signed = s; container = s.parentNode; container.classList.add('yu-main');
     document.body.classList.add('yu-in');
+    document.querySelectorAll('.yu-off').forEach(function (x) { x.classList.remove('yu-off'); });
     cards = [];
     [].forEach.call(document.querySelectorAll('.card'), function (c, i) {
       if (c === signed || c.querySelector('.card')) return;

@@ -127,7 +127,44 @@
     };
     return searchBox;
   }
+  function roleName(r) { r = String(r || '').replace(/_/g, ' '); return r.charAt(0).toUpperCase() + r.slice(1); }
   function runSearch(q, res) {
+    res.textContent = 'Searching...';
+    var like = '%' + q + '%', out = [], left = 3;
+    function done() {
+      if (--left) return;
+      var seen = {}, list = [];
+      out.forEach(function (o) { var k = o.kind.toLowerCase() + '|' + String(o.name).toLowerCase(); if (!seen[k]) { seen[k] = 1; list.push(o); } });
+      showRes(res, list.slice(0, 12));
+    }
+    db.from('students').select('id, student_number, full_name').or('full_name.ilike.' + like + ',student_number.ilike.' + like).limit(6).then(function (r) {
+      (r.data || []).forEach(function (x) { out.push({ kind: 'Student', name: x.full_name, num: x.student_number, stu: x }); }); done();
+    });
+    db.from('profiles').select('id, full_name, role, id_number').neq('role', 'student').or('full_name.ilike.' + like + ',id_number.ilike.' + like).limit(6).then(function (r) {
+      (r.data || []).forEach(function (x) { out.push({ kind: roleName(x.role), name: x.full_name, num: x.id_number }); }); done();
+    });
+    db.from('teachers').select('id, full_name, teacher_number').or('full_name.ilike.' + like + ',teacher_number.ilike.' + like).limit(6).then(function (r) {
+      (r.data || []).forEach(function (x) { out.push({ kind: 'Teacher', name: x.full_name, num: x.teacher_number }); }); done();
+    });
+  }
+  function showRes(res, rows) {
+    res.textContent = '';
+    if (!rows.length) { res.appendChild(el('p', { text: 'No match found.' })); return; }
+    rows.forEach(function (o) {
+      var b = el('button', { type: 'button' });
+      b.appendChild(document.createTextNode(o.name || '(no name)'));
+      b.appendChild(el('small', { text: o.kind + (o.num ? ' | ID ' + o.num : '') + (o.stu ? ' | tap to open the transcript' : '') }));
+      b.onclick = function () {
+        if (!o.stu) return;
+        var si0 = document.getElementById('yuSi'); if (si0) { si0.value = ''; si0.blur(); }
+        searchBox.classList.remove('open');
+        var t = cards.filter(function (c) { return c.key === 'trCard'; })[0];
+        if (t) { go('trCard'); if (window.YUOpenTranscript) window.YUOpenTranscript(o.stu); }
+      };
+      res.appendChild(b);
+    });
+  }
+  function runSearchOld(q, res) {
     res.textContent = 'Searching...';
     var filt = 'full_name.ilike.%' + q + '%,student_number.ilike.%' + q + '%';
     db.from('students').select('id, student_number, full_name, year_of_study, departments(name), programs(name)').or(filt).limit(8).then(function (r) {
@@ -135,7 +172,7 @@
       showRes(res, r.data || []);
     });
   }
-  function showRes(res, rows) {
+  function showResOld(res, rows) {
     res.textContent = '';
     if (!rows.length) { res.appendChild(el('p', { text: 'No student found.' })); return; }
     rows.forEach(function (s) {
@@ -231,7 +268,7 @@ function ttl(c) {
     top = el('div', { id: 'yuTop' });
     var mb = el('button', { text: '\u2630', 'aria-label': 'Menu' }); mb.onclick = function () { document.body.classList.toggle('yu-open'); };
     top.appendChild(mb); top.appendChild(el('b', { text: 'Yachi University' }));
-    var sb = el('div', { id: 'yuSb' }); var si = el('input', { type: 'search', id: 'yuSi', placeholder: '\u{1F50D} Search student', 'aria-label': 'Search student' }); si.onfocus = function () { ensureSearch(); }; si.onclick = function (e) { e.stopPropagation(); }; sb.appendChild(si); top.appendChild(sb);
+    var sb = el('div', { id: 'yuSb' }); var si = el('input', { type: 'search', id: 'yuSi', placeholder: '\u{1F50D} Search by name or ID', 'aria-label': 'Search student' }); si.onfocus = function () { ensureSearch(); }; si.onclick = function (e) { e.stopPropagation(); }; sb.appendChild(si); top.appendChild(sb);
     meEl = el('span', { class: 'me' }); meEl.onclick = toggleProf; top.appendChild(meEl); paintMe();
     scrim = el('div', { id: 'yuScrim' }); scrim.onclick = function () { document.body.classList.remove('yu-open'); };
     side = el('div', { id: 'yuSide' });

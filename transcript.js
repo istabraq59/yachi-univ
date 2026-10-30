@@ -19,6 +19,7 @@
     '#trSheet .sig{display:flex;justify-content:space-between;gap:20px;margin-top:34px;font-size:13px;color:#334155}',
     '#trSheet .sig div{flex:1;border-top:1px solid #334155;padding-top:4px;text-align:center}',
     '#trSheet .note{margin-top:14px;font-size:11px;color:#64748b;text-align:center}',
+    '@media(max-width:600px){#trCard{padding-left:10px;padding-right:10px}#trSheet{padding:10px}#trSheet th,#trSheet td{padding:6px 3px;font-size:12px}#trSheet .bd{padding:2px 6px;font-size:11px}#trSheet td:first-child{white-space:nowrap}#trSheet .th img{width:44px;height:44px}#trSheet .th b{font-size:16px}}',
     '#trPrint{display:none}',
     '@media print{@page{size:A4;margin:14mm}body.trp>*:not(#trPrint){display:none!important}body.trp #trPrint{display:block!important;background:#fff}body.trp #trPrint #trSheet{border:0;margin:0;padding:0}}'
   ].join('\n');

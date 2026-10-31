@@ -18,7 +18,7 @@
     else if (tn.length === 1) tn[0].nodeValue = '💳 Finance';
     else { tn[0].nodeValue = '💳'; tn[tn.length - 1].nodeValue = ' Finance'; }
     b.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); location.href = 'finance/'; }, true);
-    nav.appendChild(b);
+    first.parentNode.insertBefore(b, first.nextSibling);
   }
   function render() {
     var home = document.getElementById('yuHome');

@@ -39,5 +39,5 @@
       });
     nav.insertBefore(head, out); nav.insertBefore(body, out);
   }
-  setInterval(ensure, 700);
+  setInterval(ensure, 200);
 })();

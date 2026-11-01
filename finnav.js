@@ -58,5 +58,5 @@
     nav.insertBefore(body, head.nextSibling);
     paintHead(head); paintBody(body);
   }
-  setInterval(ensure, 700);
+  setInterval(ensure, 200);
 })();

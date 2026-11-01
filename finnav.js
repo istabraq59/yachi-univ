@@ -2,10 +2,10 @@
   var open = false, STAFF = null, asked = false;
   var STAFF_ITEMS = [
     ['Finance Dashboard', 'overview'], ['Payer Management', 'payers'],
-    ['Payment Management', 'payments'], ['Bank Accounts', 'settings'],
+    ['Payment Management', 'payments'], ['Bank Accounts', 'bankaccounts'],
     ['Payment Verification', 'verify'], ['Invoices', 'invoices'],
-    ['Penalties & Fines', 'penalties'], ['Receipts', 'payments'],
-    ['Refund Management', 'payments'], ['Financial Reports', 'reports'],
+    ['Penalties & Fines', 'penalties'], ['Receipts', 'receipts'],
+    ['Refund Management', 'refunds'], ['Financial Reports', 'reports'],
     ['Finance Settings', 'settings']
   ];
   function go(id) { location.href = 'finance/#/' + id; }

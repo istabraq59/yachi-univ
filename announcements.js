@@ -126,7 +126,7 @@
     card.textContent = '';
     if (!group) { card.style.display = 'none'; return; }
     place();
-    setTimeout(place, 600);
+    [60, 200, 450, 900, 1800, 3500].forEach(function (ms) { setTimeout(place, ms); });
     card.style.display = '';
     build(group === 'admin');
   }

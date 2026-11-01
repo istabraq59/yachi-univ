@@ -43,6 +43,7 @@
       body.style.display = hide ? 'none' : '';
       if (arrow) arrow.textContent = hide ? '\u25B8' : '\u25BE';
     };
+    body.style.display = 'none'; if (arrow) arrow.textContent = '\u25B8';
     nav.insertBefore(body, anchorBody.nextSibling);
     nav.insertBefore(head, body);
   }

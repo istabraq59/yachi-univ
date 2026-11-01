@@ -19,11 +19,10 @@
   }
   function settings(nav) {
     document.body.classList.remove('yu-open');
-    var b = [].filter.call(nav.querySelectorAll('button[data-k]'), function (x) {
-      return /my account|profile/i.test(x.textContent);
-    })[0];
-    if (b) { b.click(); return; }
-    var me = document.querySelector('.me'); if (me) me.click();
+    setTimeout(function () {
+      var me = document.querySelector('#yuTop .me') || document.querySelector('.me');
+      if (me) me.click();
+    }, 150);
   }
   function ensure() {
     var nav = document.querySelector('#yuSide nav'); if (!nav) return;

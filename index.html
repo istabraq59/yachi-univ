@@ -24,6 +24,7 @@
 </head>
 <body>
 <script src="splash.js?v=1"></script>
+<script src="turnstile.js?v=1"></script>
 <h1>Yachi University – Student Management</h1>
 
 <div id="loginBox" class="card">
@@ -343,7 +344,9 @@
 
   $('loginBtn').onclick = async () => {
     say('loginMsg', '');
+    const __ct = await (window.yuCaptcha ? window.yuCaptcha() : Promise.resolve(null)).catch(function () { return null });
     const { data, error } = await db.auth.signInWithPassword({
+      options: { captchaToken: __ct || undefined },
       email: $('email').value.trim(),
       password: $('password').value
     });
@@ -371,11 +374,11 @@
 </script>
 <script src="grades.js"></script>
 <script src="roles.js"></script>
-<script src="signup.js"></script>
+<script src="signup.js?v=2"></script>
 <script src="reports-page.js"></script>
 <script src="teachers.js"></script>
 <script src="courses.js"></script>
-<script src="forgot.js"></script>
+<script src="forgot.js?v=2"></script>
 <script src="idlogin.js"></script>
 <script src="idsignup.js"></script>
 <script src="google.js"></script>

@@ -21,7 +21,9 @@
       var email = em ? em.value.trim() : '';
       if (!email) { note(msg, 'Type your email in the email box first, then tap Forgot password.', false); return; }
       note(msg, 'Sending...', true);
+      var __ct = await (window.yuCaptcha ? window.yuCaptcha() : Promise.resolve(null)).catch(function () { return null });
       var r = await db.auth.resetPasswordForEmail(email, {
+        captchaToken: __ct || undefined,
         redirectTo: 'https://istabraq59.github.io/yachi-univ/'
       });
       if (r.error) note(msg, 'Could not send: ' + r.error.message, false);

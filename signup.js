@@ -34,6 +34,8 @@
     if (g('su_pass').value !== g('su_pass2').value) { say('su_msg', 'Passwords do not match.'); return; }
     const options = { data: { full_name: g('su_name').value.trim() } };
     if (location.hostname.endsWith('github.io')) options.emailRedirectTo = location.origin + location.pathname;
+    const __ct = await (window.yuCaptcha ? window.yuCaptcha() : Promise.resolve(null)).catch(function () { return null });
+    options.captchaToken = __ct || undefined;
     const { error } = await db.auth.signUp({
       email: g('su_email').value.trim(),
       password: g('su_pass').value,

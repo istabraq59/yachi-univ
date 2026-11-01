@@ -315,10 +315,12 @@ function ttl(c) {
     item('home', 'Home');
     var GROUPS = [
       ['Main', /^my |change password/i],
-      ['People', /student|account|sign-up|enroll|roster|password|teacher|assign staff|look up|print an id/i],
+      ['Students', /^(?!.*(exam|report)).*(student|account|sign-up|enroll|roster|password|teacher|assign staff|look up|print an id)/i],
+      ['Academics', /^(?!.*(exam|report)).*(course|grade|transcript|semester|academic|attendance|timetable|enrollment)/i],
+      ['Examinations', /exam/i],
       ['Campus', /gate|scanner|office|dorm|college|institute|school|department|unit|head/i],
-      ['Academic', /course|grade|transcript|semester|academic|attendance|exam|timetable|enrollment/i],
-      ['Communication', /announce|message|notice/i]
+      ['Communication', /announce|message|notice/i],
+      ['Reports', /report/i]
     ];
     var used = {}, groupedList = []; gList = groupedList;
     GROUPS.concat([['More', /./]]).forEach(function (g) {
@@ -329,7 +331,7 @@ function ttl(c) {
       list.forEach(function (c) { used[c.key] = 1; item(c.key, c.label, null, gb); });
       if (sideOpen[g[0]] === undefined) sideOpen[g[0]] = list.some(function (c) { return c.key === cur; });
       (function (name, l, b) {
-        function p() { var o = !!sideOpen[name]; b.style.display = o ? '' : 'none'; l.textContent = (o ? '\u25BE ' : '\u25B8 ') + name; }
+        function p() { var o = !!sideOpen[name]; b.style.display = o ? '' : 'none'; l.textContent = ''; l.style.cssText = 'display:flex;justify-content:space-between;align-items:center'; var a1 = document.createElement('span'); a1.textContent = name; var a2 = document.createElement('span'); a2.textContent = o ? '\u25BE' : '\u25B8'; l.appendChild(a1); l.appendChild(a2); }
         l.onclick = function () { sideOpen[name] = !sideOpen[name]; p(); }; p();
       })(g[0], gl, gb);
       nav.appendChild(gl); nav.appendChild(gb);

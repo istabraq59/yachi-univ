@@ -85,3 +85,20 @@
     return _fetch(input, init);
   };
 })();
+
+(function () {
+  var orig = window.yuCaptcha;
+  if (!orig) return;
+  window.yuCaptcha = function () {
+    return Promise.resolve(orig()).then(function (tok) {
+      if (!tok) {
+        var d = document.createElement('div');
+        d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:100001;background:#b91c1c;color:#fff;padding:8px;font:14px sans-serif';
+        d.textContent = 'CAPTCHA debug: no token. Cloudflare script loaded: ' + (window.turnstile ? 'yes' : 'NO');
+        document.body.appendChild(d);
+        setTimeout(function () { d.remove(); }, 15000);
+      }
+      return tok;
+    });
+  };
+})();

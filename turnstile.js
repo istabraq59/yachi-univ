@@ -142,7 +142,7 @@
     say('running…');
     wid = window.turnstile.render(slot, {
       sitekey: KEY,
-      appearance: 'always',
+      appearance: 'interaction-only',
       callback: function (t) {
         say('ready ✓');
         if (waiters.length) {
@@ -159,8 +159,8 @@
   function mount() {
     if (box || !document.body) return;
     box = document.createElement('div');
-    box.style.cssText = 'position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:100000;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:6px;font:12px sans-serif;max-width:95vw';
-    st = document.createElement('div'); st.textContent = 'Security check: loading…';
+    box.style.cssText = 'position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:100000;background:transparent;padding:0;max-width:95vw';
+    st = document.createElement('div'); st.textContent = 'Security check: loading…'; st.style.display = 'none';
     slot = document.createElement('div');
     box.appendChild(st); box.appendChild(slot); document.body.appendChild(box);
     if (window.turnstile) { render(); return; }

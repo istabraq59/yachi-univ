@@ -41,3 +41,25 @@
     });
   };
 })();
+
+(function () {
+  var _fetch = window.fetch.bind(window);
+  window.fetch = function (input, init) {
+    try {
+      var url = typeof input === 'string' ? input : ((input && input.url) || '');
+      if (/\/functions\/v1\/(id-signin|student-signup)/.test(url) && init && typeof init.body === 'string') {
+        return (window.yuCaptcha ? window.yuCaptcha() : Promise.resolve(null))
+          .catch(function () { return null })
+          .then(function (tok) {
+            try {
+              var o = JSON.parse(init.body);
+              o.captcha = tok;
+              init = Object.assign({}, init, { body: JSON.stringify(o) });
+            } catch (e) {}
+            return _fetch(input, init);
+          });
+      }
+    } catch (e) {}
+    return _fetch(input, init);
+  };
+})();

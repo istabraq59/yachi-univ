@@ -133,3 +133,50 @@
     });
   };
 })();
+
+(function () {
+  var KEY = '0x4AAAAAAFvl5KaVPqw8kcfn', wid = null, tok = null, waiters = [], box = null, st = null, slot = null;
+  function say(m) { if (st) st.textContent = 'Security check: ' + m; }
+  function render() {
+    if (wid !== null || !window.turnstile || !slot) return;
+    say('running…');
+    wid = window.turnstile.render(slot, {
+      sitekey: KEY,
+      appearance: 'always',
+      callback: function (t) {
+        say('ready ✓');
+        if (waiters.length) {
+          var w = waiters.splice(0); tok = null;
+          w.forEach(function (f) { f(t); });
+          try { window.turnstile.reset(wid); } catch (e) {}
+        } else { tok = t; }
+      },
+      'error-callback': function (c) { say('error ' + c); waiters.splice(0).forEach(function (f) { f(null); }); return true; },
+      'expired-callback': function () { tok = null; try { window.turnstile.reset(wid); } catch (e) {} },
+      'timeout-callback': function () { try { window.turnstile.reset(wid); } catch (e) {} }
+    });
+  }
+  function mount() {
+    if (box || !document.body) return;
+    box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:100000;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:6px;font:12px sans-serif;max-width:95vw';
+    st = document.createElement('div'); st.textContent = 'Security check: loading…';
+    slot = document.createElement('div');
+    box.appendChild(st); box.appendChild(slot); document.body.appendChild(box);
+    if (window.turnstile) { render(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    s.async = true; s.onload = render; s.onerror = function () { say('could not load Cloudflare'); };
+    document.head.appendChild(s);
+  }
+  if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+  window.yuCaptcha = function () {
+    mount();
+    return new Promise(function (res) {
+      if (tok) { var t = tok; tok = null; try { window.turnstile.reset(wid); } catch (e) {} return res(t); }
+      var done = false;
+      waiters.push(function (t) { if (!done) { done = true; res(t); } });
+      setTimeout(function () { if (!done) { done = true; res(null); } }, 25000);
+    });
+  };
+})();

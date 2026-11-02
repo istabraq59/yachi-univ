@@ -102,3 +102,34 @@
     });
   };
 })();
+
+(function () {
+  window.__tsErr = 'none reported (timeout or hang)';
+  var iv = setInterval(function () {
+    if (!window.turnstile || window.turnstile.__p) return;
+    window.turnstile.__p = 1;
+    clearInterval(iv);
+    var r = window.turnstile.render;
+    window.turnstile.render = function (el, o) {
+      var e0 = o['error-callback'];
+      o['error-callback'] = function (c) { window.__tsErr = 'error ' + c; if (e0) e0(c); return true; };
+      o['timeout-callback'] = function () { window.__tsErr = 'timeout-callback'; };
+      o['unsupported-callback'] = function () { window.__tsErr = 'unsupported browser'; };
+      return r.call(window.turnstile, el, o);
+    };
+  }, 30);
+  var o2 = window.yuCaptcha;
+  if (!o2) return;
+  window.yuCaptcha = function () {
+    return Promise.resolve(o2()).then(function (tok) {
+      if (!tok) {
+        var d = document.createElement('div');
+        d.style.cssText = 'position:fixed;top:48px;left:0;right:0;z-index:100001;background:#92400e;color:#fff;padding:8px;font:14px sans-serif';
+        d.textContent = 'Turnstile: ' + window.__tsErr;
+        document.body.appendChild(d);
+        setTimeout(function () { d.remove(); }, 15000);
+      }
+      return tok;
+    });
+  };
+})();

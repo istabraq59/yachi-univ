@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings - Yachi University</title>
+<style>
+  :root { --bg:#f4f6f8; --card:#fff; --text:#1d2733; --muted:#64748b; --line:#e2e8f0; --brand:#2563eb; --brand-text:#fff; --danger:#dc2626; --ok:#15803d; --soft:#eef3ff; }
+  html[data-theme=dark] { --bg:#0b1220; --card:#162033; --text:#e6ebf5; --muted:#9aa8c0; --line:#2a3750; --brand:#5b9bff; --brand-text:#0b1220; --danger:#f87171; --ok:#4ade80; --soft:#1d2b45; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.45 Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+  header.top { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--card); border-bottom:1px solid var(--line); }
+  header.top a, header.top button { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:0; background:var(--soft); color:var(--text); font-size:20px; text-decoration:none; cursor:pointer; }
+  header.top h1 { font-size:1.15rem; margin:0; }
+  main { max-width:880px; margin:0 auto; padding:16px; display:grid; gap:16px; }
+  .list, .panel { background:var(--card); border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.1); overflow:hidden; }
+  .list button { display:flex; align-items:center; gap:14px; width:100%; padding:16px; border:0; border-bottom:1px solid var(--line); background:transparent; color:var(--text); font-size:1rem; text-align:left; cursor:pointer; }
+  .list button:last-child { border-bottom:0; }
+  .list button.on { background:var(--soft); }
+  .list .ic { width:38px; height:38px; border-radius:10px; background:var(--soft); display:flex; align-items:center; justify-content:center; font-size:19px; flex:none; }
+  .list .go { margin-left:auto; color:var(--muted); }
+  .panel { padding:18px; }
+  .panel h2 { margin:0 0 4px; font-size:1.15rem; }
+  .panel h3 { margin:20px 0 8px; font-size:1rem; }
+  .muted { color:var(--muted); font-size:.9rem; }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .row:last-of-type { border-bottom:0; }
+  .row b { font-weight:500; color:var(--muted); }
+  .row span { text-align:right; word-break:break-word; }
+  label.f { display:block; margin:14px 0 6px; font-weight:500; }
+  select, input[type=password] { width:100%; padding:12px; font-size:1rem; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--text); }
+  .opts { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
+  .opt { padding:12px; border:2px solid var(--line); border-radius:12px; background:transparent; color:var(--text); font-size:1rem; cursor:pointer; text-align:center; }
+  .opt.on { border-color:var(--brand); background:var(--soft); font-weight:600; }
+  .btn { display:block; width:100%; margin-top:10px; padding:13px; border:0; border-radius:10px; background:var(--brand); color:var(--brand-text); font-size:1rem; cursor:pointer; }
+  .btn.alt { background:var(--soft); color:var(--text); }
+  .btn.danger { background:var(--danger); color:#fff; }
+  .btn:disabled { opacity:.6; }
+  .tg { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .tg:last-child { border-bottom:0; }
+  .tg .nm { flex:1; }
+  .sw { position:relative; width:46px; height:26px; flex:none; }
+  .sw input { opacity:0; width:100%; height:100%; margin:0; position:absolute; inset:0; cursor:pointer; z-index:1; }
+  .sw i { position:absolute; inset:0; background:var(--line); border-radius:26px; transition:.15s; }
+  .sw i::after { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; background:#fff; border-radius:50%; transition:.15s; }
+  .sw input:checked + i { background:var(--brand); }
+  .sw input:checked + i::after { transform:translateX(20px); }
+  .sw input:disabled + i { opacity:.55; }
+  .chh { display:flex; justify-content:flex-end; gap:20px; font-size:.85rem; color:var(--muted); padding-right:2px; }
+  .chh span { width:46px; text-align:center; }
+  .tg .sws { display:flex; gap:20px; }
+  .msg { min-height:1.3em; margin-top:8px; font-size:.95rem; }
+  .msg.ok { color:var(--ok); } .msg.err { color:var(--danger); }
+  .box { padding:12px; border-radius:12px; background:var(--soft); margin-top:12px; }
+  #toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(80px); background:#111827; color:#fff; padding:10px 18px; border-radius:22px; font-size:.95rem; opacity:0; transition:.2s; z-index:20; max-width:90vw; text-align:center; }
+  #toast.show { transform:translateX(-50%); opacity:1; }
+  #toast.err { background:#b91c1c; }
+  main .panel.always { display:block !important; }
+  @media (min-width: 820px) {
+    main { grid-template-columns:280px 1fr; align-items:start; }
+    .list { position:sticky; top:76px; }
+    #backBtn { display:none !important; }
+  }
+  @media (max-width: 819px) {
+    main.detail .list { display:none; }
+    main:not(.detail) .panel { display:none; }
+  }
+</style>
+</head>
+<body>
+<script>window.YU_NATIVE_THEME = true;</script>
+<script src="../config.js"></script>
+<script src="../core.js?v=1"></script>
+<script src="../prefs.js?v=1"></script>
+<header class="top">
+  <a id="homeBtn" href="../" aria-label="Back to Yachi University">&#8592;</a>
+  <button id="backBtn" type="button" aria-label="Back" style="display:none">&#8592;</button>
+  <h1 id="title">Settings</h1>
+</header>
+<main id="app"></main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+(function () {
+  'use strict';
+  /* ---------- text in three languages (English is the fallback) ---------- */
+  var I18N = {
+    en: {
+      settings:'Settings', account:'Account settings', language:'Language', notifications:'Notifications', security:'Security and privacy', appearance:'Appearance', regional:'Regional', about:'About',
+      saved:'Saved', save_failed:'Could not save to your account. It is kept on this device. ', need_signin:'Please sign in to use Settings.', go_signin:'Go to sign in',
+      name:'Name', email:'Email', idnum:'ID number', role:'Role', last_signin:'Last sign-in', not_set:'(not set)', acc_note:'To change your name or role, contact the school office.', signout:'Sign out',
+      lang_choose:'Choose your language', lang_note:'Translations are being added step by step. Parts not yet translated stay in English.',
+      notif_note:'Your choices are saved to your account. Email delivery will be switched on by the university later.', n_ann:'Announcements', n_exam:'Exam reminders', n_res:'Results and grades', n_fin:'Fees and payments', n_sec:'Security alerts (always on)', ch_app:'In app', ch_email:'Email',
+      pw_title:'Change password', pw_new:'New password (8+ characters)', pw_again:'Type it again', pw_btn:'Change password', pw_short:'Use at least 8 characters.', pw_mismatch:'The two passwords are not the same.', pw_ok:'Password changed. Use it next time you sign in with your email.', pw_reauth:'For security, sign out, sign in again, then try once more.', pw_fail:'Not changed: ',
+      devices:'Devices', so_others:'Sign out other devices', so_all:'Sign out on all devices', so_all_q:'Sign out on every device where you are signed in?', so_others_done:'Other devices were signed out.',
+      privacy:'Privacy', privacy_link:'Read the privacy policy', export:'Download my data', export_note:'A file with your account details and settings.',
+      theme:'Theme', th_light:'Light', th_dark:'Dark', th_system:'Match my phone', text_size:'Text size', sz_small:'Small', sz_normal:'Normal', sz_large:'Large', sz_xlarge:'Extra large', preview:'The quick brown fox jumps over the lazy dog.',
+      timezone:'Time zone', date_fmt:'Date format', time_fmt:'Time format', calendar:'Calendar', cal_greg:'Gregorian', cal_eth:'Ethiopian', week_start:'Week starts on', mon:'Monday', sun:'Sunday', sat:'Saturday', now_is:'Now', h12:'12-hour', h24:'24-hour', dmy:'Day/Month/Year', mdy:'Month/Day/Year', ymd:'Year-Month-Day', long:'4 Nov 2026',
+      sys_name:'Student Management System', university:'Yachi University', version:'Version', support:'Help and support', support_text:'For help with your account, grades or payments, contact the Registrar\'s office or the Finance office.', refresh:'Refresh the app', online:'Connection', on:'Online', off:'Offline', tz_other:'Other'
+    },
+    am: {
+      settings:'ቅንብሮች', account:'የመለያ ቅንብሮች', language:'ቋንቋ', notifications:'ማሳወቂያዎች', security:'ደህንነት እና ግላዊነት', appearance:'ገጽታ', regional:'ክልላዊ', about:'ስለ ስርዓቱ',
+      saved:'ተቀምጧል', save_failed:'ወደ መለያዎ ማስቀመጥ አልተቻለም። በዚህ መሣሪያ ላይ ተቀምጧል። ', need_signin:'ቅንብሮችን ለመጠቀም እባክዎ ይግቡ።', go_signin:'ወደ መግቢያ ይሂዱ',
+      name:'ስም', email:'ኢሜይል', idnum:'የመታወቂያ ቁጥር', role:'ሚና', last_signin:'የመጨረሻ መግቢያ', not_set:'(አልተሞላም)', acc_note:'ስምዎን ወይም ሚናዎን ለመቀየር የትምህርት ቤቱን ቢሮ ያነጋግሩ።', signout:'ውጣ',
+      lang_choose:'ቋንቋዎን ይምረጡ', lang_note:'ትርጉሞች በደረጃ እየተጨመሩ ነው። ገና ያልተተረጎሙ ክፍሎች በእንግሊዝኛ ይቆያሉ።',
+      notif_note:'ምርጫዎችዎ በመለያዎ ውስጥ ተቀምጠዋል። የኢሜይል መላክ በዩኒቨርሲቲው በኋላ ይነቃል።', n_ann:'ማስታወቂያዎች', n_exam:'የፈተና ማስታወሻዎች', n_res:'ውጤቶች እና ደረጃዎች', n_fin:'ክፍያዎች', n_sec:'የደህንነት ማንቂያዎች (ሁልጊዜ በርቷል)', ch_app:'በመተግበሪያ', ch_email:'ኢሜይል',
+      pw_title:'የይለፍ ቃል ቀይር', pw_new:'አዲስ የይለፍ ቃል (ቢያንስ 8 ቁምፊ)', pw_again:'እንደገና ያስገቡ', pw_btn:'የይለፍ ቃል ቀይር', pw_short:'ቢያንስ 8 ቁምፊ ይጠቀሙ።', pw_mismatch:'ሁለቱ የይለፍ ቃሎች አንድ አይደሉም።', pw_ok:'የይለፍ ቃል ተቀይሯል። በኢሜይል ሲገቡ ይጠቀሙበት።', pw_reauth:'ለደህንነት ሲባል ይውጡ፣ እንደገና ይግቡ እና እንደገና ይሞክሩ።', pw_fail:'አልተቀየረም፦ ',
+      devices:'መሣሪያዎች', so_others:'ከሌሎች መሣሪያዎች ውጣ', so_all:'ከሁሉም መሣሪያዎች ውጣ', so_all_q:'በገቡበት ሁሉም መሣሪያዎች ላይ ይውጡ?', so_others_done:'ሌሎች መሣሪያዎች ወጥተዋል።',
+      privacy:'ግላዊነት', privacy_link:'የግላዊነት ፖሊሲን ያንብቡ', export:'መረጃዬን አውርድ', export_note:'የመለያዎ ዝርዝር እና ቅንብሮች ያሉት ፋይል።',
+      theme:'ገጽታ', th_light:'ብሩህ', th_dark:'ጨለማ', th_system:'እንደ ስልኬ', text_size:'የጽሑፍ መጠን', sz_small:'ትንሽ', sz_normal:'መደበኛ', sz_large:'ትልቅ', sz_xlarge:'እጅግ ትልቅ', preview:'ይህ የጽሑፍ መጠን ናሙና ነው።',
+      timezone:'የሰዓት ሰቅ', date_fmt:'የቀን አቀራረብ', time_fmt:'የሰዓት አቀራረብ', calendar:'የቀን አቆጣጠር', cal_greg:'ግሪጎሪያን', cal_eth:'ኢትዮጵያዊ', week_start:'ሳምንት የሚጀምረው', mon:'ሰኞ', sun:'እሑድ', sat:'ቅዳሜ', now_is:'አሁን', h12:'12 ሰዓት', h24:'24 ሰዓት', dmy:'ቀን/ወር/ዓመት', mdy:'ወር/ቀን/ዓመት', ymd:'ዓመት-ወር-ቀን', long:'4 Nov 2026',
+      sys_name:'የተማሪ አስተዳደር ሥርዓት', university:'ያቺ ዩኒቨርሲቲ', version:'ስሪት', support:'እርዳታ እና ድጋፍ', support_text:'ስለ መለያዎ፣ ውጤትዎ ወይም ክፍያዎ እርዳታ ለማግኘት የሬጅስትራር ቢሮ ወይም የፋይናንስ ቢሮ ያነጋግሩ።', refresh:'መተግበሪያውን አድስ', online:'ግንኙነት', on:'መስመር ላይ', off:'ከመስመር ውጭ', tz_other:'ሌላ'
+    },
+    om: {
+      settings:'Qindaa\'inoota', account:'Qindaa\'ina akkaawuntii', language:'Afaan', notifications:'Beeksisa', security:'Nageenyaa fi dhuunfaa', appearance:'Bifa', regional:'Naannoo', about:'Waa\'ee sirnichaa',
+      saved:'Kuufameera', save_failed:'Akkaawuntii keessatti kuusuu hin dandeenye. Meeshaa kana irratti kuufameera. ', need_signin:'Qindaa\'inoota fayyadamuuf maaloo seenaa.', go_signin:'Gara seensaatti deemi',
+      name:'Maqaa', email:'Imeelii', idnum:'Lakkoofsa eenyummaa', role:'Gahee', last_signin:'Seensa dhumaa', not_set:'(hin guutamne)', acc_note:'Maqaa ykn gahee kee jijjiiruuf waajjira mana barumsaa qunnamaa.', signout:'Ba\'i',
+      lang_choose:'Afaan kee filadhu', lang_note:'Hiikni sadarkaa sadarkaadhaan dabalamaa jira. Kutaan hin hiikamne Afaan Ingiliffaan ni hafa.',
+      notif_note:'Filannoon kee akkaawuntii keetti kuufameera. Imeeliin ergamuun yeroo dhufu yuunivarsiitiin banama.', n_ann:'Beeksisawwan', n_exam:'Yaadachiisa qormaataa', n_res:'Bu\'aa fi sadarkaa', n_fin:'Kaffaltii', n_sec:'Akeekkachiisa nageenyaa (yeroo hunda banaadha)', ch_app:'Appii keessatti', ch_email:'Imeelii',
+      pw_title:'Jecha iccitii jijjiiri', pw_new:'Jecha iccitii haaraa (qubee 8 ol)', pw_again:'Irra deebi\'ii galchi', pw_btn:'Jecha iccitii jijjiiri', pw_short:'Yoo xiqqaate qubee 8 fayyadami.', pw_mismatch:'Jechoonni iccitii lamaan wal hin fakkaatan.', pw_ok:'Jechi iccitii jijjiirameera. Imeelii wajjin yeroo seentu fayyadami.', pw_reauth:'Nageenyaaf, ba\'ii deebi\'ii seeni, ergasii irra deebi\'ii yaali.', pw_fail:'Hin jijjiiramne: ',
+      devices:'Meeshaalee', so_others:'Meeshaalee biroo irraa ba\'i', so_all:'Meeshaalee hunda irraa ba\'i', so_all_q:'Meeshaalee itti seente hunda irraa ba\'uu barbaadduu?', so_others_done:'Meeshaaleen biroo irraa ba\'aniiru.',
+      privacy:'Dhuunfaa', privacy_link:'Imaammata dhuunfaa dubbisi', export:'Odeeffannoo koo buufadhu', export_note:'Faayilii odeeffannoo akkaawuntii fi qindaa\'inoota kee qabu.',
+      theme:'Bifa', th_light:'Ifa', th_dark:'Dukkana', th_system:'Akka bilbila kootti', text_size:'Guddina barreeffamaa', sz_small:'Xiqqaa', sz_normal:'Idilee', sz_large:'Guddaa', sz_xlarge:'Baay\'ee guddaa', preview:'Kun fakkeenya guddina barreeffamaati.',
+      timezone:'Naannoo sa\'aatii', date_fmt:'Bifa guyyaa', time_fmt:'Bifa sa\'aatii', calendar:'Kaalandarii', cal_greg:'Giriigoriyaanii', cal_eth:'Itoophiyaa', week_start:'Torbanni kan jalqabu', mon:'Wiixata', sun:'Dilbata', sat:'Sambata', now_is:'Amma', h12:'Sa\'aatii 12', h24:'Sa\'aatii 24', dmy:'Guyyaa/Ji\'a/Waggaa', mdy:'Ji\'a/Guyyaa/Waggaa', ymd:'Waggaa-Ji\'a-Guyyaa', long:'4 Nov 2026',
+      sys_name:'Sirna Bulchiinsa Barattootaa', university:'Yuunivarsiitii Yaachi', version:'Gosa', support:'Gargaarsa', support_text:'Waa\'ee akkaawuntii, bu\'aa ykn kaffaltii gargaarsa argachuuf waajjira Registraraa ykn waajjira Faayinaansii qunnamaa.', refresh:'Appii haaromsi', online:'Walqunnamtii', on:'Toora irra', off:'Toora ala', tz_other:'Kan biraa'
+    }
+  };
+  function lang() { return (window.yuPrefs.get().language) || 'en'; }
+  function t(k) { var l = I18N[lang()] || I18N.en; return l[k] != null ? l[k] : (I18N.en[k] != null ? I18N.en[k] : k); }
+
+  /* ---------- tiny DOM helper ---------- */
+  function h(tag, attrs) {
+    var e = document.createElement(tag);
+    for (var k in (attrs || {})) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k.slice(0, 2) === 'on') e[k] = attrs[k];
+      else if (attrs[k] === true) e.setAttribute(k, '');
+      else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+    }
+    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c == null) continue; e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+    return e;
+  }
+  var app = document.getElementById('app'), titleEl = document.getElementById('title'), toastEl = document.getElementById('toast'), toastT = null;
+  function toast(msg, err) { toastEl.textContent = msg; toastEl.className = 'show' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(function () { toastEl.className = ''; }, err ? 4500 : 1500); }
+  function saveSetting(patch) {
+    return window.yuPrefs.set(patch).then(function (r) {
+      if (r.error) toast(t('save_failed') + (r.error.message || ''), true); else toast('✓ ' + t('saved'));
+      return r;
+    });
+  }
+
+  /* ---------- who is signed in ---------- */
+  var me = null, profile = null;
+  var SECTIONS = [['account', '👤'], ['language', '🌐'], ['notifications', '🔔'], ['security', '🔒'], ['appearance', '🎨'], ['regional', '📍'], ['about', 'ℹ️']];
+  function current() { var s = (location.hash || '').replace(/^#\/?/, ''); return SECTIONS.some(function (x) { return x[0] === s; }) ? s : ''; }
+
+  function optGroup(options, value, onPick) {
+    var wrap = h('div', { class: 'opts', role: 'radiogroup' });
+    options.forEach(function (o) {
+      var b = h('button', { type: 'button', class: 'opt' + (o[0] === value ? ' on' : ''), role: 'radio', 'aria-checked': String(o[0] === value), text: o[1] });
+      b.onclick = function () { [].forEach.call(wrap.children, function (c) { c.classList.remove('on'); c.setAttribute('aria-checked', 'false'); }); b.classList.add('on'); b.setAttribute('aria-checked', 'true'); onPick(o[0]); };
+      wrap.appendChild(b);
+    });
+    return wrap;
+  }
+  function row(k, v) { return h('div', { class: 'row' }, h('b', { text: k }), h('span', { text: v })); }
+
+  /* ---------- the seven sections ---------- */
+  var VIEWS = {
+    account: function (p) {
+      var last = me && me.last_sign_in_at ? window.yuPrefs.fmtDateTime(me.last_sign_in_at) : '-';
+      var out = h('button', { type: 'button', class: 'btn alt', text: t('signout') });
+      out.onclick = function () { db.auth.signOut().then(function () { location.href = '../'; }); };
+      p.append(h('h2', { text: t('account') }),
+        row(t('name'), (profile && profile.full_name) || t('not_set')), row(t('email'), (me && me.email) || ''),
+        row(t('idnum'), (profile && profile.id_number) || t('not_set')), row(t('role'), ((profile && profile.role) || '').replace(/_/g, ' ') || '-'),
+        row(t('last_signin'), last), h('p', { class: 'muted', text: t('acc_note') }), out);
+    },
+    language: function (p) {
+      p.append(h('h2', { text: t('language') }), h('p', { class: 'muted', text: t('lang_note') }), h('label', { class: 'f', text: t('lang_choose') }),
+        optGroup([['en', 'English'], ['am', 'አማርኛ'], ['om', 'Afaan Oromoo']], window.yuPrefs.get().language, function (v) { saveSetting({ language: v }).then(function () { render(); }); }));
+    },
+    notifications: function (p) {
+      var cur = window.yuPrefs.get().notifications || {};
+      var cats = [['announcements', 'n_ann'], ['exams', 'n_exam'], ['results', 'n_res'], ['finance', 'n_fin']];
+      p.append(h('h2', { text: t('notifications') }), h('p', { class: 'muted', text: t('notif_note') }),
+        h('div', { class: 'chh' }, h('span', { text: t('ch_app') }), h('span', { text: t('ch_email') })));
+      function sw(cat, ch, locked) {
+        var on = locked ? true : !(cur[cat] && cur[cat][ch] === false);
+        var inp = h('input', { type: 'checkbox', 'aria-label': t(ch === 'app' ? 'ch_app' : 'ch_email'), checked: on, disabled: !!locked });
+        inp.onchange = function () { var n = JSON.parse(JSON.stringify(window.yuPrefs.get().notifications || {})); n[cat] = n[cat] || {}; n[cat][ch] = inp.checked; cur = n; saveSetting({ notifications: n }); };
+        return h('label', { class: 'sw' }, inp, h('i'));
+      }
+      cats.forEach(function (c) { p.append(h('div', { class: 'tg' }, h('div', { class: 'nm', text: t(c[1]) }), h('div', { class: 'sws' }, sw(c[0], 'app'), sw(c[0], 'email')))); });
+      p.append(h('div', { class: 'tg' }, h('div', { class: 'nm', text: t('n_sec') }), h('div', { class: 'sws' }, sw('security', 'app', true), sw('security', 'email', true))));
+    },
+    security: function (p) {
+      var pw1 = h('input', { type: 'password', placeholder: t('pw_new'), autocomplete: 'new-password' });
+      var pw2 = h('input', { type: 'password', placeholder: t('pw_again'), autocomplete: 'new-password', style: 'margin-top:8px' });
+      var msg = h('div', { class: 'msg', role: 'status' });
+      var btn = h('button', { type: 'button', class: 'btn', text: t('pw_btn') });
+      function say(m, ok) { msg.textContent = m; msg.className = 'msg ' + (ok ? 'ok' : 'err'); }
+      btn.onclick = function () {
+        if (pw1.value.length < 8) { say(t('pw_short')); return; }
+        if (pw1.value !== pw2.value) { say(t('pw_mismatch')); return; }
+        btn.disabled = true;
+        db.auth.updateUser({ password: pw1.value }).then(function (r) {
+          btn.disabled = false;
+          if (r.error) { say(/reauth|recent|nonce/i.test(r.error.message) ? t('pw_reauth') : t('pw_fail') + r.error.message); return; }
+          pw1.value = ''; pw2.value = ''; say(t('pw_ok'), true);
+        });
+      };
+      var o1 = h('button', { type: 'button', class: 'btn alt', text: t('so_others') });
+      o1.onclick = function () { db.auth.signOut({ scope: 'others' }).then(function (r) { if (r.error) toast(r.error.message, true); else toast(t('so_others_done')); }); };
+      var o2 = h('button', { type: 'button', class: 'btn danger', text: t('so_all') });
+      o2.onclick = function () { if (!confirm(t('so_all_q'))) return; db.auth.signOut({ scope: 'global' }).then(function () { location.href = '../'; }); };
+      var ex = h('button', { type: 'button', class: 'btn alt', text: t('export') });
+      ex.onclick = function () {
+        var data = { exported_at: new Date().toISOString(), account: { email: me && me.email, id: me && me.id }, profile: profile || {}, settings: window.yuPrefs.get() };
+        var a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })), download: 'my-yachi-data.json' });
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+      p.append(h('h2', { text: t('security') }), h('h3', { text: t('pw_title') }), pw1, pw2, btn, msg,
+        h('h3', { text: t('devices') }), o1, o2,
+        h('h3', { text: t('privacy') }), h('a', { href: '../privacy.html', text: t('privacy_link'), style: 'color:var(--brand)' }),
+        h('p', { class: 'muted', text: t('export_note') }), ex);
+    },
+    appearance: function (p) {
+      var pr = window.yuPrefs.get();
+      var prev = h('div', { class: 'box', text: t('preview') });
+      p.append(h('h2', { text: t('appearance') }), h('label', { class: 'f', text: t('theme') }),
+        optGroup([['light', t('th_light')], ['dark', t('th_dark')], ['system', t('th_system')]], pr.theme, function (v) { saveSetting({ theme: v }); }),
+        h('label', { class: 'f', text: t('text_size') }),
+        optGroup([['small', t('sz_small')], ['normal', t('sz_normal')], ['large', t('sz_large')], ['xlarge', t('sz_xlarge')]], pr.text_size, function (v) { saveSetting({ text_size: v }); }), prev);
+    },
+    regional: function (p) {
+      var pr = window.yuPrefs.get();
+      var zones = ['Africa/Addis_Ababa', 'Africa/Nairobi', 'Africa/Cairo', 'Africa/Lagos', 'Africa/Johannesburg', 'Europe/London', 'Europe/Paris', 'Asia/Dubai', 'Asia/Riyadh', 'Asia/Kolkata', 'Asia/Shanghai', 'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'UTC'];
+      if (zones.indexOf(pr.timezone) < 0) zones.unshift(pr.timezone);
+      var sel = h('select', { 'aria-label': t('timezone') }); zones.forEach(function (z) { sel.appendChild(h('option', { value: z, text: z.replace(/_/g, ' '), selected: z === pr.timezone })); });
+      var now = h('div', { class: 'box' });
+      function paint() { now.textContent = t('now_is') + ': ' + window.yuPrefs.fmtDate() + '  ' + window.yuPrefs.fmtTime(); }
+      sel.onchange = function () { saveSetting({ timezone: sel.value }).then(paint); };
+      function grp(label, field, options) { return [h('label', { class: 'f', text: label }), optGroup(options, pr[field], function (v) { var o = {}; o[field] = v; saveSetting(o).then(paint); })]; }
+      p.append(h('h2', { text: t('regional') }), h('label', { class: 'f', text: t('timezone') }), sel);
+      [].concat(grp(t('date_fmt'), 'date_format', [['dmy', t('dmy')], ['mdy', t('mdy')], ['ymd', t('ymd')], ['long', t('long')]]),
+        grp(t('time_fmt'), 'time_format', [['12h', t('h12')], ['24h', t('h24')]]),
+        grp(t('calendar'), 'calendar', [['gregorian', t('cal_greg')], ['ethiopic', t('cal_eth')]]),
+        grp(t('week_start'), 'week_start', [['mon', t('mon')], ['sun', t('sun')], ['sat', t('sat')]])).forEach(function (n) { p.append(n); });
+      p.append(now); paint();
+    },
+    about: function (p) {
+      var rf = h('button', { type: 'button', class: 'btn alt', text: t('refresh') });
+      rf.onclick = function () { try { if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }); } catch (e) {} location.reload(); };
+      p.append(h('h2', { text: t('about') }), row(t('sys_name'), t('university')), row(t('version'), window.yuPrefs.version),
+        row(t('online'), navigator.onLine ? t('on') : t('off')),
+        h('h3', { text: t('support') }), h('p', { text: t('support_text') }),
+        h('a', { href: '../privacy.html', text: t('privacy_link'), style: 'color:var(--brand)' }), rf);
+    }
+  };
+
+  /* ---------- page shell ---------- */
+  function render() {
+    document.documentElement.setAttribute('lang', lang());
+    var cur = current(), wide = window.matchMedia('(min-width: 820px)').matches;
+    if (!cur && wide) cur = 'account';
+    app.className = cur ? 'detail' : '';
+    document.getElementById('backBtn').style.display = cur && !wide ? '' : 'none';
+    document.getElementById('homeBtn').style.display = cur && !wide ? 'none' : '';
+    titleEl.textContent = cur ? t(cur) : t('settings');
+    document.title = t('settings') + ' - Yachi University';
+    app.replaceChildren();
+    var list = h('nav', { class: 'list', 'aria-label': t('settings') });
+    SECTIONS.forEach(function (s) {
+      var b = h('button', { type: 'button', class: s[0] === cur ? 'on' : '' }, h('span', { class: 'ic', text: s[1] }), h('span', { text: t(s[0]) }), h('span', { class: 'go', text: '›' }));
+      b.onclick = function () { location.hash = '#/' + s[0]; };
+      list.appendChild(b);
+    });
+    app.appendChild(list);
+    var panel = h('section', { class: 'panel' });
+    if (cur) VIEWS[cur](panel);
+    app.appendChild(panel);
+  }
+  document.getElementById('backBtn').onclick = function () { location.hash = ''; };
+  window.addEventListener('hashchange', render);
+  window.addEventListener('resize', function () { clearTimeout(window.__rz); window.__rz = setTimeout(render, 150); });
+
+  function start() {
+    db.auth.getSession().then(function (r) {
+      var s = r.data && r.data.session;
+      if (!s) {
+        app.replaceChildren(h('div', { class: 'panel always', style: 'grid-column:1/-1' }, h('h2', { text: t('settings') }), h('p', { text: t('need_signin') }), h('a', { class: 'btn', href: '../', text: t('go_signin'), style: 'text-decoration:none;text-align:center' })));
+        return;
+      }
+      me = s.user;
+      Promise.all([window.yuPrefs.sync(), db.from('profiles').select('full_name, role, id_number').eq('id', me.id).maybeSingle()]).then(function (x) {
+        profile = (x[1] && x[1].data) || null;
+        render();
+      });
+      render();
+    });
+  }
+  start();
+})();
+</script>
+</body>
+</html>

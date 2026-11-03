@@ -95,6 +95,7 @@
       if (!f) return;
       var b = el('button', { text: x[1] }); b.onclick = function () { closeProf(); go(f.key); }; p.appendChild(b);
     });
+    var st = el('button', { text: 'Settings' }); st.onclick = function () { closeProf(); location.href = 'settings/'; }; p.appendChild(st);
     var so = el('button', { class: 'out', text: 'Sign out' }); so.onclick = function () { closeProf(); db.auth.signOut(); }; p.appendChild(so);
     document.body.appendChild(p);
   }

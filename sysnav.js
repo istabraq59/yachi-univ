@@ -19,10 +19,7 @@
   }
   function settings(nav) {
     document.body.classList.remove('yu-open');
-    setTimeout(function () {
-      var me = document.querySelector('#yuTop .me') || document.querySelector('.me');
-      if (me) me.click();
-    }, 150);
+    location.href = 'settings/';
   }
   function ensure() {
     var nav = document.querySelector('#yuSide nav'); if (!nav) return;

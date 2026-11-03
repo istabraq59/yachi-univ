@@ -29,5 +29,5 @@
       body.insertBefore(b, lab);
     });
   }
-  setInterval(ensure, 200);
+  setInterval(function () { if (!document.hidden) ensure(); }, 400);
 })();

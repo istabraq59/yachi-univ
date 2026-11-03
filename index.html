@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yachi University</title>
+<link rel="preconnect" href="https://mczhuzxcjrdtfrcswusf.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <style>
   body { font-family: sans-serif; margin: 0; padding: 16px; background: #f4f6f8; color: #1d2733; }
   h1 { font-size: 1.3rem; }
@@ -20,11 +22,14 @@
   .msg { color: #b91c1c; min-height: 1.2em; }
   .ok { color: #15803d; }
   .hidden { display: none; }
+  @keyframes yusk { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+  .sk, .yu-sk b { display: inline-block; height: 1em; min-width: 2.2em; border-radius: 4px; vertical-align: middle; background: linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%); background-size: 200% 100%; animation: yusk 1.2s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .sk, .yu-sk b { animation: none } }
 </style>
 </head>
 <body>
 <script src="splash.js?v=1"></script>
-<script src="turnstile.js?v=6"></script>
+<script src="turnstile.js?v=1793680351278"></script>
 <h1>Yachi University – Student Management</h1>
 
 <div id="loginBox" class="card">
@@ -100,6 +105,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
+<script src="core.js?v=1"></script>
 <script>
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const $ = (id) => document.getElementById(id);
@@ -138,17 +144,21 @@
   }
 
   async function loadCourseAndSemesterLists() {
-    const c = await db.from('courses').select('id, course_code, title').order('course_code');
+    // courses and the academic-year -> semesters chain run at the same time
+    const coursesP = db.from('courses').select('id, course_code, title').order('course_code');
+    const semestersP = db.from('academic_years').select('id').eq('is_current', true).single().then(async (y) => {
+      if (y.error) return { stage: 'Academic year', error: y.error };
+      const s = await db.from('semesters').select('id, name').eq('academic_year_id', y.data.id).order('name');
+      return { stage: 'Semesters', error: s.error, data: s.data };
+    });
+    const [c, s] = await Promise.all([coursesP, semestersP]);
     if (c.error) { say('enrollMsg', 'Courses: ' + c.error.message); }
     else {
-      const label = (x) => x.course_code + ' – ' + x.title;
+      const label = (x) => x.course_code + ' \u2013 ' + x.title;
       fill('e_course', c.data, label);
       fill('r_course', c.data, label);
     }
-    const y = await db.from('academic_years').select('id').eq('is_current', true).single();
-    if (y.error) { say('enrollMsg', 'Academic year: ' + y.error.message); return; }
-    const s = await db.from('semesters').select('id, name').eq('academic_year_id', y.data.id).order('name');
-    if (s.error) { say('enrollMsg', 'Semesters: ' + s.error.message); return; }
+    if (s.error) { say('enrollMsg', s.stage + ': ' + s.error.message); return; }
     fill('e_semester', s.data, (x) => x.name);
     fill('r_semester', s.data, (x) => x.name);
   }
@@ -185,16 +195,55 @@
     window.scrollTo(0, 0);
   }
 
-  async function loadStudents() {
-    say('listMsg', '');
-    const { data, error } = await db
-      .from('students')
-      .select('id, student_number, full_name, email, year_of_study, phone, address, date_of_birth, unit_id, department_id, admission_number, academic_username')
-      .order('student_number');
-    if (error) { say('listMsg', error.message); return; }
-    fill('e_student', data, (s) => s.student_number + ' – ' + s.full_name);
+  const STUDENT_COLS = 'id, student_number, full_name, email, year_of_study, phone, address, date_of_birth, unit_id, department_id, admission_number, academic_username';
+  const PAGE = 100;
+  let shown = 0, choicesLoaded = false;
+  const moreBtn = document.createElement('button');
+  moreBtn.className = 'secondary hidden';
+  moreBtn.textContent = 'Load more students';
+  $('rows').closest('.scroll').after(moreBtn);
+  moreBtn.onclick = () => loadStudents(true);
+
+  function skeletonRows(n) {
     const body = $('rows');
     body.replaceChildren();
+    for (let i = 0; i < n; i++) {
+      const tr = document.createElement('tr');
+      for (let j = 0; j < 5; j++) {
+        const td = document.createElement('td');
+        const sp = document.createElement('span');
+        sp.className = 'sk';
+        sp.style.width = j === 1 ? '9em' : j === 2 ? '10em' : '4em';
+        td.appendChild(sp);
+        tr.appendChild(td);
+      }
+      body.appendChild(tr);
+    }
+  }
+
+  // the enroll dropdown needs every student, but only 3 columns, and it is not urgent
+  async function loadStudentChoices() {
+    if (choicesLoaded) return;
+    choicesLoaded = true;
+    const r = await db.from('students').select('id, student_number, full_name').order('student_number');
+    if (r.error) { choicesLoaded = false; say('enrollMsg', 'Students: ' + r.error.message); return; }
+    fill('e_student', r.data, (s) => s.student_number + ' \u2013 ' + s.full_name);
+  }
+  const idle = (fn) => (window.requestIdleCallback ? window.requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
+
+  async function loadStudents(more) {
+    more = more === true;
+    say('listMsg', '');
+    const from = more ? shown : 0;
+    // the table needs only 5 columns; the full record is fetched when Edit is pressed
+    const { data, error } = await db
+      .from('students')
+      .select('id, student_number, full_name, email, year_of_study')
+      .order('student_number')
+      .range(from, from + PAGE - 1);
+    if (error) { say('listMsg', error.message); $('rows').replaceChildren(); return; }
+    const body = $('rows');
+    if (!more) { body.replaceChildren(); shown = 0; choicesLoaded = false; idle(loadStudentChoices); }
     for (const s of data) {
       const tr = document.createElement('tr');
       for (const v of [s.student_number, s.full_name, s.email, s.year_of_study]) {
@@ -206,7 +255,13 @@
       const eb = document.createElement('button');
       eb.textContent = 'Edit';
       eb.className = 'secondary';
-      eb.onclick = () => startEdit(s);
+      eb.onclick = async () => {
+        eb.disabled = true;
+        const r = await db.from('students').select(STUDENT_COLS).eq('id', s.id).single();
+        eb.disabled = false;
+        if (r.error) { say('listMsg', r.error.message); return; }
+        startEdit(r.data);
+      };
       const dbtn = document.createElement('button');
       dbtn.textContent = 'Delete';
       dbtn.className = 'danger';
@@ -215,7 +270,9 @@
       tr.appendChild(act);
       body.appendChild(tr);
     }
-    if (data.length === 0) say('listMsg', 'No students visible to this account.');
+    shown = from + data.length;
+    moreBtn.classList.toggle('hidden', data.length < PAGE);
+    if (shown === 0) say('listMsg', 'No students visible to this account.');
   }
 
   async function removeStudent(s) {
@@ -337,9 +394,9 @@
 
   /* ---------- sign in / out ---------- */
   async function startApp() {
-    await loadPrograms();
-    await loadCourseAndSemesterLists();
-    await loadStudents();
+    skeletonRows(6);
+    // independent loads run together instead of one after another
+    await Promise.allSettled([loadPrograms(), loadCourseAndSemesterLists(), loadStudents()]);
   }
 
   $('loginBtn').onclick = async () => {
@@ -399,8 +456,7 @@
 <script src="biography.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="idcard.js?v=6"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-<script src="scanner.js?v=1"></script>
+<script src="scanner.js?v=1793680351278"></script>
 <script src="reports.js?v=3"></script>
 <script src="offices.js?v=1"></script>
 <script src="transcript.js?v=3"></script>
@@ -410,15 +466,15 @@
 <script src="studentexam.js?v=1"></script>
 <script src="examgrading.js?v=1"></script>
 <script src="examreports.js?v=1"></script>
-<script src="examdash.js?v=1"></script>
-<script src="financehome.js?v=2"></script>
-<script src="finnav.js?v=2"></script>
-<script src="sysnav.js?v=2"></script>
-<script src="examnav.js?v=1"></script>
-<script src="clinicnav.js?v=1"></script>
+<script src="examdash.js?v=1793680351278"></script>
+<script src="financehome.js?v=1793680351278"></script>
+<script src="finnav.js?v=1793680351278"></script>
+<script src="sysnav.js?v=1793680351278"></script>
+<script src="examnav.js?v=1793680351278"></script>
+<script src="clinicnav.js?v=1793680351278"></script>
 <script src="formstyle.js?v=1"></script>
 <script src="shell.js?v=1"></script>
-<script src="shell2.js?v=1793494906096"></script>
+<script src="shell2.js?v=1793680351278"></script>
 <script src="photo.js?v=2"></script>
 <script src="udp-picker.js?v=2"></script>
 <script src="studentform.js"></script>

@@ -100,5 +100,5 @@
   mo.observe(document.body, { childList: true, subtree: true });
   db.auth.onAuthStateChange(function () { setTimeout(load, 900); });
   setTimeout(load, 1500);
-  clearInterval(timer); timer = setInterval(load, 60000);
+  clearInterval(timer); timer = setInterval(function () { if (!document.hidden) load(); }, 60000);
 })();

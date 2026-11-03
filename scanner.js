@@ -79,6 +79,7 @@
     }
     start.onclick = function () {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { result.textContent = 'Camera is not available in this browser.'; return; }
+      if (window.yuLoad && !window.jsQR) yuLoad('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js');
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then(function (s) {
         stream = s; video.srcObject = s; video.style.display = 'block'; video.play();
         start.style.display = 'none'; stop.style.display = ''; tick();

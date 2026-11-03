@@ -47,5 +47,5 @@
     nav.insertBefore(body, anchorBody.nextSibling);
     nav.insertBefore(head, body);
   }
-  setInterval(ensure, 200);
+  setInterval(function () { if (!document.hidden) ensure(); }, 400);
 })();

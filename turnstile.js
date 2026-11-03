@@ -176,7 +176,7 @@
       if (tok) { var t = tok; tok = null; try { window.turnstile.reset(wid); } catch (e) {} return res(t); }
       var done = false;
       waiters.push(function (t) { if (!done) { done = true; res(t); } });
-      setTimeout(function () { if (!done) { done = true; res(null); } }, 25000);
+      setTimeout(function () { if (!done) { done = true; res(null); } }, 10000);
     });
   };
 })();

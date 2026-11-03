@@ -366,10 +366,10 @@ function ttl(c) {
     var box = el('div', { class: 'stats' });
     h.insertBefore(box, h.querySelector('#yuQa'));
     function slot(label, ic, cls, run) {
-      var d = el('div', { class: 'st ' + cls }); d.style.display = 'none';
+      var d = el('div', { class: 'st ' + cls + ' yu-sk' });
       d.appendChild(el('i', { text: ic }));
       var n = el('b', { text: '' }); d.appendChild(n); d.appendChild(el('span', { text: label })); box.appendChild(d);
-      run(function (c) { if (c !== null && c !== undefined) { n.textContent = String(c); d.style.display = ''; } });
+      run(function (c) { d.classList.remove('yu-sk'); if (c !== null && c !== undefined) { n.textContent = String(c); d.style.display = ''; } else { d.style.display = 'none'; } });
     }
     function cnt(table, filter) {
       return function (done) {

@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Placement & Internship - Yachi University</title>
+<style>
+  :root { --bg:#f3f6fb; --card:#fff; --text:#1b2540; --muted:#64748b; --line:#dbe3f0; --brand:#1d4ed8; --brand-text:#fff; --danger:#dc2626; --ok:#15803d; --soft:#eaf1ff; --warn:#b45309; --shadow:0 1px 4px rgba(15,35,90,.1); }
+  html[data-theme=dark] { --bg:#0b1220; --card:#162033; --text:#e6ebf5; --muted:#9aa8c0; --line:#2a3750; --brand:#5b9bff; --brand-text:#0b1220; --danger:#f87171; --ok:#4ade80; --soft:#1d2b45; --warn:#fbbf24; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.45 Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+  header.top { position:sticky; top:0; z-index:8; display:flex; align-items:center; gap:10px; padding:12px 16px; background:linear-gradient(135deg,#1e40af,#2563eb); color:#fff; }
+  header.top a { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:rgba(255,255,255,.18); color:#fff; font-size:20px; text-decoration:none; flex:none; }
+  html[dir=rtl] header.top a { transform:scaleX(-1); }
+  header.top h1 { font-size:1.15rem; margin:0; } header.top small { display:block; opacity:.85; font-size:.8rem; }
+  .shell { max-width:1180px; margin:0 auto; padding:14px; display:grid; grid-template-columns:230px 1fr; gap:16px; align-items:start; }
+  nav.side { position:sticky; top:76px; background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:8px; }
+  nav.side button { display:flex; gap:10px; align-items:center; width:100%; padding:11px 12px; border:0; border-radius:10px; background:transparent; color:var(--text); font:inherit; text-align:start; cursor:pointer; }
+  nav.side button .ic { width:22px; text-align:center; } nav.side button.on { background:var(--brand); color:var(--brand-text); } nav.side button:not(.on):hover { background:var(--soft); }
+  main { min-width:0; }
+  .pgh { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .pgh h2 { margin:0; font-size:1.25rem; } .muted { color:var(--muted); font-size:.9rem; }
+  .panel { background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:16px; margin-bottom:14px; }
+  .panel h3 { margin:0 0 10px; font-size:1.02rem; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:14px; }
+  .stat { background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:14px; border-top:3px solid var(--brand); }
+  .stat b { display:block; font-size:1.7rem; line-height:1.1; } .stat span { color:var(--muted); font-size:.85rem; }
+  .stat.p { border-top-color:#d97706; } .stat.p b { color:#d97706; } .stat.g { border-top-color:var(--ok); } .stat.g b { color:var(--ok); } .stat.i b { color:var(--brand); }
+  .btn { padding:10px 18px; border:0; border-radius:10px; background:var(--brand); color:var(--brand-text); font:inherit; font-weight:500; cursor:pointer; }
+  .btn.alt { background:var(--soft); color:var(--text); } .btn.danger { background:var(--danger); color:#fff; } .btn.ok { background:var(--ok); color:#fff; } .btn.sm { padding:6px 12px; font-size:.88rem; }
+  .btn:disabled { opacity:.55; cursor:default; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  label.f { display:block; margin:12px 0 5px; font-weight:500; font-size:.95rem; } label.f .req { color:var(--danger); }
+  select, input[type=text], input[type=search], input[type=date], input[type=datetime-local], input[type=number], input[type=email], input[type=url], textarea { width:100%; padding:10px 12px; font:inherit; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--text); }
+  textarea { min-height:90px; resize:vertical; } select:focus, input:focus, textarea:focus { outline:2px solid var(--brand); border-color:transparent; }
+  .bad { border-color:var(--danger) !important; } .ferr { color:var(--danger); font-size:.85rem; min-height:1.1em; margin-top:3px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; } .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 12px; }
+  .chk { display:flex; gap:8px; align-items:center; margin:6px 0; } .chk input { width:20px; height:20px; accent-color:var(--brand); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:6px 0; }
+  .chip { font-size:.78rem; padding:3px 10px; border-radius:20px; background:var(--soft); color:var(--text); }
+  .bd { font-size:.78rem; padding:3px 10px; border-radius:20px; font-weight:600; color:#fff; white-space:nowrap; background:#64748b; }
+  .bd.Pending,.bd.Draft { background:#d97706; } .bd.Approved,.bd.Open,.bd.Placed,.bd.Active,.bd.Completed { background:#15803d; } .bd.Rejected,.bd.Terminated,.bd.Not-Completed,.bd.Inactive { background:#dc2626; }
+  .bd.Interview-Scheduled,.bd.Published,.bd.Assigned,.bd.Ongoing,.bd.Scheduled { background:#2563eb; } .bd.Withdrawn,.bd.Closed,.bd.Cancelled { background:#64748b; }
+  .tbar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; } .tbar > * { flex:1 1 150px; } .tbar .q { flex:2 1 220px; }
+  .tw { overflow-x:auto; } table { width:100%; border-collapse:collapse; }
+  th { text-align:start; font-size:.8rem; color:var(--muted); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  td { padding:10px; border-bottom:1px solid var(--line); vertical-align:middle; } tr.click { cursor:pointer; } tr.click:hover td { background:var(--soft); }
+  .pager { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .empty { text-align:center; padding:30px 10px; color:var(--muted); }
+  .banner { padding:12px 14px; border-radius:12px; margin-bottom:12px; } .banner.err { background:rgba(220,38,38,.1); color:var(--danger); border:1px solid var(--danger); } .banner.ok { background:rgba(21,128,61,.12); color:var(--ok); border:1px solid var(--ok); }
+  .skel { height:70px; border-radius:14px; background:linear-gradient(90deg,var(--card),var(--soft),var(--card)); background-size:200% 100%; animation:sk 1.2s infinite; margin-bottom:10px; } @keyframes sk { to { background-position:-200% 0; } }
+  .act { list-style:none; margin:0; padding:0; } .act li { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); } .act li:last-child { border-bottom:0; }
+  .act .dot { width:10px; height:10px; border-radius:50%; background:var(--brand); margin-top:6px; flex:none; } .act small { color:var(--muted); display:block; }
+  .kv { display:grid; grid-template-columns:130px 1fr; gap:4px 12px; font-size:.92rem; margin:8px 0; } .kv b { color:var(--muted); font-weight:500; } .kv span { word-break:break-word; }
+  .txt { white-space:pre-wrap; word-break:break-word; margin:4px 0 10px; }
+  .box { padding:12px; border-radius:12px; background:var(--soft); margin:10px 0; } .box h4 { margin:0 0 6px; font-size:.95rem; }
+  .docrow { display:flex; justify-content:space-between; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; } .docrow:last-child { border-bottom:0; }
+  .bar { height:10px; border-radius:6px; background:var(--soft); overflow:hidden; min-width:60px; } .bar i { display:block; height:100%; background:var(--brand); }
+  .ov { position:fixed; inset:0; background:rgba(5,12,30,.6); z-index:30; display:flex; align-items:flex-end; justify-content:center; }
+  .dlg { background:var(--card); width:100%; max-width:720px; max-height:94vh; overflow:auto; border-radius:18px 18px 0 0; padding:18px; }
+  .dlg.sm { max-width:440px; } .dlg .hd { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:6px; }
+  .dlg .hd h2 { margin:0; font-size:1.15rem; word-break:break-word; } .dlg .x { border:0; background:var(--soft); color:var(--text); width:36px; height:36px; border-radius:10px; font-size:18px; cursor:pointer; flex:none; }
+  #toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(80px); background:#111827; color:#fff; padding:10px 18px; border-radius:22px; font-size:.95rem; opacity:0; transition:.2s; z-index:50; max-width:90vw; text-align:center; } #toast.show { transform:translateX(-50%); opacity:1; } #toast.err { background:#b91c1c; }
+  @media (min-width:700px) { .ov { align-items:center; } .dlg { border-radius:18px; } }
+  @media (max-width:900px) {
+    .shell { grid-template-columns:1fr; padding:10px; gap:10px; }
+    nav.side { position:static; display:flex; gap:6px; overflow-x:auto; padding:6px; } nav.side button { width:auto; white-space:nowrap; flex:none; padding:9px 12px; }
+  }
+  @media (max-width:640px) {
+    .grid2,.grid3 { grid-template-columns:1fr; } .kv { grid-template-columns:1fr; gap:0; } .kv b { margin-top:6px; }
+    table.cards thead { display:none; } table.cards, table.cards tbody, table.cards tr, table.cards td { display:block; width:100%; }
+    table.cards tr { border:1px solid var(--line); border-radius:12px; padding:8px 10px; margin-bottom:8px; background:var(--card); }
+    table.cards td { border:0; padding:4px 0; display:flex; justify-content:space-between; gap:10px; text-align:end; }
+    table.cards td::before { content:attr(data-l); color:var(--muted); font-size:.8rem; text-align:start; flex:none; }
+    table.cards td:empty { display:none; }
+  }
+</style>
+</head>
+<body>
+<script>window.YU_NATIVE_THEME = true;</script>
+<script src="../config.js"></script>
+<script src="../core.js?v=1"></script>
+<script src="../prefs.js?v=4"></script>
+<header class="top">
+  <a href="../" aria-label="Back to Yachi University">&#8592;</a>
+  <div><h1>Placement &amp; Internship</h1><small>Yachi University</small></div>
+</header>
+<div class="shell"><nav class="side" id="nav" aria-label="Placement sections"></nav><main id="app"></main></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+(function () {
+  'use strict';
+  var app = document.getElementById('app'), navEl = document.getElementById('nav'), toastEl = document.getElementById('toast'), toastT;
+  var ME = { uid: null, role: 'none', admin: false, student: null };
+  var CACHE = {}, PAGEGEN = 0;
+  var DOC_TYPES = ['CV', 'Transcript', 'Recommendation Letter', 'ID Copy', 'Other'];
+  var EXT = { pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+  var MAXB = 5 * 1024 * 1024;
+
+  /* ---------- helpers ---------- */
+  function h(tag, attrs) {
+    var e = document.createElement(tag);
+    for (var k in (attrs || {})) {
+      if (k === 'text') e.textContent = attrs[k]; else if (k.slice(0, 2) === 'on') e[k] = attrs[k];
+      else if (attrs[k] === true) e.setAttribute(k, ''); else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+    }
+    (function add(list) { for (var i = 0; i < list.length; i++) { var c = list[i]; if (c == null || c === false) continue; if (Array.isArray(c)) add(c); else e.appendChild(c && c.nodeType ? c : document.createTextNode(String(c))); } })([].slice.call(arguments, 2));
+    return e;
+  }
+  function toast(m, err) { toastEl.textContent = m; toastEl.className = 'show' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(function () { toastEl.className = ''; }, err ? 5000 : 2200); }
+  function niceErr(e) {
+    var m = (e && e.message) || String(e || '');
+    if (/Failed to fetch|NetworkError|network/i.test(m)) return 'Could not reach the server. Check your connection and try again.';
+    if (/row-level security|permission denied/i.test(m)) return 'You do not have permission to do that.';
+    if (/violates foreign key constraint .*organization_id/i.test(m)) return 'This organization still has opportunities. Deactivate it instead of deleting it.';
+    if (/duplicate key|unique/i.test(m)) return 'That already exists.';
+    if (/JWT|expired/i.test(m)) return 'Your session ended. Please sign in again.';
+    return m;
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function today() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function fd(s) { if (!s) return '—'; try { if (window.yuPrefs && yuPrefs.fmtDate) return yuPrefs.fmtDate(String(s).length === 10 ? s + 'T12:00:00' : s); } catch (e) {} var d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString(); }
+  function fdt(s) { if (!s) return '—'; try { if (window.yuPrefs && yuPrefs.fmtDateTime) return yuPrefs.fmtDateTime(s); } catch (e) {} return new Date(s).toLocaleString(); }
+  function dash(v) { return v == null || v === '' ? '—' : String(v); }
+  function bd(s) { return h('span', { class: 'bd ' + String(s).replace(/ /g, '-'), text: s }); }
+  function skel(n) { var b = h('div'); for (var i = 0; i < (n || 3); i++) b.appendChild(h('div', { class: 'skel' })); return b; }
+  function errBox(msg, retry) { return h('div', null, h('div', { class: 'banner err', role: 'alert', text: msg }), retry ? h('button', { class: 'btn', text: 'Try again', onclick: retry }) : null); }
+  function kv(pairs) { var d = h('div', { class: 'kv' }); pairs.forEach(function (p) { d.appendChild(h('b', { text: p[0] })); d.appendChild(h('span', null, p[1] == null || p[1] === '' ? '—' : p[1])); }); return d; }
+  function field(label, input, req, id) { return h('div', null, h('label', { class: 'f', for: id || (input && input.id) }, label, req ? h('span', { class: 'req', text: ' *' }) : null), input, h('div', { class: 'ferr', id: 'e-' + (id || (input && input.id)) })); }
+  function setErr(root, id, msg) { var e = root.querySelector('#e-' + id), i = root.querySelector('#' + id); if (e) e.textContent = msg || ''; if (i) i.classList.toggle('bad', !!msg); return !!msg; }
+  function opts(list, v, ph) { var o = ph ? [h('option', { value: '', text: ph })] : []; list.forEach(function (x) { var val = Array.isArray(x) ? x[0] : x, lab = Array.isArray(x) ? x[1] : x; o.push(h('option', { value: val, text: lab, selected: String(val) === String(v) })); }); return o; }
+  function isOpen(o) { return o.status === 'Published' && o.deadline >= today(); }
+  function dstatus(o) { return o.status === 'Draft' ? 'Draft' : (isOpen(o) ? 'Open' : 'Closed'); }
+  function csv(name, head, rows) {
+    function c(v) { v = v == null ? '' : String(v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }
+    var t = [head].concat(rows).map(function (r) { return r.map(c).join(','); }).join('\r\n');
+    var a = h('a', { href: URL.createObjectURL(new Blob(['﻿' + t], { type: 'text/csv' })), download: name }); document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* ---------- dialogs ---------- */
+  function modal(title, body, o) {
+    o = o || {};
+    var ov = h('div', { class: 'ov', onclick: function (e) { if (e.target === ov && !o.sticky && !o.noOutside) close(); } });
+    function close() { ov.remove(); document.removeEventListener('keydown', esc); }
+    function esc(e) { if (e.key === 'Escape' && !o.sticky) close(); }
+    document.addEventListener('keydown', esc);
+    var dlg = h('div', { class: 'dlg' + (o.small ? ' sm' : ''), role: 'dialog', 'aria-modal': 'true' },
+      h('div', { class: 'hd' }, h('h2', { text: title }), h('button', { class: 'x', type: 'button', 'aria-label': 'Close', text: '✕', onclick: close })), body);
+    ov.appendChild(dlg); document.body.appendChild(ov);
+    return { close: close, el: dlg };
+  }
+  function confirmDlg(msg, okLabel, danger) {
+    return new Promise(function (res) {
+      var m; function done(v) { m.close(); res(v); }
+      m = modal('Please confirm', h('div', null, h('p', { text: msg }),
+        h('div', { class: 'btns' }, h('button', { class: 'btn ' + (danger ? 'danger' : ''), type: 'button', text: okLabel || 'Confirm', onclick: function () { done(true); } }),
+          h('button', { class: 'btn alt', type: 'button', text: 'Cancel', onclick: function () { done(false); } }))), { small: true, sticky: true });
+    });
+  }
+  function busy(btn, label, fn) {
+    var old = btn.textContent; btn.disabled = true; btn.textContent = label;
+    return Promise.resolve().then(fn).then(function (v) { btn.disabled = false; btn.textContent = old; return v; }, function (e) { btn.disabled = false; btn.textContent = old; throw e; });
+  }
+
+  /* ---------- data ---------- */
+  function load(key, force) {
+    if (CACHE[key] && !force) return Promise.resolve(CACHE[key]);
+    var q;
+    if (key === 'orgs') q = db.from('placement_organizations').select('*').order('name', { ascending: true }).limit(1000);
+    else if (key === 'opps') q = db.from('placement_opportunities').select('*, placement_organizations(id,name,sector,contact_person,email,phone,website,address,description,status)').order('created_at', { ascending: false }).limit(1000);
+    else if (key === 'apps') q = db.from('placement_applications').select('*, placement_opportunities(id,title,kind,deadline,organization_id,required_docs,placement_organizations(name))').order('created_at', { ascending: false }).limit(2000);
+    else if (key === 'asg') q = db.from('placement_assignments').select('*, placement_organizations(name,contact_person,email,phone,address), placement_opportunities(title,kind)').order('created_at', { ascending: false }).limit(2000);
+    else if (key === 'res') q = db.from('placement_results').select('*, placement_organizations(name), placement_opportunities(title,kind)').order('created_at', { ascending: false }).limit(2000);
+    else if (key === 'ints') q = db.from('placement_interviews').select('*').order('scheduled_at', { ascending: true }).limit(2000);
+    return q.then(function (r) { if (r.error) throw r.error; CACHE[key] = r.data || []; return CACHE[key]; });
+  }
+  function many(keys, force) { return Promise.all(keys.map(function (k) { return load(k, force); })); }
+  function refresh(keys) { keys.forEach(function (k) { delete CACHE[k]; }); }
+
+  /* ---------- searchable, filterable, paged table ---------- */
+  function table(o) {
+    var st = { q: '', f: {}, page: 0, sort: null, dir: 1 }, per = o.per || 10;
+    var wrap = h('div'), body = h('div');
+    var q = h('input', { type: 'search', class: 'q', placeholder: o.placeholder || 'Search', 'aria-label': 'Search' });
+    q.oninput = function () { st.q = q.value.toLowerCase(); st.page = 0; draw(); };
+    var bar = h('div', { class: 'tbar' }, q);
+    (o.filters || []).forEach(function (f) {
+      st.f[f.key] = f.def || '';
+      var s = h('select', { 'aria-label': f.label }, opts(f.opts, st.f[f.key], f.label));
+      s.onchange = function () { st.f[f.key] = s.value; st.page = 0; draw(); }; bar.appendChild(s);
+    });
+    wrap.appendChild(bar); wrap.appendChild(body);
+    function rows() {
+      var r = o.rows.filter(function (x) {
+        if (st.q && o.text(x).toLowerCase().indexOf(st.q) < 0) return false;
+        return (o.filters || []).every(function (f) { return !st.f[f.key] || String(f.get(x)) === st.f[f.key]; });
+      });
+      if (st.sort) { var c = o.cols[st.sort]; r = r.slice().sort(function (a, b) { var x = (c.val || c.render)(a), y = (c.val || c.render)(b); x = x == null ? '' : x; y = y == null ? '' : y; return (x > y ? 1 : x < y ? -1 : 0) * st.dir; }); }
+      return r;
+    }
+    function draw() {
+      var r = rows(), pages = Math.max(1, Math.ceil(r.length / per)); if (st.page >= pages) st.page = pages - 1;
+      body.textContent = '';
+      if (!r.length) { body.appendChild(h('div', { class: 'empty', text: o.rows.length ? 'Nothing matches your search or filters.' : (o.empty || 'Nothing here yet.') })); return; }
+      var tr = h('tr');
+      o.cols.forEach(function (c, i) { var th = h('th', { text: c.label + (st.sort === i ? (st.dir > 0 ? ' ▲' : ' ▼') : '') }); if (c.val) { th.style.cursor = 'pointer'; th.onclick = function () { if (st.sort === i) st.dir = -st.dir; else { st.sort = i; st.dir = 1; } draw(); }; } tr.appendChild(th); });
+      var tb = h('tbody');
+      r.slice(st.page * per, st.page * per + per).forEach(function (x) {
+        var row = h('tr', o.onRow ? { class: 'click', tabindex: '0', onclick: function () { o.onRow(x); }, onkeydown: function (e) { if (e.key === 'Enter') o.onRow(x); } } : null);
+        o.cols.forEach(function (c) { var v = c.render(x); row.appendChild(h('td', { 'data-l': c.label }, v == null ? '' : (typeof v === 'object' ? v : String(v)))); });
+        tb.appendChild(row);
+      });
+      body.appendChild(h('div', { class: 'tw' }, h('table', { class: 'cards' }, h('thead', null, tr), tb)));
+      body.appendChild(h('div', { class: 'pager' }, h('span', { class: 'muted', text: r.length + (r.length === 1 ? ' record' : ' records') + ' · page ' + (st.page + 1) + ' of ' + pages }),
+        h('span', null, h('button', { class: 'btn alt sm', type: 'button', text: '‹ Previous', disabled: st.page === 0, onclick: function () { st.page--; draw(); } }), ' ',
+          h('button', { class: 'btn alt sm', type: 'button', text: 'Next ›', disabled: st.page >= pages - 1, onclick: function () { st.page++; draw(); } }))));
+    }
+    draw(); return wrap;
+  }
+
+  /* ---------- navigation ---------- */
+  function pages() {
+    if (ME.role === 'officer') {
+      var l = [['dashboard', '📊', 'Placement Dashboard'], ['opportunities', '💼', 'Available Opportunities'], ['applications', '📝', 'Student Applications'], ['internships', '🎓', 'Internship Management'], ['results', '🏆', 'Placement Results'], ['organizations', '🏢', 'Partner Organizations'], ['reports', '📈', 'Reports']];
+      if (ME.admin) l.push(['officers', '👤', 'Placement Officers']); return l;
+    }
+    return [['dashboard', '📊', 'Placement Dashboard'], ['opportunities', '💼', 'Available Opportunities'], ['applications', '📝', 'My Applications'], ['results', '🏆', 'My Placement']];
+  }
+  function route() { var r = location.hash.replace(/^#\/?/, '').split('?')[0] || 'dashboard'; return pages().some(function (p) { return p[0] === r; }) ? r : 'dashboard'; }
+  function go(r) { if (location.hash === '#/' + r) render(); else location.hash = '#/' + r; }
+  function drawNav() {
+    navEl.textContent = ''; var cur = route();
+    pages().forEach(function (p) { navEl.appendChild(h('button', { type: 'button', class: p[0] === cur ? 'on' : '', onclick: function () { go(p[0]); } }, h('span', { class: 'ic', text: p[1] }), h('span', { text: p[2] }))); });
+  }
+  var VIEWS = {};
+  function render() {
+    var r = route(), gen = ++PAGEGEN; drawNav(); app.textContent = ''; app.appendChild(skel(3));
+    window.scrollTo(0, 0);
+    Promise.resolve().then(function () { return VIEWS[r](); }).then(function (node) { if (gen !== PAGEGEN) return; app.textContent = ''; app.appendChild(node); },
+      function (e) { if (gen !== PAGEGEN) return; app.textContent = ''; app.appendChild(errBox('Could not load this page: ' + niceErr(e), render)); });
+  }
+  function head(title, sub, actions) { return h('div', { class: 'pgh' }, h('div', null, h('h2', { text: title }), sub ? h('div', { class: 'muted', text: sub }) : null), h('div', { class: 'btns', style: 'margin:0' }, actions)); }
+
+  /* ---------- dashboard ---------- */
+  VIEWS.dashboard = function () {
+    return Promise.all([db.rpc('pl_stats'), db.rpc('pl_recent')]).then(function (x) {
+      if (x[0].error) throw x[0].error; var s = x[0].data || {}, rec = (x[1].data || []), off = ME.role === 'officer', box = h('div');
+      function card(n, l, c) { return h('div', { class: 'stat ' + (c || '') }, h('b', { text: String(n == null ? 0 : n) }), h('span', { text: l })); }
+      box.appendChild(head('Placement Dashboard', off ? 'Overview of all placement activity' : 'Your placement overview',
+        off ? h('button', { class: 'btn', text: '+ New opportunity', onclick: function () { go('opportunities'); setTimeout(function () { editOpp(null); }, 300); } }) : h('button', { class: 'btn', text: 'Browse opportunities', onclick: function () { go('opportunities'); } })));
+      box.appendChild(h('div', { class: 'stats' },
+        card(s.opportunities, off ? 'Total opportunities' : 'Open opportunities', 'i'), card(s.open_internships, 'Available internships', 'i'),
+        card(s.pending, off ? 'Pending applications' : 'My pending applications', 'p'), card(s.approved, off ? 'Approved applications' : 'My approved applications', 'g'),
+        card(s.placed, off ? 'Successfully placed students' : 'My placements', 'g'),
+        off ? card(s.interviews, 'Upcoming interviews', 'i') : card(s.interviews, 'My upcoming interviews', 'i')));
+      var ul = h('ul', { class: 'act' });
+      rec.forEach(function (a) { ul.appendChild(h('li', null, h('span', { class: 'dot' }), h('div', null, h('span', { text: a.text }), h('small', { text: fdt(a.at) })))); });
+      box.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'Recent placement activities' }), rec.length ? ul : h('div', { class: 'empty', text: 'No activity yet.' })));
+      return box;
+    });
+  };
+
+  /* ---------- opportunities ---------- */
+  VIEWS.opportunities = function () {
+    return many(['opps', 'apps'], true).then(function (d) {
+      var opps = d[0], apps = d[1], off = ME.role === 'officer', cnt = {};
+      apps.forEach(function (a) { if (a.status !== 'Withdrawn') cnt[a.opportunity_id] = (cnt[a.opportunity_id] || 0) + 1; });
+      var box = h('div');
+      box.appendChild(head('Available Opportunities', off ? 'Create, publish and close internships and jobs' : 'Browse internships and job opportunities',
+        off ? h('button', { class: 'btn', text: '+ New opportunity', onclick: function () { editOpp(null); } }) : null));
+      var cols = [
+        { label: 'Opportunity', val: function (o) { return o.title; }, render: function (o) { return h('span', null, h('b', { text: o.title }), h('br'), h('span', { class: 'muted', text: (o.placement_organizations || {}).name || '' })); } },
+        { label: 'Type', render: function (o) { return o.kind; } }, { label: 'Location', render: function (o) { return dash(o.location); } },
+        { label: 'Deadline', val: function (o) { return o.deadline; }, render: function (o) { return fd(o.deadline); } },
+        { label: 'Positions', render: function (o) { return o.positions; } }
+      ];
+      if (off) cols.push({ label: 'Applications', render: function (o) { return cnt[o.id] || 0; } });
+      cols.push({ label: 'Status', render: function (o) { return bd(dstatus(o)); } });
+      box.appendChild(table({ rows: opps, cols: cols, per: 10, placeholder: 'Search by title, organization or location', empty: off ? 'No opportunities yet. Add a partner organization, then create one.' : 'No opportunities are available right now.',
+        text: function (o) { return [o.title, (o.placement_organizations || {}).name, o.location, o.kind].join(' '); }, onRow: function (o) { oppDetail(o, apps); },
+        filters: [{ key: 't', label: 'All types', opts: ['Internship', 'Job'], get: function (o) { return o.kind; } },
+          { key: 's', label: 'All statuses', opts: off ? ['Open', 'Closed', 'Draft'] : ['Open', 'Closed'], def: off ? '' : 'Open', get: dstatus }] }));
+      return box;
+    });
+  };
+  function oppDetail(o, apps) {
+    var org = o.placement_organizations || {}, off = ME.role === 'officer', mine = apps.filter(function (a) { return a.opportunity_id === o.id && a.student_user_id === ME.uid; })[0];
+    var site = org.website && /^https?:\/\//i.test(org.website) ? h('a', { href: org.website, target: '_blank', rel: 'noopener', text: org.website }) : org.website;
+    var b = h('div', null,
+      h('div', { class: 'chips' }, bd(dstatus(o)), h('span', { class: 'chip', text: o.kind }), o.location ? h('span', { class: 'chip', text: '📍 ' + o.location }) : null, h('span', { class: 'chip', text: o.positions + (o.positions === 1 ? ' position' : ' positions') })),
+      kv([['Deadline', fd(o.deadline)], ['Start date', fd(o.start_date)], ['End date', fd(o.end_date)], ['Minimum year', o.min_year ? 'Year ' + o.min_year + ' and above' : 'Any year'], ['Documents needed', (o.required_docs || []).join(', ')]]),
+      h('div', { class: 'box' }, h('h4', { text: 'About the organization' }), kv([['Organization', org.name], ['Sector', org.sector], ['Contact person', org.contact_person], ['Email', org.email], ['Phone', org.phone], ['Website', site], ['Address', org.address]]), org.description ? h('div', { class: 'txt', text: org.description }) : null),
+      h('h4', { text: 'Description' }), h('div', { class: 'txt', text: o.description }),
+      o.requirements ? [h('h4', { text: 'Requirements' }), h('div', { class: 'txt', text: o.requirements })] : null,
+      o.benefits ? [h('h4', { text: 'Benefits' }), h('div', { class: 'txt', text: o.benefits })] : null);
+    var m = modal(o.title, b), btns = h('div', { class: 'btns' }); b.appendChild(btns);
+    if (!off) {
+      if (mine) btns.appendChild(h('span', null, 'Your application: ', bd(mine.status)));
+      else if (isOpen(o)) btns.appendChild(h('button', { class: 'btn', text: 'Apply now', onclick: function () { m.close(); applyDlg(o); } }));
+      else btns.appendChild(h('span', { class: 'muted', text: 'Applications are closed for this opportunity.' }));
+    } else {
+      btns.appendChild(h('button', { class: 'btn', text: 'Edit', onclick: function () { m.close(); editOpp(o); } }));
+      if (o.status !== 'Published') btns.appendChild(h('button', { class: 'btn ok', text: o.status === 'Closed' ? 'Reopen' : 'Publish', onclick: function (e) { setOppStatus(o, 'Published', e.target, m); } }));
+      if (o.status === 'Published') btns.appendChild(h('button', { class: 'btn alt', text: 'Close applications', onclick: function (e) { setOppStatus(o, 'Closed', e.target, m); } }));
+      btns.appendChild(h('button', { class: 'btn alt', text: 'View applications', onclick: function () { m.close(); sessionStorage.setItem('pl_opp', o.id); go('applications'); } }));
+      btns.appendChild(h('button', { class: 'btn danger', text: 'Delete', onclick: function () {
+        confirmDlg('Delete "' + o.title + '"? All applications for it will also be deleted. This cannot be undone.', 'Delete', true).then(function (y) {
+          if (!y) return; db.from('placement_opportunities').delete().eq('id', o.id).then(function (r) { if (r.error) return toast('Not deleted: ' + niceErr(r.error), true); m.close(); toast('✓ Deleted'); refresh(['opps', 'apps']); render(); }); }); } }));
+    }
+  }
+  function setOppStatus(o, status, btn, m) {
+    if (status === 'Published' && o.deadline < today()) return toast('The deadline has passed. Edit the opportunity and choose a new deadline first.', true);
+    var p = { status: status }; if (status === 'Published' && !o.published_at) p.published_at = new Date().toISOString();
+    var ask = status === 'Closed' ? confirmDlg('Close applications for "' + o.title + '"? Students will no longer be able to apply.', 'Close applications', true) : Promise.resolve(true);
+    ask.then(function (y) { if (!y) return;
+      busy(btn, 'Saving...', function () { return db.from('placement_opportunities').update(p).eq('id', o.id); }).then(function (r) {
+        if (r.error) return toast('Not saved: ' + niceErr(r.error), true); m.close(); toast('✓ ' + (status === 'Published' ? 'Published' : 'Closed')); refresh(['opps']); render(); }); });
+  }
+  function editOpp(o) {
+    load('orgs', true).then(function (orgs) {
+      var act = orgs.filter(function (x) { return x.status === 'Active' || (o && x.id === o.organization_id); });
+      if (!act.length) return toast('Add a partner organization first (Partner Organizations page).', true);
+      var d = o || {}, req = d.required_docs || ['CV'];
+      var f = { org: h('select', { id: 'o-org' }, opts(act.map(function (x) { return [x.id, x.name]; }), d.organization_id, 'Choose an organization')),
+        title: h('input', { type: 'text', id: 'o-title', maxlength: 150, value: d.title || '' }), kind: h('select', { id: 'o-kind' }, opts(['Internship', 'Job'], d.kind || 'Internship')),
+        desc: h('textarea', { id: 'o-desc', maxlength: 4000 }), reqs: h('textarea', { id: 'o-reqs', maxlength: 3000, style: 'min-height:70px' }), ben: h('textarea', { id: 'o-ben', maxlength: 2000, style: 'min-height:70px' }),
+        loc: h('input', { type: 'text', id: 'o-loc', maxlength: 150, value: d.location || '' }), pos: h('input', { type: 'number', id: 'o-pos', min: 1, max: 1000, value: d.positions || 1 }),
+        dl: h('input', { type: 'date', id: 'o-dl', value: d.deadline || '' }), sd: h('input', { type: 'date', id: 'o-sd', value: d.start_date || '' }), ed: h('input', { type: 'date', id: 'o-ed', value: d.end_date || '' }),
+        yr: h('select', { id: 'o-yr' }, [h('option', { value: '', text: 'Any year' })].concat([1, 2, 3, 4, 5, 6].map(function (n) { return h('option', { value: n, text: 'Year ' + n + ' and above', selected: d.min_year === n }); }))) };
+      f.desc.value = d.description || ''; f.reqs.value = d.requirements || ''; f.ben.value = d.benefits || '';
+      var checks = DOC_TYPES.map(function (t) { var c = h('input', { type: 'checkbox', value: t }); c.checked = req.indexOf(t) >= 0; return c; });
+      var form = h('form', { novalidate: true }, field('Organization', f.org, true, 'o-org'), h('div', { class: 'grid2' }, field('Title', f.title, true, 'o-title'), field('Type', f.kind, true, 'o-kind')),
+        field('Description', f.desc, true, 'o-desc'), field('Requirements', f.reqs, false, 'o-reqs'), field('Benefits', f.ben, false, 'o-ben'),
+        h('div', { class: 'grid3' }, field('Location', f.loc, false, 'o-loc'), field('Positions', f.pos, true, 'o-pos'), field('Minimum year', f.yr, false, 'o-yr')),
+        h('div', { class: 'grid3' }, field('Application deadline', f.dl, true, 'o-dl'), field('Start date', f.sd, false, 'o-sd'), field('End date', f.ed, false, 'o-ed')),
+        h('label', { class: 'f', text: 'Documents students must upload' }), h('div', null, checks.map(function (c) { return h('label', { class: 'chk' }, c, h('span', { text: c.value })); })));
+      var m = modal(o ? 'Edit opportunity' : 'New opportunity', form, { noOutside: true });
+      function save(status, btn) {
+        var bad = [setErr(form, 'o-org', f.org.value ? '' : 'Choose an organization.'), setErr(form, 'o-title', f.title.value.trim().length < 3 ? 'Enter a title (at least 3 characters).' : ''),
+          setErr(form, 'o-desc', f.desc.value.trim().length < 10 ? 'Describe the opportunity (at least 10 characters).' : ''),
+          setErr(form, 'o-pos', !(+f.pos.value >= 1) ? 'Enter at least 1.' : ''), setErr(form, 'o-dl', !f.dl.value ? 'Choose a deadline.' : (status === 'Published' && f.dl.value < today() ? 'The deadline must be today or later to publish.' : '')),
+          setErr(form, 'o-ed', f.sd.value && f.ed.value && f.ed.value < f.sd.value ? 'The end date must be after the start date.' : '')];
+        if (bad.some(Boolean)) return;
+        var docs = checks.filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
+        var row = { organization_id: f.org.value, title: f.title.value.trim(), kind: f.kind.value, description: f.desc.value.trim(), requirements: f.reqs.value.trim() || null, benefits: f.ben.value.trim() || null,
+          location: f.loc.value.trim() || null, positions: +f.pos.value, deadline: f.dl.value, start_date: f.sd.value || null, end_date: f.ed.value || null, min_year: f.yr.value ? +f.yr.value : null, required_docs: docs };
+        if (status) { row.status = status; if (status === 'Published' && !d.published_at) row.published_at = new Date().toISOString(); } else if (!o) row.status = 'Draft';
+        if (!o) row.created_by = ME.uid;
+        busy(btn, 'Saving...', function () { return o ? db.from('placement_opportunities').update(row).eq('id', o.id) : db.from('placement_opportunities').insert(row); }).then(function (r) {
+          if (r.error) return toast('Not saved: ' + niceErr(r.error), true); m.close(); toast('✓ Saved'); refresh(['opps']); render(); }, function (e) { toast('Not saved: ' + niceErr(e), true); });
+      }
+      var bs = h('div', { class: 'btns' });
+      var b1 = h('button', { type: 'button', class: 'btn', text: o ? 'Save changes' : 'Save as draft', onclick: function () { save(o ? null : 'Draft', b1); } }); bs.appendChild(b1);
+      if (!o || o.status !== 'Published') { var b2 = h('button', { type: 'button', class: 'btn ok', text: 'Save and publish', onclick: function () { save('Published', b2); } }); bs.appendChild(b2); }
+      bs.appendChild(h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: m.close })); form.appendChild(bs);
+    }, function (e) { toast('Could not load organizations: ' + niceErr(e), true); });
+  }
+
+  /* ---------- files ---------- */
+  function vf(f) { var ext = (f.name.split('.').pop() || '').toLowerCase(); if (!EXT[ext]) return 'Only PDF, JPG, PNG, DOC or DOCX files are allowed.'; if (f.size > MAXB) return 'The file is larger than 5 MB.'; if (!f.size) return 'The file is empty.'; return ''; }
+  function upload(appId, type, f) {
+    var ext = f.name.split('.').pop().toLowerCase(), safe = f.name.replace(/[^A-Za-z0-9._-]+/g, '_').slice(-80), path = ME.uid + '/' + appId + '/' + Date.now() + '-' + safe;
+    return db.storage.from('placement-docs').upload(path, f, { contentType: EXT[ext], upsert: false }).then(function (r) {
+      if (r.error) throw r.error;
+      return db.from('placement_documents').insert({ application_id: appId, doc_type: type, file_path: path, file_name: f.name.slice(-200), file_size: f.size, uploaded_by: ME.uid });
+    }).then(function (r) { if (r && r.error) throw r.error; });
+  }
+  function openDoc(d) {
+    var w = window.open('', '_blank');
+    db.storage.from('placement-docs').createSignedUrl(d.file_path, 120).then(function (r) {
+      if (r.error || !r.data) { if (w) w.close(); return toast('Could not open the file: ' + niceErr(r.error), true); }
+      if (w) w.location = r.data.signedUrl; else location.href = r.data.signedUrl;
+    });
+  }
+  function fileRows(types, box) {
+    var inputs = [];
+    types.forEach(function (t) {
+      var i = h('input', { type: 'file', accept: '.pdf,.jpg,.jpeg,.png,.doc,.docx', id: 'fl-' + inputs.length }), row = h('div', null, h('label', { class: 'f', for: i.id }, t, t === 'Other' ? null : h('span', { class: 'req', text: ' *' })), i, h('div', { class: 'ferr', id: 'e-' + i.id }));
+      inputs.push({ type: t, input: i, req: t !== 'Other', id: i.id }); box.appendChild(row);
+    });
+    return inputs;
+  }
+
+  /* ---------- apply (student) ---------- */
+  function applyDlg(o) {
+    var s = ME.student || {}, docs = (o.required_docs || []).slice(); if (docs.indexOf('Other') < 0) docs.push('Other');
+    var phone = h('input', { type: 'text', id: 'a-ph', maxlength: 40, placeholder: 'Your phone number' }), cover = h('textarea', { id: 'a-cv', maxlength: 3000, placeholder: 'Why are you a good fit? (optional)' });
+    var fbox = h('div'), form = h('form', { novalidate: true },
+      h('div', { class: 'box' }, h('h4', { text: 'Your academic information' }), kv([['Student ID', s.student_number], ['Name', s.full_name], ['Year of study', s.year_of_study], ['Department', (s.departments || {}).name], ['Program', (s.programs || {}).name]]),
+        h('div', { class: 'muted', text: 'This is taken from your student record.' })),
+      field('Phone', phone, false, 'a-ph'), field('Cover letter', cover, false, 'a-cv'), h('h4', { text: 'Documents (PDF, JPG, PNG, DOC, DOCX – 5 MB each)' }), fbox);
+    var files = fileRows(docs, fbox), m = modal('Apply: ' + o.title, form, { noOutside: true }), send = h('button', { type: 'submit', class: 'btn', text: 'Submit application' });
+    form.appendChild(h('div', { class: 'btns' }, send, h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: m.close })));
+    form.onsubmit = function (ev) {
+      ev.preventDefault(); var bad = false;
+      files.forEach(function (x) { var f = x.input.files[0], msg = ''; if (!f) msg = x.req ? 'Please attach your ' + x.type + '.' : ''; else msg = vf(f); if (setErr(form, x.id, msg)) bad = true; });
+      if (bad) return;
+      busy(send, 'Sending...', function () {
+        return db.rpc('apply_placement', { p_opportunity: o.id, p_cover: cover.value, p_phone: phone.value }).then(function (r) {
+          if (r.error) throw r.error; var id = r.data, fails = 0, todo = files.filter(function (x) { return x.input.files[0]; });
+          return todo.reduce(function (p, x) { return p.then(function () { return upload(id, x.type, x.input.files[0]); }).catch(function () { fails++; }); }, Promise.resolve()).then(function () { return fails; });
+        });
+      }).then(function (fails) {
+        m.close(); refresh(['apps']);
+        if (fails) toast('Application sent, but ' + fails + ' file(s) did not upload. Open it under My Applications to add them.', true); else toast('✓ Application submitted');
+        go('applications');
+      }, function (e) { toast('Not sent: ' + niceErr(e), true); });
+    };
+  }
+
+  /* ---------- applications ---------- */
+  VIEWS.applications = function () {
+    return many(['apps', 'ints', 'asg'], true).then(function (d) {
+      var apps = d[0], off = ME.role === 'officer', box = h('div'), mapO = {};
+      apps.forEach(function (a) { var o = a.placement_opportunities; if (o) mapO[o.id] = o.title; });
+      var preset = sessionStorage.getItem('pl_opp') || ''; sessionStorage.removeItem('pl_opp');
+      box.appendChild(head(off ? 'Student Applications' : 'My Applications', off ? 'Review, verify, interview and decide' : 'Track the status of everything you applied for', off ? null : h('button', { class: 'btn', text: 'Browse opportunities', onclick: function () { go('opportunities'); } })));
+      var cols = off ? [{ label: 'Student', val: function (a) { return a.student_name; }, render: function (a) { return h('span', null, h('b', { text: dash(a.student_name) }), h('br'), h('span', { class: 'muted', text: dash(a.student_number) })); } }] : [];
+      cols.push({ label: 'Opportunity', val: function (a) { return (a.placement_opportunities || {}).title; }, render: function (a) { return h('span', null, h('b', { text: (a.placement_opportunities || {}).title || '—' }), h('br'), h('span', { class: 'muted', text: ((a.placement_opportunities || {}).placement_organizations || {}).name || '' })); } });
+      if (off) cols.push({ label: 'Year', render: function (a) { return dash(a.year_of_study); } });
+      cols.push({ label: 'Applied', val: function (a) { return a.created_at; }, render: function (a) { return fd(a.created_at); } });
+      if (off) cols.push({ label: 'Eligible', render: function (a) { return a.eligibility_verified ? '✔ Verified' : '—'; } });
+      cols.push({ label: 'Status', render: function (a) { return bd(a.status); } });
+      var filters = [{ key: 's', label: 'All statuses', opts: ['Pending', 'Interview Scheduled', 'Approved', 'Rejected', 'Withdrawn'], get: function (a) { return a.status; } }];
+      if (off) filters.push({ key: 'o', label: 'All opportunities', def: preset, opts: Object.keys(mapO).map(function (k) { return [k, mapO[k]]; }), get: function (a) { return a.opportunity_id; } });
+      box.appendChild(table({ rows: apps, cols: cols, per: 10, placeholder: off ? 'Search by student, ID or opportunity' : 'Search your applications', empty: off ? 'No applications yet.' : 'You have not applied for anything yet.',
+        text: function (a) { return [a.student_name, a.student_number, (a.placement_opportunities || {}).title, ((a.placement_opportunities || {}).placement_organizations || {}).name].join(' '); },
+        onRow: function (a) { appDetail(a); }, filters: filters }));
+      return box;
+    });
+  };
+  function appDetail(a) {
+    var off = ME.role === 'officer', o = a.placement_opportunities || {}, body = h('div', null, skel(2)), m = modal((off ? dash(a.student_name) + ' – ' : '') + (o.title || 'Application'), body);
+    db.from('placement_documents').select('*').eq('application_id', a.id).order('created_at', { ascending: true }).then(function (r) {
+      if (r.error) { body.textContent = ''; body.appendChild(errBox('Could not load documents: ' + niceErr(r.error))); return; }
+      var docs = r.data || [], ints = (CACHE.ints || []).filter(function (i) { return i.application_id === a.id; }), asg = (CACHE.asg || []).filter(function (g) { return g.application_id === a.id; })[0];
+      body.textContent = '';
+      body.appendChild(h('div', { class: 'chips' }, bd(a.status), h('span', { class: 'chip', text: o.kind || '' }), h('span', { class: 'chip', text: 'Applied ' + fd(a.created_at) })));
+      body.appendChild(kv([['Student', a.student_name], ['Student ID', a.student_number], ['Year of study', a.year_of_study], ['Department', a.department_name], ['Program', a.program_name], ['Phone', a.phone], ['Organization', (o.placement_organizations || {}).name], ['Deadline', fd(o.deadline)]]));
+      if (a.cover_letter) body.appendChild(h('div', null, h('h4', { text: 'Cover letter' }), h('div', { class: 'txt', text: a.cover_letter })));
+      if (a.officer_note) body.appendChild(h('div', { class: 'box' }, h('h4', { text: off ? 'Decision explanation' : 'Explanation from the placement office' }), h('div', { class: 'txt', text: a.officer_note })));
+      if (a.eligibility_verified || (off && a.eligibility_note)) body.appendChild(h('div', { class: 'muted', text: (a.eligibility_verified ? '✔ Eligibility verified. ' : '') + (off ? dash(a.eligibility_note) : '') }));
+      /* documents */
+      var dbox = h('div', { class: 'box' }, h('h4', { text: 'Documents' })), need = o.required_docs || [];
+      need.forEach(function (t) { if (!docs.some(function (d) { return d.doc_type === t; })) dbox.appendChild(h('div', { class: 'docrow' }, h('span', { text: t }), h('span', { class: 'muted', text: '✗ not uploaded' }))); });
+      docs.forEach(function (d) { dbox.appendChild(h('div', { class: 'docrow' }, h('span', null, h('b', { text: d.doc_type }), ' · ' + d.file_name), h('span', null, h('button', { class: 'btn alt sm', type: 'button', text: 'Open', onclick: function () { openDoc(d); } }),
+        !off && ['Pending', 'Interview Scheduled'].indexOf(a.status) >= 0 ? [' ', h('button', { class: 'btn alt sm', type: 'button', text: 'Remove', onclick: function (e) { confirmDlg('Remove ' + d.file_name + '?', 'Remove', true).then(function (y) { if (!y) return;
+          db.storage.from('placement-docs').remove([d.file_path]).then(function () { return db.from('placement_documents').delete().eq('id', d.id); }).then(function (r2) { if (r2 && r2.error) return toast('Not removed: ' + niceErr(r2.error), true); toast('✓ Removed'); m.close(); appDetail(a); }); }); } })] : null))); });
+      if (!docs.length && !need.length) dbox.appendChild(h('div', { class: 'muted', text: 'No documents.' }));
+      body.appendChild(dbox);
+      if (!off && ['Pending', 'Interview Scheduled'].indexOf(a.status) >= 0) {
+        var sel = h('select', { 'aria-label': 'Document type' }, opts(DOC_TYPES, 'CV')), fi = h('input', { type: 'file', accept: '.pdf,.jpg,.jpeg,.png,.doc,.docx' }), er = h('div', { class: 'ferr' }), up = h('button', { class: 'btn sm', type: 'button', text: 'Upload' });
+        up.onclick = function () { var f = fi.files[0]; er.textContent = !f ? 'Choose a file first.' : vf(f); if (er.textContent) return;
+          busy(up, 'Uploading...', function () { return upload(a.id, sel.value, f); }).then(function () { toast('✓ Uploaded'); m.close(); appDetail(a); }, function (e) { er.textContent = 'Not uploaded: ' + niceErr(e); }); };
+        dbox.appendChild(h('div', { class: 'grid2', style: 'margin-top:8px' }, sel, fi)); dbox.appendChild(er); dbox.appendChild(up);
+      }
+      /* interviews */
+      if (ints.length) { var ib = h('div', { class: 'box' }, h('h4', { text: 'Interviews' }));
+        ints.forEach(function (i) { ib.appendChild(h('div', { class: 'docrow' }, h('span', null, h('b', { text: fdt(i.scheduled_at) }), ' · ' + i.mode + (i.location ? ' · ' + i.location : '') + (i.notes ? ' — ' + i.notes : '')), bd(i.status))); }); body.appendChild(ib); }
+      if (asg) body.appendChild(h('div', { class: 'box' }, h('h4', { text: 'Assignment' }), kv([['Organization', (asg.placement_organizations || {}).name], ['Supervisor', asg.supervisor_name], ['Supervisor contact', asg.supervisor_contact], ['Dates', fd(asg.start_date) + ' – ' + fd(asg.end_date)], ['Status', asg.status]])));
+      var btns = h('div', { class: 'btns' }); body.appendChild(btns);
+      if (!off) {
+        if (['Pending', 'Interview Scheduled'].indexOf(a.status) >= 0) btns.appendChild(h('button', { class: 'btn danger', text: 'Withdraw application', onclick: function (e) { confirmDlg('Withdraw your application for "' + o.title + '"? You will not be able to re-apply.', 'Withdraw', true).then(function (y) { if (!y) return;
+          busy(e.target, 'Working...', function () { return db.rpc('withdraw_placement', { p_app: a.id }); }).then(function (r2) { if (r2.error) return toast('Not withdrawn: ' + niceErr(r2.error), true); m.close(); toast('✓ Withdrawn'); refresh(['apps']); render(); }); }); } }));
+        return;
+      }
+      officerPanel(a, o, body, btns, m, asg);
+    });
+  }
+  function officerPanel(a, o, body, btns, m, asg) {
+    var elig = h('input', { type: 'checkbox' }); elig.checked = !!a.eligibility_verified; var en = h('input', { type: 'text', maxlength: 1000, placeholder: 'Eligibility note (optional)', value: a.eligibility_note || '' }), es = h('button', { class: 'btn sm', type: 'button', text: 'Save eligibility' });
+    es.onclick = function () { busy(es, 'Saving...', function () { return db.rpc('pl_set_eligibility', { p_app: a.id, p_verified: elig.checked, p_note: en.value }); }).then(function (r) { if (r.error) return toast('Not saved: ' + niceErr(r.error), true); a.eligibility_verified = elig.checked; a.eligibility_note = en.value.trim() || null; toast('✓ Eligibility saved'); refresh(['apps']); }); };
+    body.insertBefore(h('div', { class: 'box' }, h('h4', { text: 'Verify eligibility' }), h('label', { class: 'chk' }, elig, h('span', { text: 'This student meets the requirements (year ' + (o.min_year || 'any') + ', documents, standing)' })), en, h('div', { style: 'margin-top:8px' }, es)), btns);
+    /* interview */
+    if (['Rejected', 'Withdrawn'].indexOf(a.status) < 0) {
+      var when = h('input', { type: 'datetime-local', id: 'iv-at' }), mode = h('select', { id: 'iv-mode' }, opts(['In person', 'Online', 'Phone'], 'In person')), loc = h('input', { type: 'text', id: 'iv-loc', maxlength: 300, placeholder: 'Room, address or meeting link' }), nt = h('input', { type: 'text', id: 'iv-nt', maxlength: 1000, placeholder: 'Notes for the student (optional)' }), sb = h('button', { class: 'btn sm', type: 'button', text: 'Schedule interview' });
+      var ibox = h('div', { class: 'box' }, h('h4', { text: 'Schedule an interview' }), h('div', { class: 'grid2' }, field('Date and time', when, true, 'iv-at'), field('How', mode, true, 'iv-mode')), field('Location or link', loc, false, 'iv-loc'), field('Notes', nt, false, 'iv-nt'), sb);
+      sb.onclick = function () { if (setErr(ibox, 'iv-at', !when.value ? 'Choose the date and time.' : '')) return;
+        busy(sb, 'Saving...', function () { return db.rpc('pl_schedule_interview', { p_app: a.id, p_at: new Date(when.value).toISOString(), p_mode: mode.value, p_location: loc.value, p_notes: nt.value }); }).then(function (r) {
+          if (r.error) return toast('Not scheduled: ' + niceErr(r.error), true); toast('✓ Interview scheduled'); refresh(['apps', 'ints']); m.close(); render(); }); };
+      body.insertBefore(ibox, btns);
+    }
+    /* decision */
+    var note = h('textarea', { id: 'dc-note', maxlength: 2000, placeholder: 'Explanation shown to the student (required when rejecting)' }); note.value = a.officer_note || '';
+    var dbox = h('div', { class: 'box' }, h('h4', { text: 'Decision' }), field('Explanation', note, false, 'dc-note')); body.insertBefore(dbox, btns);
+    function decide(st, btn) {
+      if (st === 'Rejected' && setErr(dbox, 'dc-note', note.value.trim().length < 5 ? 'Please explain the reason (at least 5 characters).' : '')) return; setErr(dbox, 'dc-note', '');
+      confirmDlg((st === 'Approved' ? 'Approve ' : 'Reject ') + dash(a.student_name) + '\'s application for "' + o.title + '"? The student will see your explanation.', st === 'Approved' ? 'Approve' : 'Reject', st === 'Rejected').then(function (y) { if (!y) return;
+        busy(btn, 'Saving...', function () { return db.rpc('pl_decide', { p_app: a.id, p_status: st, p_note: note.value }); }).then(function (r) { if (r.error) return toast('Not saved: ' + niceErr(r.error), true); m.close(); toast('✓ ' + st); refresh(['apps']); render(); }); });
+    }
+    var ap = h('button', { class: 'btn ok', type: 'button', text: 'Approve', onclick: function () { decide('Approved', ap); } }), rj = h('button', { class: 'btn danger', type: 'button', text: 'Reject', onclick: function () { decide('Rejected', rj); } });
+    if (['Withdrawn'].indexOf(a.status) < 0) { btns.appendChild(ap); btns.appendChild(rj); }
+    if (a.status === 'Approved' && !asg) btns.appendChild(h('button', { class: 'btn', type: 'button', text: 'Assign to organization', onclick: function () { m.close(); assignDlg(a, o); } }));
+  }
+
+  /* ---------- internship management ---------- */
+  function assignDlg(a, o) {
+    var f = { pos: h('input', { type: 'text', id: 'g-pos', maxlength: 150, value: o.title || '' }), sup: h('input', { type: 'text', id: 'g-sup', maxlength: 150 }), con: h('input', { type: 'text', id: 'g-con', maxlength: 150, placeholder: 'Phone or email' }),
+      sd: h('input', { type: 'date', id: 'g-sd' }), ed: h('input', { type: 'date', id: 'g-ed' }), nt: h('textarea', { id: 'g-nt', maxlength: 1000, style: 'min-height:60px' }) };
+    var form = h('form', { novalidate: true }, h('div', { class: 'muted', text: dash(a.student_name) + ' · ' + dash(a.student_number) + ' → ' + (((o.placement_organizations) || {}).name || '') }), field('Position', f.pos, false, 'g-pos'),
+      h('div', { class: 'grid2' }, field('Supervisor', f.sup, false, 'g-sup'), field('Supervisor contact', f.con, false, 'g-con')), h('div', { class: 'grid2' }, field('Start date', f.sd, false, 'g-sd'), field('End date', f.ed, false, 'g-ed')), field('Notes', f.nt, false, 'g-nt'));
+    var m = modal('Assign internship', form, { noOutside: true }), sv = h('button', { class: 'btn', type: 'submit', text: 'Assign' }); form.appendChild(h('div', { class: 'btns' }, sv, h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: m.close })));
+    form.onsubmit = function (e) { e.preventDefault(); if (setErr(form, 'g-ed', f.sd.value && f.ed.value && f.ed.value < f.sd.value ? 'The end date must be after the start date.' : '')) return;
+      busy(sv, 'Saving...', function () { return db.rpc('pl_assign', { p_app: a.id, p_position: f.pos.value, p_supervisor: f.sup.value, p_contact: f.con.value, p_start: f.sd.value || null, p_end: f.ed.value || null, p_notes: f.nt.value }); }).then(function (r) {
+        if (r.error) return toast('Not assigned: ' + niceErr(r.error), true); m.close(); toast('✓ Student assigned'); refresh(['asg', 'res', 'apps']); go('internships'); render(); }); };
+  }
+  VIEWS.internships = function () {
+    return many(['apps', 'asg', 'ints'], true).then(function (d) {
+      var apps = d[0], asg = d[1], ints = d[2], box = h('div'), assigned = {}; asg.forEach(function (g) { assigned[g.application_id] = 1; });
+      var appMap = {}; apps.forEach(function (a) { appMap[a.id] = a; });
+      box.appendChild(head('Internship Management', 'Assign approved students, track placements and interviews'));
+      var wait = apps.filter(function (a) { return a.status === 'Approved' && !assigned[a.id]; });
+      box.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'Approved – waiting for assignment (' + wait.length + ')' }), wait.length ? table({ rows: wait, per: 5, placeholder: 'Search', text: function (a) { return [a.student_name, a.student_number, (a.placement_opportunities || {}).title].join(' '); },
+        cols: [{ label: 'Student', render: function (a) { return h('span', null, h('b', { text: dash(a.student_name) }), h('br'), h('span', { class: 'muted', text: dash(a.student_number) })); } }, { label: 'Opportunity', render: function (a) { return (a.placement_opportunities || {}).title; } },
+          { label: 'Organization', render: function (a) { return ((a.placement_opportunities || {}).placement_organizations || {}).name; } }, { label: '', render: function (a) { return h('button', { class: 'btn sm', text: 'Assign', onclick: function (e) { e.stopPropagation(); assignDlg(a, a.placement_opportunities || {}); } }); } }] }) : h('div', { class: 'empty', text: 'No approved applications are waiting.' })));
+      box.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'Internship assignments' }), table({ rows: asg, per: 8, placeholder: 'Search by student, organization or supervisor', empty: 'No assignments yet.', onRow: editAsg,
+        text: function (g) { return [g.student_name, g.student_number, (g.placement_organizations || {}).name, g.supervisor_name].join(' '); },
+        filters: [{ key: 's', label: 'All statuses', opts: ['Assigned', 'Ongoing', 'Completed', 'Terminated'], get: function (g) { return g.status; } }],
+        cols: [{ label: 'Student', val: function (g) { return g.student_name; }, render: function (g) { return h('span', null, h('b', { text: dash(g.student_name) }), h('br'), h('span', { class: 'muted', text: dash(g.student_number) })); } },
+          { label: 'Organization', render: function (g) { return (g.placement_organizations || {}).name; } }, { label: 'Supervisor', render: function (g) { return dash(g.supervisor_name); } },
+          { label: 'Dates', val: function (g) { return g.start_date; }, render: function (g) { return fd(g.start_date) + ' – ' + fd(g.end_date); } }, { label: 'Status', render: function (g) { return bd(g.status); } }] })));
+      box.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'Interviews' }), table({ rows: ints, per: 6, placeholder: 'Search interviews', empty: 'No interviews scheduled.', onRow: function (i) { intDlg(i, appMap[i.application_id]); },
+        text: function (i) { var a = appMap[i.application_id] || {}; return [a.student_name, a.student_number, (a.placement_opportunities || {}).title].join(' '); },
+        filters: [{ key: 's', label: 'All statuses', opts: ['Scheduled', 'Completed', 'Cancelled'], get: function (i) { return i.status; } }],
+        cols: [{ label: 'When', val: function (i) { return i.scheduled_at; }, render: function (i) { return fdt(i.scheduled_at); } }, { label: 'Student', render: function (i) { return (appMap[i.application_id] || {}).student_name; } },
+          { label: 'Opportunity', render: function (i) { return ((appMap[i.application_id] || {}).placement_opportunities || {}).title; } }, { label: 'How', render: function (i) { return i.mode; } }, { label: 'Status', render: function (i) { return bd(i.status); } }] })));
+      return box;
+    });
+  };
+  function intDlg(i, a) {
+    var st = h('select', { id: 'iv-st' }, opts(['Scheduled', 'Completed', 'Cancelled'], i.status)), body = h('div', null, kv([['Student', (a || {}).student_name], ['When', fdt(i.scheduled_at)], ['How', i.mode], ['Location', i.location], ['Notes', i.notes]]), field('Status', st, false, 'iv-st'));
+    var m = modal('Interview', body), sv = h('button', { class: 'btn', type: 'button', text: 'Save', onclick: function () {
+      busy(sv, 'Saving...', function () { return db.from('placement_interviews').update({ status: st.value }).eq('id', i.id); }).then(function (r) { if (r.error) return toast('Not saved: ' + niceErr(r.error), true); m.close(); toast('✓ Saved'); refresh(['ints']); render(); }); } });
+    body.appendChild(h('div', { class: 'btns' }, sv, h('button', { class: 'btn danger', type: 'button', text: 'Delete', onclick: function () { confirmDlg('Delete this interview?', 'Delete', true).then(function (y) { if (!y) return;
+      db.from('placement_interviews').delete().eq('id', i.id).then(function (r) { if (r.error) return toast('Not deleted: ' + niceErr(r.error), true); m.close(); toast('✓ Deleted'); refresh(['ints']); render(); }); }); } })));
+  }
+  function editAsg(g) {
+    var f = { st: h('select', { id: 'e-st' }, opts(['Assigned', 'Ongoing', 'Completed', 'Terminated'], g.status)), sup: h('input', { type: 'text', id: 'e-sup', maxlength: 150, value: g.supervisor_name || '' }), con: h('input', { type: 'text', id: 'e-con', maxlength: 150, value: g.supervisor_contact || '' }),
+      sd: h('input', { type: 'date', id: 'e-sd', value: g.start_date || '' }), ed: h('input', { type: 'date', id: 'e-ed', value: g.end_date || '' }), nt: h('textarea', { id: 'e-nt', maxlength: 1000, style: 'min-height:60px' }) }; f.nt.value = g.notes || '';
+    var form = h('form', { novalidate: true }, h('div', { class: 'muted', text: dash(g.student_name) + ' · ' + ((g.placement_organizations || {}).name || '') }), field('Status', f.st, true, 'e-st'), h('div', { class: 'grid2' }, field('Supervisor', f.sup, false, 'e-sup'), field('Supervisor contact', f.con, false, 'e-con')),
+      h('div', { class: 'grid2' }, field('Start date', f.sd, false, 'e-sd'), field('End date', f.ed, false, 'e-ed')), field('Notes', f.nt, false, 'e-nt'));
+    var m = modal('Edit assignment', form, { noOutside: true }), sv = h('button', { class: 'btn', type: 'submit', text: 'Save changes' }); form.appendChild(h('div', { class: 'btns' }, sv, h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: m.close })));
+    form.onsubmit = function (e) { e.preventDefault(); if (setErr(form, 'e-ed', f.sd.value && f.ed.value && f.ed.value < f.sd.value ? 'The end date must be after the start date.' : '')) return;
+      var oc = f.st.value === 'Completed' ? 'Completed' : f.st.value === 'Terminated' ? 'Not Completed' : 'Placed';
+      busy(sv, 'Saving...', function () { return db.from('placement_assignments').update({ status: f.st.value, supervisor_name: f.sup.value.trim() || null, supervisor_contact: f.con.value.trim() || null, start_date: f.sd.value || null, end_date: f.ed.value || null, notes: f.nt.value.trim() || null }).eq('id', g.id)
+        .then(function (r) { if (r.error) throw r.error; return db.from('placement_results').update({ outcome: oc }).eq('assignment_id', g.id); }); }).then(function (r) {
+        if (r && r.error) return toast('Saved, but the result was not updated: ' + niceErr(r.error), true); m.close(); toast('✓ Saved'); refresh(['asg', 'res']); render(); }, function (er) { toast('Not saved: ' + niceErr(er), true); }); };
+  }
+
+  /* ---------- results ---------- */
+  VIEWS.results = function () {
+    return many(['asg', 'res'], true).then(function (d) {
+      var asg = d[0], res = d[1], box = h('div'), off = ME.role === 'officer';
+      if (!off) {
+        var rm = {}; res.forEach(function (r) { rm[r.assignment_id] = r; });
+        box.appendChild(head('My Placement', 'Your assigned organization and placement result'));
+        if (!asg.length) { box.appendChild(h('div', { class: 'panel empty', text: 'You have not been placed yet. Apply for opportunities and track them under My Applications.' })); return box; }
+        asg.forEach(function (g) { var r = rm[g.id], org = g.placement_organizations || {};
+          box.appendChild(h('div', { class: 'panel' }, h('div', { class: 'chips' }, r ? bd(r.outcome) : bd(g.status), bd(g.status)), h('h3', { text: org.name || 'Organization' }),
+            kv([['Position', (r && r.position_title) || (g.placement_opportunities || {}).title], ['Type', (g.placement_opportunities || {}).kind], ['Supervisor', g.supervisor_name], ['Supervisor contact', g.supervisor_contact], ['Dates', fd(g.start_date) + ' – ' + fd(g.end_date)],
+              ['Organization contact', [org.contact_person, org.email, org.phone].filter(Boolean).join(' · ')], ['Address', org.address], ['Remarks', r && r.remarks], ['Evaluation', r && r.evaluation]]))); });
+        return box;
+      }
+      box.appendChild(head('Placement Results', 'Outcome of every placement'));
+      box.appendChild(table({ rows: res, per: 10, placeholder: 'Search by student, organization or position', empty: 'No placement results yet. Results appear when you assign an approved student.', onRow: editRes,
+        text: function (r) { return [r.student_name, r.student_number, (r.placement_organizations || {}).name, r.position_title, (r.placement_opportunities || {}).title].join(' '); },
+        filters: [{ key: 'o', label: 'All outcomes', opts: ['Placed', 'Completed', 'Not Completed'], get: function (r) { return r.outcome; } }, { key: 'p', label: 'Published or hidden', opts: [['yes', 'Published'], ['no', 'Hidden']], get: function (r) { return r.published ? 'yes' : 'no'; } }],
+        cols: [{ label: 'Student', val: function (r) { return r.student_name; }, render: function (r) { return h('span', null, h('b', { text: dash(r.student_name) }), h('br'), h('span', { class: 'muted', text: dash(r.student_number) })); } },
+          { label: 'Organization', render: function (r) { return (r.placement_organizations || {}).name; } }, { label: 'Position', render: function (r) { return r.position_title || (r.placement_opportunities || {}).title; } },
+          { label: 'Outcome', render: function (r) { return bd(r.outcome); } }, { label: 'Visible to student', render: function (r) { return r.published ? 'Yes' : 'Hidden'; } }] }));
+      return box;
+    });
+  };
+  function editRes(r) {
+    var f = { oc: h('select', { id: 'r-oc' }, opts(['Placed', 'Completed', 'Not Completed'], r.outcome)), pos: h('input', { type: 'text', id: 'r-pos', maxlength: 150, value: r.position_title || '' }), rm: h('textarea', { id: 'r-rm', maxlength: 1000, style: 'min-height:60px' }), ev: h('textarea', { id: 'r-ev', maxlength: 1000, style: 'min-height:60px' }), pub: h('input', { type: 'checkbox' }) };
+    f.rm.value = r.remarks || ''; f.ev.value = r.evaluation || ''; f.pub.checked = !!r.published;
+    var form = h('form', { novalidate: true }, h('div', { class: 'muted', text: dash(r.student_name) + ' · ' + ((r.placement_organizations || {}).name || '') }), field('Outcome', f.oc, true, 'r-oc'), field('Position', f.pos, false, 'r-pos'), field('Remarks', f.rm, false, 'r-rm'), field('Evaluation', f.ev, false, 'r-ev'),
+      h('label', { class: 'chk' }, f.pub, h('span', { text: 'Show this result to the student' })));
+    var m = modal('Edit result', form, { noOutside: true }), sv = h('button', { class: 'btn', type: 'submit', text: 'Save changes' }); form.appendChild(h('div', { class: 'btns' }, sv, h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: m.close })));
+    form.onsubmit = function (e) { e.preventDefault(); busy(sv, 'Saving...', function () { return db.from('placement_results').update({ outcome: f.oc.value, position_title: f.pos.value.trim() || null, remarks: f.rm.value.trim() || null, evaluation: f.ev.value.trim() || null, published: f.pub.checked, recorded_by: ME.uid }).eq('id', r.id); }).then(function (x) {
+      if (x.error) return toast('Not saved: ' + niceErr(x.error), true); m.close(); toast('✓ Saved'); refresh(['res']); render(); }); };
+  }
+
+  /* ---------- partner organizations ---------- */
+  VIEWS.organizations = function () {
+    return many(['orgs', 'opps'], true).then(function (d) {
+      var orgs = d[0], cnt = {}, box = h('div'); d[1].forEach(function (o) { cnt[o.organization_id] = (cnt[o.organization_id] || 0) + 1; });
+      box.appendChild(head('Partner Organizations', 'Companies and institutions that host students', h('button', { class: 'btn', text: '+ Add organization', onclick: function () { editOrg(null); } })));
+      box.appendChild(table({ rows: orgs, per: 10, placeholder: 'Search by name, sector or contact', empty: 'No organizations yet. Add your first partner.', onRow: function (o) { editOrg(o, cnt[o.id] || 0); },
+        text: function (o) { return [o.name, o.sector, o.contact_person, o.email].join(' '); }, filters: [{ key: 's', label: 'All statuses', opts: ['Active', 'Inactive'], get: function (o) { return o.status; } }],
+        cols: [{ label: 'Organization', val: function (o) { return o.name; }, render: function (o) { return h('b', { text: o.name }); } }, { label: 'Sector', render: function (o) { return dash(o.sector); } }, { label: 'Contact', render: function (o) { return dash(o.contact_person); } },
+          { label: 'Email', render: function (o) { return dash(o.email); } }, { label: 'Phone', render: function (o) { return dash(o.phone); } }, { label: 'Opportunities', render: function (o) { return cnt[o.id] || 0; } }, { label: 'Status', render: function (o) { return bd(o.status); } }] }));
+      return box;
+    });
+  };
+  function editOrg(o, used) {
+    var d = o || {}, f = { name: h('input', { type: 'text', id: 'g-name', maxlength: 150, value: d.name || '' }), sec: h('input', { type: 'text', id: 'g-sec', maxlength: 100, value: d.sector || '' }), cp: h('input', { type: 'text', id: 'g-cp', maxlength: 150, value: d.contact_person || '' }),
+      em: h('input', { type: 'email', id: 'g-em', maxlength: 200, value: d.email || '' }), ph: h('input', { type: 'text', id: 'g-ph', maxlength: 40, value: d.phone || '' }), web: h('input', { type: 'url', id: 'g-web', maxlength: 200, placeholder: 'https://', value: d.website || '' }),
+      ad: h('input', { type: 'text', id: 'g-ad', maxlength: 300, value: d.address || '' }), ds: h('textarea', { id: 'g-ds', maxlength: 1500, style: 'min-height:70px' }) }; f.ds.value = d.description || '';
+    var form = h('form', { novalidate: true }, field('Organization name', f.name, true, 'g-name'), h('div', { class: 'grid2' }, field('Sector', f.sec, false, 'g-sec'), field('Contact person', f.cp, false, 'g-cp')),
+      h('div', { class: 'grid2' }, field('Email', f.em, false, 'g-em'), field('Phone', f.ph, false, 'g-ph')), field('Website', f.web, false, 'g-web'), field('Address', f.ad, false, 'g-ad'), field('About', f.ds, false, 'g-ds'));
+    var m = modal(o ? 'Edit organization' : 'Add organization', form, { noOutside: true }), sv = h('button', { class: 'btn', type: 'submit', text: o ? 'Save changes' : 'Add organization' }), bs = h('div', { class: 'btns' }, sv); form.appendChild(bs);
+    bs.appendChild(h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: m.close }));
+    if (o) {
+      bs.appendChild(h('button', { type: 'button', class: 'btn alt', text: o.status === 'Active' ? 'Deactivate' : 'Activate', onclick: function (e) { var ns = o.status === 'Active' ? 'Inactive' : 'Active';
+        busy(e.target, 'Saving...', function () { return db.from('placement_organizations').update({ status: ns }).eq('id', o.id); }).then(function (r) { if (r.error) return toast('Not saved: ' + niceErr(r.error), true); m.close(); toast('✓ ' + ns); refresh(['orgs']); render(); }); } }));
+      bs.appendChild(h('button', { type: 'button', class: 'btn danger', text: 'Delete', onclick: function () { confirmDlg('Delete ' + o.name + '?' + (used ? ' It has ' + used + ' opportunity(ies), so deleting will probably be refused. Deactivate it instead.' : ' This cannot be undone.'), 'Delete', true).then(function (y) { if (!y) return;
+        db.from('placement_organizations').delete().eq('id', o.id).then(function (r) { if (r.error) return toast('Not deleted: ' + niceErr(r.error), true); m.close(); toast('✓ Deleted'); refresh(['orgs']); render(); }); }); } }));
+    }
+    form.onsubmit = function (e) { e.preventDefault();
+      var bad = [setErr(form, 'g-name', f.name.value.trim().length < 2 ? 'Enter the organization name.' : ''), setErr(form, 'g-em', f.em.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.em.value.trim()) ? 'Enter a valid email address.' : ''), setErr(form, 'g-web', f.web.value && !/^https?:\/\/\S+$/i.test(f.web.value.trim()) ? 'Start the website with http:// or https://' : '')];
+      if (bad.some(Boolean)) return; function v(x) { return x.value.trim() || null; }
+      var row = { name: f.name.value.trim(), sector: v(f.sec), contact_person: v(f.cp), email: v(f.em), phone: v(f.ph), website: v(f.web), address: v(f.ad), description: v(f.ds) }; if (!o) { row.created_by = ME.uid; row.status = 'Active'; }
+      busy(sv, 'Saving...', function () { return o ? db.from('placement_organizations').update(row).eq('id', o.id) : db.from('placement_organizations').insert(row); }).then(function (r) { if (r.error) return toast('Not saved: ' + niceErr(r.error), true); m.close(); toast('✓ Saved'); refresh(['orgs']); render(); }); };
+  }
+
+  /* ---------- reports ---------- */
+  VIEWS.reports = function () {
+    return many(['apps', 'opps', 'asg', 'res'], true).then(function (d) {
+      var box = h('div'), from = h('input', { type: 'date', 'aria-label': 'From' }), to = h('input', { type: 'date', 'aria-label': 'To' }), out = h('div');
+      box.appendChild(head('Reports', 'Placement statistics for any period', [h('button', { class: 'btn alt', text: '🖨 Print', onclick: function () { window.print(); } })]));
+      box.appendChild(h('div', { class: 'panel' }, h('div', { class: 'grid2' }, h('div', null, h('label', { class: 'f', text: 'From' }), from), h('div', null, h('label', { class: 'f', text: 'To' }), to))));
+      box.appendChild(out);
+      function draw() {
+        var a = d[0].filter(function (x) { var dt = x.created_at.slice(0, 10); return (!from.value || dt >= from.value) && (!to.value || dt <= to.value); }), ids = {}; a.forEach(function (x) { ids[x.id] = 1; });
+        var res = d[3].filter(function (r) { var g = d[2].filter(function (z) { return z.id === r.assignment_id; })[0]; return g && ids[g.application_id]; });
+        var by = { Pending: 0, 'Interview Scheduled': 0, Approved: 0, Rejected: 0, Withdrawn: 0 }; a.forEach(function (x) { by[x.status]++; });
+        var decided = by.Approved + by.Rejected, rate = decided ? Math.round(by.Approved * 100 / decided) : 0, placed = {}; res.forEach(function (r) { if (r.outcome !== 'Not Completed') placed[r.student_user_id] = 1; });
+        out.textContent = '';
+        out.appendChild(h('div', { class: 'stats' }, [['Applications', a.length, 'i'], ['Pending / interview', by.Pending + by['Interview Scheduled'], 'p'], ['Approved', by.Approved, 'g'], ['Rejected', by.Rejected, ''], ['Approval rate', rate + '%', 'g'], ['Students placed', Object.keys(placed).length, 'g']].map(function (c) { return h('div', { class: 'stat ' + c[2] }, h('b', { text: String(c[1]) }), h('span', { text: c[0] })); })));
+        var mx = Math.max(1, a.length), sb = h('div');
+        Object.keys(by).forEach(function (k) { sb.appendChild(h('div', { class: 'docrow' }, h('span', { style: 'width:150px', text: k }), h('div', { class: 'bar', style: 'flex:1' }, h('i', { style: 'width:' + Math.round(by[k] * 100 / mx) + '%' })), h('b', { text: String(by[k]) }))); });
+        out.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'Applications by status' }), sb));
+        var og = {}; a.forEach(function (x) { var o = x.placement_opportunities || {}, n = (o.placement_organizations || {}).name || 'Unknown'; og[n] = og[n] || { a: 0, ap: 0, pl: 0 }; og[n].a++; if (x.status === 'Approved') og[n].ap++; });
+        d[2].forEach(function (g) { if (ids[g.application_id]) { var n = (g.placement_organizations || {}).name || 'Unknown'; og[n] = og[n] || { a: 0, ap: 0, pl: 0 }; og[n].pl++; } });
+        var orows = Object.keys(og).sort().map(function (n) { return { n: n, a: og[n].a, ap: og[n].ap, pl: og[n].pl }; });
+        out.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'By organization' }), orows.length ? table({ rows: orows, per: 8, placeholder: 'Search organizations', text: function (r) { return r.n; }, cols: [{ label: 'Organization', val: function (r) { return r.n; }, render: function (r) { return r.n; } }, { label: 'Applications', val: function (r) { return r.a; }, render: function (r) { return r.a; } }, { label: 'Approved', val: function (r) { return r.ap; }, render: function (r) { return r.ap; } }, { label: 'Placed', val: function (r) { return r.pl; }, render: function (r) { return r.pl; } }] }) : h('div', { class: 'empty', text: 'No data for this period.' })));
+        var ty = { Internship: 0, Job: 0 }; a.forEach(function (x) { var k = (x.placement_opportunities || {}).kind; if (ty[k] != null) ty[k]++; });
+        out.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'By opportunity type' }), kv([['Internships', ty.Internship + ' applications'], ['Jobs', ty.Job + ' applications'], ['Opportunities published', d[1].filter(function (o) { return o.status !== 'Draft'; }).length], ['Currently open', d[1].filter(isOpen).length]])));
+        out.appendChild(h('div', { class: 'btns' },
+          h('button', { class: 'btn', text: 'Export applications (CSV)', onclick: function () { csv('placement-applications.csv', ['Student ID', 'Student', 'Year', 'Department', 'Program', 'Opportunity', 'Organization', 'Type', 'Applied', 'Status', 'Eligibility verified', 'Explanation'],
+            a.map(function (x) { var o = x.placement_opportunities || {}; return [x.student_number, x.student_name, x.year_of_study, x.department_name, x.program_name, o.title, (o.placement_organizations || {}).name, o.kind, x.created_at.slice(0, 10), x.status, x.eligibility_verified ? 'Yes' : 'No', x.officer_note]; })); } }),
+          h('button', { class: 'btn alt', text: 'Export placements (CSV)', onclick: function () { csv('placement-results.csv', ['Student ID', 'Student', 'Organization', 'Opportunity', 'Position', 'Outcome', 'Visible to student'],
+            res.map(function (r) { return [r.student_number, r.student_name, (r.placement_organizations || {}).name, (r.placement_opportunities || {}).title, r.position_title, r.outcome, r.published ? 'Yes' : 'No']; })); } })));
+      }
+      from.onchange = to.onchange = draw; draw(); return box;
+    });
+  };
+
+  /* ---------- placement officers (administrators) ---------- */
+  VIEWS.officers = function () {
+    if (!ME.admin) return h('div', { class: 'banner err', text: 'Administrators only.' });
+    return db.rpc('pl_list_officers').then(function (r) {
+      if (r.error) throw r.error; var box = h('div'), id = h('input', { type: 'text', id: 'of-id', maxlength: 60, placeholder: 'e.g. TCH-2026-YU00003' });
+      box.appendChild(head('Placement Officers', 'Staff who can manage placement. Administrators always can.'));
+      var add = h('button', { class: 'btn', type: 'button', text: 'Add officer' }), pn = h('div', { class: 'panel' }, h('h3', { text: 'Add a placement officer' }), field('Staff ID number', id, true, 'of-id'), add);
+      add.onclick = function () { if (setErr(pn, 'of-id', !id.value.trim() ? 'Enter the staff member\'s ID number.' : '')) return;
+        busy(add, 'Adding...', function () { return db.rpc('pl_add_officer', { p_id_number: id.value }); }).then(function (x) { if (x.error) return setErr(pn, 'of-id', niceErr(x.error)); toast('✓ Officer added'); render(); }); };
+      box.appendChild(pn);
+      box.appendChild(h('div', { class: 'panel' }, h('h3', { text: 'Current officers' }), table({ rows: r.data || [], per: 10, placeholder: 'Search', empty: 'No officers added yet.', text: function (o) { return [o.full_name, o.id_number].join(' '); },
+        cols: [{ label: 'Name', render: function (o) { return dash(o.full_name); } }, { label: 'ID number', render: function (o) { return dash(o.id_number); } }, { label: 'Added', render: function (o) { return fd(o.added_at); } },
+          { label: '', render: function (o) { return h('button', { class: 'btn danger sm', text: 'Remove', onclick: function () { confirmDlg('Remove ' + dash(o.full_name) + ' as a placement officer?', 'Remove', true).then(function (y) { if (!y) return;
+            db.rpc('pl_remove_officer', { p_user: o.user_id }).then(function (x) { if (x.error) return toast('Not removed: ' + niceErr(x.error), true); toast('✓ Removed'); render(); }); }); } }); } }] })));
+      return box;
+    });
+  };
+
+  /* ---------- start ---------- */
+  function msg(t, sub) { app.textContent = ''; navEl.textContent = ''; app.appendChild(h('div', { class: 'panel' }, h('h3', { text: t }), h('div', { class: 'muted', text: sub }), h('div', { class: 'btns' }, h('a', { class: 'btn', href: '../', style: 'text-decoration:none', text: 'Go to home' })))); }
+  app.appendChild(skel(3));
+  db.auth.getSession().then(function (r) {
+    var ses = r.data && r.data.session; if (!ses) return msg('Please sign in', 'Please sign in to use Placement & Internship.');
+    ME.uid = ses.user.id;
+    return Promise.all([db.rpc('pl_role'), db.rpc('pl_is_admin')]).then(function (x) {
+      if (x[0].error) throw x[0].error; ME.role = x[0].data || 'none'; ME.admin = x[1].data === true;
+      if (ME.role === 'none') return msg('Placement is for students and placement officers', 'Your account is not linked to a student record yet. Please contact the registrar.');
+      var ready = ME.role === 'student' ? db.from('students').select('id,student_number,full_name,year_of_study,departments(name),programs(name)').eq('profile_id', ME.uid).maybeSingle().then(function (s) {
+        if (s.error) return db.from('students').select('id,student_number,full_name,year_of_study').eq('profile_id', ME.uid).maybeSingle().then(function (s2) { ME.student = s2.data; }); ME.student = s.data; }) : Promise.resolve();
+      return ready.then(function () { window.addEventListener('hashchange', render); render(); });
+    });
+  }).catch(function (e) { msg('Could not open Placement & Internship', niceErr(e)); });
+})();
+</script>
+</body>
+</html>

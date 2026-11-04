@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suggestion Box - Yachi University</title>
+<style>
+  :root { --bg:#f3f6fb; --card:#fff; --text:#1b2540; --muted:#64748b; --line:#dbe3f0; --brand:#1d4ed8; --brand-text:#fff; --danger:#dc2626; --ok:#15803d; --soft:#eaf1ff; --warn:#b45309; }
+  html[data-theme=dark] { --bg:#0b1220; --card:#162033; --text:#e6ebf5; --muted:#9aa8c0; --line:#2a3750; --brand:#5b9bff; --brand-text:#0b1220; --danger:#f87171; --ok:#4ade80; --soft:#1d2b45; --warn:#fbbf24; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.45 Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+  header.top { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; padding:12px 16px; background:linear-gradient(135deg,#1e40af,#2563eb); color:#fff; }
+  header.top a { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:rgba(255,255,255,.18); color:#fff; font-size:20px; text-decoration:none; }
+  html[dir=rtl] header.top a { transform:scaleX(-1); }
+  header.top h1 { font-size:1.15rem; margin:0; }
+  header.top small { display:block; opacity:.85; font-size:.8rem; }
+  main { max-width:960px; margin:0 auto; padding:16px; }
+  .tabs { display:flex; gap:6px; background:var(--card); padding:5px; border-radius:14px; box-shadow:0 1px 4px rgba(15,35,90,.1); margin-bottom:14px; overflow-x:auto; }
+  .tabs button { flex:1 0 auto; padding:11px 14px; border:0; border-radius:10px; background:transparent; color:var(--muted); font-size:.95rem; font-weight:500; cursor:pointer; white-space:nowrap; }
+  .tabs button.on { background:var(--brand); color:var(--brand-text); }
+  .panel { background:var(--card); border-radius:14px; box-shadow:0 1px 4px rgba(15,35,90,.1); padding:18px; }
+  .panel h2 { margin:0 0 4px; font-size:1.2rem; }
+  .muted { color:var(--muted); font-size:.9rem; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+  label.f { display:block; margin:14px 0 6px; font-weight:500; }
+  label.f .req { color:var(--danger); }
+  select, input[type=text], input[type=search], input[type=date], textarea { width:100%; padding:12px; font:inherit; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--text); }
+  textarea { min-height:150px; resize:vertical; }
+  select:focus, input:focus, textarea:focus { outline:2px solid var(--brand); outline-offset:0; border-color:transparent; }
+  .bad { border-color:var(--danger) !important; }
+  .ferr { color:var(--danger); font-size:.85rem; min-height:1.1em; margin-top:4px; }
+  .cnt { float:right; font-size:.8rem; color:var(--muted); font-weight:400; }
+  html[dir=rtl] .cnt { float:left; }
+  .anon { display:flex; gap:12px; align-items:flex-start; margin-top:16px; padding:14px; border-radius:12px; background:var(--soft); }
+  .anon input { width:22px; height:22px; margin:2px 0 0; flex:none; accent-color:var(--brand); }
+  .anon b { display:block; }
+  .btns { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn { padding:13px 22px; border:0; border-radius:10px; background:var(--brand); color:var(--brand-text); font:inherit; font-weight:500; cursor:pointer; min-width:120px; }
+  .btn.alt { background:var(--soft); color:var(--text); }
+  .btn:disabled { opacity:.6; cursor:default; }
+  .banner { padding:12px 14px; border-radius:12px; margin-bottom:14px; }
+  .banner.ok { background:rgba(21,128,61,.12); color:var(--ok); border:1px solid var(--ok); }
+  .banner.err { background:rgba(220,38,38,.1); color:var(--danger); border:1px solid var(--danger); }
+  .item { background:var(--card); border-radius:14px; box-shadow:0 1px 4px rgba(15,35,90,.1); padding:14px 16px; margin-bottom:10px; border-inline-start:4px solid var(--line); }
+  .item.s-Pending { border-inline-start-color:#f59e0b; } .item.s-Under { border-inline-start-color:var(--brand); }
+  .item.s-Resolved { border-inline-start-color:var(--ok); } .item.s-Rejected { border-inline-start-color:var(--danger); }
+  .item.click { cursor:pointer; } .item.click:hover { box-shadow:0 2px 10px rgba(15,35,90,.18); }
+  .item h3 { margin:0 0 6px; font-size:1.02rem; word-break:break-word; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:6px 0; }
+  .chip { font-size:.78rem; padding:3px 10px; border-radius:20px; background:var(--soft); color:var(--text); }
+  .st { font-size:.78rem; padding:3px 10px; border-radius:20px; font-weight:600; color:#fff; }
+  .st.Pending { background:#d97706; } .st.Under { background:#2563eb; } .st.Resolved { background:#15803d; } .st.Rejected { background:#dc2626; }
+  .msgbox { white-space:pre-wrap; word-break:break-word; margin:8px 0; }
+  .resp { margin-top:10px; padding:10px 12px; border-radius:10px; background:var(--soft); border-inline-start:3px solid var(--brand); white-space:pre-wrap; word-break:break-word; }
+  .resp b { display:block; font-size:.85rem; margin-bottom:2px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:14px; }
+  .stat { background:var(--card); border-radius:14px; box-shadow:0 1px 4px rgba(15,35,90,.1); padding:14px; }
+  .stat b { display:block; font-size:1.7rem; line-height:1.1; }
+  .stat span { color:var(--muted); font-size:.85rem; }
+  .stat.p b { color:#d97706; } .stat.u b { color:#2563eb; } .stat.r b { color:var(--ok); }
+  .filters { display:grid; grid-template-columns:repeat(5,1fr) auto; gap:8px; margin-bottom:14px; align-items:end; }
+  .filters .wide { grid-column:1 / -1; }
+  .filters label { font-size:.78rem; color:var(--muted); display:block; margin-bottom:3px; }
+  .empty { text-align:center; padding:34px 10px; color:var(--muted); }
+  .skel { height:84px; border-radius:14px; background:linear-gradient(90deg,var(--card),var(--soft),var(--card)); background-size:200% 100%; animation:sk 1.2s infinite; margin-bottom:10px; }
+  @keyframes sk { to { background-position:-200% 0; } }
+  .ov { position:fixed; inset:0; background:rgba(5,12,30,.6); z-index:30; display:flex; align-items:flex-end; justify-content:center; }
+  .dlg { background:var(--card); width:100%; max-width:640px; max-height:92vh; overflow:auto; border-radius:18px 18px 0 0; padding:18px; }
+  .dlg .hd { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+  .dlg .x { border:0; background:var(--soft); color:var(--text); width:36px; height:36px; border-radius:10px; font-size:18px; cursor:pointer; flex:none; }
+  .meta { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:.9rem; margin:10px 0; }
+  .meta b { color:var(--muted); font-weight:500; }
+  #toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(80px); background:#111827; color:#fff; padding:10px 18px; border-radius:22px; font-size:.95rem; opacity:0; transition:.2s; z-index:40; max-width:90vw; text-align:center; }
+  #toast.show { transform:translateX(-50%); opacity:1; } #toast.err { background:#b91c1c; }
+  @media (min-width:700px) { .ov { align-items:center; } .dlg { border-radius:18px; } }
+  @media (max-width:880px) { .filters { grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px) { .grid2 { grid-template-columns:1fr; } main { padding:12px; } .btn { flex:1; } }
+</style>
+</head>
+<body>
+<script>window.YU_NATIVE_THEME = true;</script>
+<script src="../config.js"></script>
+<script src="../core.js?v=1"></script>
+<script src="../prefs.js?v=4"></script>
+<header class="top">
+  <a href="../" aria-label="Back to Yachi University">&#8592;</a>
+  <div><h1>Suggestion Box</h1><small>Yachi University</small></div>
+</header>
+<main id="app"></main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+(function () {
+  'use strict';
+  var TYPES = ['Suggestion', 'Complaint', 'Feedback', 'Other'];
+  var CATS = ['Academics', 'Finance', 'Student Services', 'Facilities', 'Administration', 'Other'];
+  var STATUSES = ['Pending', 'Under Review', 'Resolved', 'Rejected'];
+  var LIM = { subjMin: 3, subjMax: 150, msgMin: 10, msgMax: 4000, respMax: 2000 };
+  var app = document.getElementById('app'), toastEl = document.getElementById('toast'), toastT;
+  var S = { signedIn: false, admin: false, tab: 'new', mine: null, all: null, shown: 20, sending: false, banner: null,
+            f: { q: '', cat: '', type: '', status: '', from: '', to: '' }, draft: { type: '', category: '', subject: '', message: '', anon: false } };
+
+  function h(tag, attrs) {
+    var e = document.createElement(tag);
+    for (var k in (attrs || {})) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k.slice(0, 2) === 'on') e[k] = attrs[k];
+      else if (attrs[k] === true) e.setAttribute(k, '');
+      else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+    }
+    (function add(list) { for (var i = 0; i < list.length; i++) { var c = list[i]; if (c == null || c === false) continue; if (Array.isArray(c)) add(c); else e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); } })([].slice.call(arguments, 2));
+    return e;
+  }
+  function toast(m, err) { toastEl.textContent = m; toastEl.className = 'show' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(function () { toastEl.className = ''; }, err ? 4500 : 2200); }
+  function fdt(iso) { try { if (window.yuPrefs && yuPrefs.fmtDateTime) return yuPrefs.fmtDateTime(iso); } catch (e) {} return new Date(iso).toLocaleString(); }
+  function sk(s) { return s === 'Under Review' ? 'Under' : s; }
+  function niceErr(e) {
+    var m = (e && e.message) || String(e || '');
+    if (/Failed to fetch|NetworkError|network/i.test(m)) return 'Could not reach the server. Check your connection and try again.';
+    if (/JWT|expired|not authenticated/i.test(m)) return 'Your session ended. Please sign in again.';
+    if (/permission denied/i.test(m)) return 'You do not have permission to do that.';
+    return m;
+  }
+  function statusBadge(s) { return h('span', { class: 'st ' + sk(s), text: s }); }
+
+  /* ---------- tabs ---------- */
+  function tabs() {
+    var list = [['new', 'New suggestion'], ['mine', 'My suggestions']];
+    if (S.admin) list.push(['admin', 'Administrator dashboard']);
+    return h('div', { class: 'tabs', role: 'tablist' }, list.map(function (t) {
+      return h('button', { type: 'button', role: 'tab', class: S.tab === t[0] ? 'on' : '', text: t[1], onclick: function () { go(t[0]); } });
+    }));
+  }
+  function go(t) { S.tab = t; S.banner = null; if (t === 'mine') loadMine(); if (t === 'admin') loadAll(); render(); window.scrollTo(0, 0); }
+
+  /* ---------- new suggestion form ---------- */
+  function opt(list, ph, v) {
+    var o = [h('option', { value: '', text: ph })];
+    list.forEach(function (x) { o.push(h('option', { value: x, text: x, selected: x === v })); });
+    return o;
+  }
+  function viewNew() {
+    var d = S.draft, errs = {};
+    var typeSel = h('select', { id: 'f-type' }, opt(TYPES, 'Choose a type', d.type));
+    var catSel = h('select', { id: 'f-cat' }, opt(CATS, 'Choose a category', d.category));
+    var subj = h('input', { type: 'text', id: 'f-subj', maxlength: LIM.subjMax, placeholder: 'A short title', value: d.subject, autocomplete: 'off' });
+    var msg = h('textarea', { id: 'f-msg', maxlength: LIM.msgMax, placeholder: 'Describe your suggestion in detail' }); msg.value = d.message;
+    var anon = h('input', { type: 'checkbox', id: 'f-anon' }); anon.checked = !!d.anon;
+    var cs = h('span', { class: 'cnt' }), cm = h('span', { class: 'cnt' });
+    function ferr(id) { return h('div', { class: 'ferr', id: 'e-' + id, 'aria-live': 'polite' }); }
+    function upd() { cs.textContent = subj.value.length + '/' + LIM.subjMax; cm.textContent = msg.value.length + '/' + LIM.msgMax; }
+    function keep() { d.type = typeSel.value; d.category = catSel.value; d.subject = subj.value; d.message = msg.value; d.anon = anon.checked; upd(); }
+    [typeSel, catSel, subj, msg, anon].forEach(function (e) { e.oninput = e.onchange = keep; });
+    upd();
+    var send = h('button', { type: 'submit', class: 'btn', text: 'Submit' });
+    var cancel = h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: function () { S.draft = { type: '', category: '', subject: '', message: '', anon: false }; S.banner = null; render(); } });
+    var form = h('form', { novalidate: true, onsubmit: function (ev) {
+      ev.preventDefault(); if (S.sending) return; keep();
+      var bad = {};
+      if (!d.type) bad.type = 'Please choose a type.';
+      if (!d.category) bad.cat = 'Please choose a category.';
+      var sj = d.subject.trim(), ms = d.message.trim();
+      if (!sj) bad.subj = 'Please write a subject.'; else if (sj.length < LIM.subjMin) bad.subj = 'The subject is too short (at least ' + LIM.subjMin + ' characters).';
+      if (!ms) bad.msg = 'Please write your message.'; else if (ms.length < LIM.msgMin) bad.msg = 'The message is too short (at least ' + LIM.msgMin + ' characters).';
+      ['type', 'cat', 'subj', 'msg'].forEach(function (k) {
+        var el = form.querySelector('#e-' + k); if (el) el.textContent = bad[k] || '';
+        var inp = form.querySelector('#f-' + k); if (inp) inp.classList.toggle('bad', !!bad[k]);
+      });
+      var first = Object.keys(bad)[0]; if (first) { var fe = form.querySelector('#f-' + first); if (fe) fe.focus(); return; }
+      S.sending = true; send.disabled = true; send.textContent = 'Sending...'; S.banner = null;
+      db.rpc('submit_suggestion', { p_type: d.type, p_category: d.category, p_subject: sj, p_message: ms, p_anonymous: !!d.anon }).then(function (r) {
+        S.sending = false;
+        if (r.error) { S.banner = { err: true, text: 'Not sent: ' + niceErr(r.error) }; render(); window.scrollTo(0, 0); return; }
+        var wasAnon = d.anon;
+        S.draft = { type: '', category: '', subject: '', message: '', anon: false }; S.mine = null; S.all = null;
+        S.banner = { ok: true, text: 'Thank you! Your ' + (wasAnon ? 'anonymous ' : '') + 'suggestion was sent. You can follow its status under "My suggestions".' };
+        render(); window.scrollTo(0, 0);
+      }, function (e) { S.sending = false; S.banner = { err: true, text: 'Not sent: ' + niceErr(e) }; render(); });
+    } },
+      h('div', { class: 'grid2' },
+        h('div', null, h('label', { class: 'f', for: 'f-type' }, 'Suggestion type ', h('span', { class: 'req', text: '*' })), typeSel, ferr('type')),
+        h('div', null, h('label', { class: 'f', for: 'f-cat' }, 'Category ', h('span', { class: 'req', text: '*' })), catSel, ferr('cat'))),
+      h('label', { class: 'f', for: 'f-subj' }, 'Subject ', h('span', { class: 'req', text: '*' }), cs), subj, ferr('subj'),
+      h('label', { class: 'f', for: 'f-msg' }, 'Message ', h('span', { class: 'req', text: '*' }), cm), msg, ferr('msg'),
+      h('label', { class: 'anon' }, anon, h('span', null, h('b', { text: 'Submit anonymously' }),
+        h('span', { class: 'muted', text: 'Administrators and other users will not see your name. Only you can see this suggestion in your own list.' }))),
+      h('div', { class: 'btns' }, send, cancel));
+    return h('div', { class: 'panel' }, h('h2', { text: 'Send us your thoughts' }),
+      h('div', { class: 'muted', text: 'Tell the university what is working, what is not, and what could be better. Fields marked * are required.' }), form);
+  }
+
+  /* ---------- my suggestions ---------- */
+  function loadMine() {
+    S.mine = null;
+    db.from('suggestions').select('id,type,category,subject,message,status,admin_response,created_at,updated_at,user_id').order('created_at', { ascending: false }).limit(200)
+      .then(function (r) { S.mine = r.error ? { error: niceErr(r.error) } : { rows: r.data || [] }; if (S.tab === 'mine') render(); },
+            function (e) { S.mine = { error: niceErr(e) }; if (S.tab === 'mine') render(); });
+  }
+  function viewMine() {
+    var m = S.mine, box = h('div');
+    if (!m) { for (var i = 0; i < 3; i++) box.appendChild(h('div', { class: 'skel' })); return box; }
+    if (m.error) { box.appendChild(h('div', { class: 'banner err', text: 'Could not load your suggestions: ' + m.error })); box.appendChild(h('button', { class: 'btn', text: 'Try again', onclick: function () { loadMine(); render(); } })); return box; }
+    if (!m.rows.length) { box.appendChild(h('div', { class: 'panel empty', text: 'You have not sent any suggestions yet.' })); return box; }
+    m.rows.forEach(function (s) {
+      box.appendChild(h('div', { class: 'item s-' + sk(s.status) },
+        h('h3', { text: s.subject }),
+        h('div', { class: 'chips' }, statusBadge(s.status), h('span', { class: 'chip', text: s.type }), h('span', { class: 'chip', text: s.category }),
+          s.user_id ? null : h('span', { class: 'chip', text: 'Anonymous' }), h('span', { class: 'muted', text: fdt(s.created_at) })),
+        h('div', { class: 'msgbox', text: s.message }),
+        s.admin_response ? h('div', { class: 'resp' }, h('b', { text: 'Response from the university' }), s.admin_response) : null));
+    });
+    return box;
+  }
+
+  /* ---------- administrator dashboard ---------- */
+  function loadAll() {
+    S.all = null;
+    db.rpc('admin_list_suggestions').then(function (r) { S.all = r.error ? { error: niceErr(r.error) } : { rows: r.data || [] }; if (S.tab === 'admin') render(); },
+      function (e) { S.all = { error: niceErr(e) }; if (S.tab === 'admin') render(); });
+  }
+  function filtered(rows) {
+    var f = S.f, q = f.q.trim().toLowerCase();
+    var from = f.from ? new Date(f.from + 'T00:00:00') : null, to = f.to ? new Date(f.to + 'T23:59:59.999') : null;
+    return rows.filter(function (s) {
+      if (f.cat && s.category !== f.cat) return false; if (f.type && s.type !== f.type) return false; if (f.status && s.status !== f.status) return false;
+      var d = new Date(s.created_at); if (from && d < from) return false; if (to && d > to) return false;
+      if (q && (s.subject + ' ' + s.message + ' ' + (s.submitter_name || '') + ' ' + (s.submitter_id || '')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+  function sel(label, key, list, cls) {
+    var s = h('select', { 'aria-label': label }, [h('option', { value: '', text: label })].concat(list.map(function (x) { return h('option', { value: x, text: x, selected: S.f[key] === x }); })));
+    s.onchange = function () { S.f[key] = s.value; S.shown = 20; renderList(); };
+    return h('div', { class: cls || '' }, h('label', { text: label }), s);
+  }
+  var listBox;
+  function viewAdmin() {
+    var a = S.all, box = h('div');
+    if (!a) { for (var i = 0; i < 3; i++) box.appendChild(h('div', { class: 'skel' })); return box; }
+    if (a.error) { box.appendChild(h('div', { class: 'banner err', text: 'Could not load suggestions: ' + a.error })); box.appendChild(h('button', { class: 'btn', text: 'Try again', onclick: function () { loadAll(); render(); } })); return box; }
+    var c = { Pending: 0, 'Under Review': 0, Resolved: 0, Rejected: 0 }; a.rows.forEach(function (s) { c[s.status]++; });
+    box.appendChild(h('div', { class: 'stats' },
+      h('div', { class: 'stat' }, h('b', { text: String(a.rows.length) }), h('span', { text: 'Total' })),
+      h('div', { class: 'stat p' }, h('b', { text: String(c.Pending) }), h('span', { text: 'Pending' })),
+      h('div', { class: 'stat u' }, h('b', { text: String(c['Under Review']) }), h('span', { text: 'Under Review' })),
+      h('div', { class: 'stat r' }, h('b', { text: String(c.Resolved) }), h('span', { text: 'Resolved' })),
+      h('div', { class: 'stat' }, h('b', { text: String(c.Rejected) }), h('span', { text: 'Rejected' }))));
+    var q = h('input', { type: 'search', placeholder: 'Search subject, message or name', value: S.f.q, 'aria-label': 'Search' });
+    q.oninput = function () { S.f.q = q.value; S.shown = 20; renderList(); };
+    var from = h('input', { type: 'date', value: S.f.from, 'aria-label': 'From date' }), to = h('input', { type: 'date', value: S.f.to, 'aria-label': 'To date' });
+    from.onchange = function () { S.f.from = from.value; S.shown = 20; renderList(); }; to.onchange = function () { S.f.to = to.value; S.shown = 20; renderList(); };
+    box.appendChild(h('div', { class: 'filters' },
+      h('div', { class: 'wide' }, h('label', { text: 'Search' }), q), sel('All categories', 'cat', CATS), sel('All types', 'type', TYPES), sel('All statuses', 'status', STATUSES),
+      h('div', null, h('label', { text: 'From' }), from), h('div', null, h('label', { text: 'To' }), to),
+      h('button', { type: 'button', class: 'btn alt', text: 'Clear', style: 'min-width:0', onclick: function () { S.f = { q: '', cat: '', type: '', status: '', from: '', to: '' }; S.shown = 20; render(); } })));
+    listBox = h('div'); box.appendChild(listBox); renderList();
+    return box;
+  }
+  function renderList() {
+    if (!listBox || !S.all || !S.all.rows) return;
+    var rows = filtered(S.all.rows); listBox.textContent = '';
+    if (!rows.length) { listBox.appendChild(h('div', { class: 'panel empty', text: S.all.rows.length ? 'No suggestions match these filters.' : 'No suggestions have been submitted yet.' })); return; }
+    listBox.appendChild(h('div', { class: 'muted', style: 'margin-bottom:8px', text: rows.length + (rows.length === 1 ? ' suggestion' : ' suggestions') }));
+    rows.slice(0, S.shown).forEach(function (s) {
+      listBox.appendChild(h('div', { class: 'item click s-' + sk(s.status), tabindex: '0', role: 'button', onclick: function () { openDetail(s); }, onkeydown: function (e) { if (e.key === 'Enter') openDetail(s); } },
+        h('h3', { text: s.subject }),
+        h('div', { class: 'chips' }, statusBadge(s.status), h('span', { class: 'chip', text: s.type }), h('span', { class: 'chip', text: s.category }),
+          h('span', { class: 'chip', text: s.is_anonymous ? 'Anonymous' : (s.submitter_name || 'Unknown user') }), h('span', { class: 'muted', text: fdt(s.created_at) })),
+        h('div', { class: 'muted', text: s.message.length > 140 ? s.message.slice(0, 140) + '…' : s.message })));
+    });
+    if (rows.length > S.shown) listBox.appendChild(h('button', { class: 'btn alt', style: 'width:100%', text: 'Load more', onclick: function () { S.shown += 20; renderList(); } }));
+  }
+  function openDetail(s) {
+    var stSel = h('select', { id: 'd-st' }, STATUSES.map(function (x) { return h('option', { value: x, text: x, selected: x === s.status }); }));
+    var resp = h('textarea', { id: 'd-resp', maxlength: LIM.respMax, placeholder: 'Write a response to the submitter (optional)', style: 'min-height:110px' }); resp.value = s.admin_response || '';
+    var cnt = h('span', { class: 'cnt' }); function uc() { cnt.textContent = resp.value.length + '/' + LIM.respMax; } resp.oninput = uc; uc();
+    var err = h('div', { class: 'ferr', role: 'alert' });
+    var save = h('button', { type: 'button', class: 'btn', text: 'Save' });
+    var ov = h('div', { class: 'ov', onclick: function (e) { if (e.target === ov) close(); } });
+    function close() { ov.remove(); document.removeEventListener('keydown', esc); } function esc(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', esc);
+    save.onclick = function () {
+      err.textContent = ''; save.disabled = true; save.textContent = 'Saving...';
+      db.rpc('admin_update_suggestion', { p_id: s.id, p_status: stSel.value, p_response: resp.value }).then(function (r) {
+        if (r.error) { err.textContent = 'Not saved: ' + niceErr(r.error); save.disabled = false; save.textContent = 'Save'; return; }
+        s.status = stSel.value; s.admin_response = resp.value.trim() || null; s.updated_at = new Date().toISOString();
+        close(); toast('✓ Saved'); render();
+      }, function (e) { err.textContent = 'Not saved: ' + niceErr(e); save.disabled = false; save.textContent = 'Save'; });
+    };
+    ov.appendChild(h('div', { class: 'dlg', role: 'dialog', 'aria-modal': 'true' },
+      h('div', { class: 'hd' }, h('h2', { style: 'margin:0;font-size:1.15rem;word-break:break-word', text: s.subject }), h('button', { class: 'x', type: 'button', 'aria-label': 'Close', text: '✕', onclick: close })),
+      h('div', { class: 'chips' }, statusBadge(s.status), h('span', { class: 'chip', text: s.type }), h('span', { class: 'chip', text: s.category })),
+      h('div', { class: 'meta' },
+        h('b', { text: 'Submitted by' }), h('span', { text: s.is_anonymous ? 'Anonymous (identity hidden)' : ((s.submitter_name || 'Unknown user') + (s.submitter_id ? ' · ' + s.submitter_id : '') + (s.submitter_role ? ' · ' + s.submitter_role : '')) }),
+        h('b', { text: 'Date' }), h('span', { text: fdt(s.created_at) }), h('b', { text: 'Last updated' }), h('span', { text: fdt(s.updated_at) })),
+      h('div', { class: 'msgbox', style: 'padding:12px;border-radius:10px;background:var(--bg)', text: s.message }),
+      h('label', { class: 'f', for: 'd-st', text: 'Status' }), stSel,
+      h('label', { class: 'f', for: 'd-resp' }, 'Response to the submitter', cnt), resp, err,
+      h('div', { class: 'btns' }, save, h('button', { type: 'button', class: 'btn alt', text: 'Cancel', onclick: close }))));
+    document.body.appendChild(ov); stSel.focus();
+  }
+
+  /* ---------- page ---------- */
+  function render() {
+    app.textContent = '';
+    if (!S.signedIn) {
+      app.appendChild(h('div', { class: 'panel' }, h('h2', { text: 'Please sign in' }), h('div', { class: 'muted', text: 'Please sign in to use the Suggestion Box.' }),
+        h('div', { class: 'btns' }, h('a', { class: 'btn', href: '../', style: 'text-decoration:none;text-align:center', text: 'Go to sign in' }))));
+      return;
+    }
+    app.appendChild(tabs());
+    if (S.banner) app.appendChild(h('div', { class: 'banner ' + (S.banner.ok ? 'ok' : 'err'), role: S.banner.ok ? 'status' : 'alert', text: S.banner.text }));
+    app.appendChild(S.tab === 'new' ? viewNew() : S.tab === 'mine' ? viewMine() : viewAdmin());
+  }
+
+  db.auth.getSession().then(function (r) {
+    var ses = r.data && r.data.session; S.signedIn = !!ses;
+    if (!ses) { render(); return; }
+    db.rpc('sb_is_admin').then(function (x) { S.admin = x.data === true; var hsh = location.hash.replace('#/', ''); if (hsh === 'mine') { S.tab = 'mine'; loadMine(); } else if (hsh === 'admin' && S.admin) { S.tab = 'admin'; loadAll(); } render(); },
+      function () { render(); });
+  }, function () { render(); });
+  window.addEventListener('yu-prefs', function () { try { if (S.signedIn) render(); } catch (e) {} });
+})();
+</script>
+<script src="../i18n-data.js?v=1"></script>
+<script src="../i18n-ar.js?v=1"></script>
+<script src="../i18n-suggest.js?v=1"></script>
+<script src="../i18n.js?v=2"></script>
+</body>
+</html>

@@ -30,7 +30,7 @@
     head.textContent = 'System'; head.setAttribute('data-sys', '1');
     head.style.cssText = 'cursor:default'; head.onclick = null;
     var body = gb.cloneNode(false); body.style.display = '';
-    [['Settings', function () { settings(nav); }], ['Help & Support', function () { document.body.classList.remove('yu-open'); help(); }]]
+    [['Suggestion Box', function () { document.body.classList.remove('yu-open'); location.href = 'suggestions/'; }], ['Settings', function () { settings(nav); }], ['Help & Support', function () { document.body.classList.remove('yu-open'); help(); }]]
       .forEach(function (it) {
         var b = document.createElement('button'); b.textContent = it[0]; b.onclick = it[1]; body.appendChild(b);
       });

@@ -14,7 +14,7 @@
   header.top h1 { font-size:1.15rem; margin:0; }
   main { max-width:880px; margin:0 auto; padding:16px; display:grid; gap:16px; }
   .list, .panel { background:var(--card); border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.1); overflow:hidden; }
-  .list button { display:flex; align-items:center; gap:14px; width:100%; padding:16px; border:0; border-bottom:1px solid var(--line); background:transparent; color:var(--text); font-size:1rem; text-align:left; cursor:pointer; }
+  .list button { display:flex; align-items:center; gap:14px; width:100%; padding:16px; border:0; border-bottom:1px solid var(--line); background:transparent; color:var(--text); font-size:1rem; text-align:start; cursor:pointer; }
   .list button:last-child { border-bottom:0; }
   .list button.on { background:var(--soft); }
   .list .ic { width:38px; height:38px; border-radius:10px; background:var(--soft); display:flex; align-items:center; justify-content:center; font-size:19px; flex:none; }
@@ -71,7 +71,7 @@
 <script>window.YU_NATIVE_THEME = true;</script>
 <script src="../config.js"></script>
 <script src="../core.js?v=1"></script>
-<script src="../prefs.js?v=3"></script>
+<script src="../prefs.js?v=4"></script>
 <header class="top">
   <a id="homeBtn" href="../" aria-label="Back to Yachi University">&#8592;</a>
   <button id="backBtn" type="button" aria-label="Back" style="display:none">&#8592;</button>
@@ -124,6 +124,19 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       theme:'Bifa', th_light:'Ifa', th_dark:'Dukkana', th_system:'Akka bilbila kootti', text_size:'Guddina barreeffamaa', sz_small:'Xiqqaa', sz_normal:'Idilee', sz_large:'Guddaa', sz_xlarge:'Baay\'ee guddaa', preview:'Kun fakkeenya guddina barreeffamaati.',
       timezone:'Naannoo sa\'aatii', date_fmt:'Bifa guyyaa', time_fmt:'Bifa sa\'aatii', calendar:'Kaalandarii', cal_greg:'Giriigoriyaanii', cal_eth:'Itoophiyaa', week_start:'Torbanni kan jalqabu', mon:'Wiixata', sun:'Dilbata', sat:'Sambata', now_is:'Amma', h12:'Sa\'aatii 12', h24:'Sa\'aatii 24', dmy:'Guyyaa/Ji\'a/Waggaa', mdy:'Ji\'a/Guyyaa/Waggaa', ymd:'Waggaa-Ji\'a-Guyyaa', long:'4 Nov 2026',
       sys_name:'Sirna Bulchiinsa Barattootaa', university:'Yuunivarsiitii Yaachi', version:'Gosa', support:'Gargaarsa', support_text:'Waa\'ee akkaawuntii, bu\'aa ykn kaffaltii gargaarsa argachuuf waajjira Registraraa ykn waajjira Faayinaansii qunnamaa.', refresh:'Appii haaromsi', online:'Walqunnamtii', on:'Toora irra', off:'Toora ala', tz_other:'Kan biraa'
+    },
+    ar: {
+      settings:'الإعدادات', account:'إعدادات الحساب', language:'اللغة', notifications:'الإشعارات', security:'الأمان والخصوصية', appearance:'المظهر', regional:'الإعدادات الإقليمية', about:'حول',
+      saved:'تم الحفظ', save_failed:'تعذّر الحفظ في حسابك. تم الاحتفاظ به على هذا الجهاز. ', need_signin:'يرجى تسجيل الدخول لاستخدام الإعدادات.', go_signin:'الذهاب إلى تسجيل الدخول',
+      name:'الاسم', email:'البريد الإلكتروني', idnum:'رقم الهوية', role:'الدور', last_signin:'آخر تسجيل دخول', not_set:'(غير محدد)', acc_note:'لتغيير اسمك أو دورك، تواصل مع مكتب المدرسة.', signout:'تسجيل الخروج',
+      lang_choose:'اختر لغتك', lang_note:'تتم إضافة الترجمات خطوة بخطوة. الأجزاء غير المترجمة تبقى بالإنجليزية.',
+      notif_note:'يتم حفظ اختياراتك في حسابك. سيفعّل إرسال البريد الإلكتروني من قبل الجامعة لاحقاً.', n_ann:'الإعلانات', n_exam:'تذكيرات الامتحانات', n_res:'النتائج والدرجات', n_fin:'الرسوم والمدفوعات', n_sec:'تنبيهات الأمان (مفعّلة دائماً)', ch_app:'داخل التطبيق', ch_email:'البريد الإلكتروني',
+      pw_title:'تغيير كلمة المرور', pw_new:'كلمة المرور الجديدة (8 أحرف أو أكثر)', pw_again:'اكتبها مرة أخرى', pw_btn:'تغيير كلمة المرور', pw_short:'استخدم 8 أحرف على الأقل.', pw_mismatch:'كلمتا المرور غير متطابقتين.', pw_ok:'تم تغيير كلمة المرور. استخدمها في المرة القادمة عند تسجيل الدخول بالبريد.', pw_reauth:'لأسباب أمنية، سجّل الخروج ثم الدخول مرة أخرى وحاول من جديد.', pw_fail:'لم يتم التغيير: ',
+      devices:'الأجهزة', so_others:'تسجيل الخروج من الأجهزة الأخرى', so_all:'تسجيل الخروج من جميع الأجهزة', so_all_q:'تسجيل الخروج من كل جهاز سجّلت الدخول منه؟', so_others_done:'تم تسجيل الخروج من الأجهزة الأخرى.',
+      privacy:'الخصوصية', privacy_link:'اقرأ سياسة الخصوصية', export:'تنزيل بياناتي', export_note:'ملف يحتوي على بيانات حسابك وإعداداتك.',
+      theme:'السمة', th_light:'فاتحة', th_dark:'داكنة', th_system:'مطابقة هاتفي', text_size:'حجم النص', sz_small:'صغير', sz_normal:'عادي', sz_large:'كبير', sz_xlarge:'كبير جداً', preview:'هذا مثال على حجم النص.',
+      timezone:'المنطقة الزمنية', date_fmt:'تنسيق التاريخ', time_fmt:'تنسيق الوقت', calendar:'التقويم', cal_greg:'ميلادي', cal_eth:'إثيوبي', week_start:'يبدأ الأسبوع يوم', mon:'الاثنين', sun:'الأحد', sat:'السبت', now_is:'الآن', h12:'12 ساعة', h24:'24 ساعة', dmy:'يوم/شهر/سنة', mdy:'شهر/يوم/سنة', ymd:'سنة-شهر-يوم', long:'4 Nov 2026',
+      sys_name:'نظام إدارة الطلاب', university:'جامعة ياتشي', version:'الإصدار', support:'المساعدة والدعم', support_text:'للمساعدة في حسابك أو درجاتك أو مدفوعاتك، تواصل مع مكتب المسجّل أو مكتب المالية.', refresh:'تحديث التطبيق', online:'الاتصال', on:'متصل', off:'غير متصل', tz_other:'أخرى'
     }
   };
   function lang() { return (window.yuPrefs.get().language) || 'en'; }
@@ -179,7 +192,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     },
     language: function (p) {
       p.append(h('h2', { text: t('language') }), h('p', { class: 'muted', text: t('lang_note') }), h('label', { class: 'f', text: t('lang_choose') }),
-        optGroup([['en', 'English'], ['am', 'አማርኛ'], ['om', 'Afaan Oromoo']], window.yuPrefs.get().language, function (v) { saveSetting({ language: v }).then(function () { render(); }); }));
+        optGroup([['en', 'English'], ['am', 'አማርኛ'], ['om', 'Afaan Oromoo'], ['ar', 'العربية']], window.yuPrefs.get().language, function (v) { saveSetting({ language: v }).then(function () { render(); }); }));
     },
     notifications: function (p) {
       var cur = window.yuPrefs.get().notifications || {};

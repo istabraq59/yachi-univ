@@ -26,6 +26,7 @@
     var h = document.documentElement;
     h.setAttribute('data-theme', isDark() ? 'dark' : 'light');
     h.setAttribute('lang', P.language);
+    h.setAttribute('dir', P.language === 'ar' ? 'rtl' : 'ltr');
     var z = { small: 0.9, normal: 1, large: 1.12, xlarge: 1.25 }[P.text_size] || 1;
     h.style.zoom = z === 1 ? '' : String(z);
   }

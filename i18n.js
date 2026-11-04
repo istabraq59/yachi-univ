@@ -4,7 +4,7 @@
 (function () {
   if (window.yuI18n) return;
   var D = window.YU_DICT || {}, PX = window.YU_PREFIX || [];
-  var IDX = { am: 0, om: 1 };
+  var IDX = { am: 0, om: 1, ar: 2 };
   var SKIP = /^(SCRIPT|STYLE|TEXTAREA|NOSCRIPT|TITLE|CODE|PRE|SVG|PATH)$/;
   var ANCHOR = /Signed in as/;          /* other scripts find this text: leave it alone */
   var ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];

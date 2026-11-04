@@ -2,7 +2,7 @@
    Applies the saved choices instantly from this device, then syncs with the user_settings table. */
 (function () {
   if (window.yuPrefs) return;
-  var KEY = 'yu_prefs', VERSION = '2026.11.03';
+  var KEY = 'yu_prefs', VERSION = '2026.11.03b';
   var DEF = { language: 'en', theme: 'light', text_size: 'normal', timezone: 'Africa/Addis_Ababa', date_format: 'dmy',
               time_format: '12h', calendar: 'gregorian', week_start: 'mon', notifications: {} };
   var COLS = Object.keys(DEF).join(',');
@@ -17,7 +17,9 @@
   if (!window.YU_NATIVE_THEME) {
     /* pages that have no dark colours of their own get a safe colour inversion */
     css.textContent = 'html[data-theme=dark]{filter:invert(.92) hue-rotate(180deg);background:#fff}' +
-      'html[data-theme=dark] img,html[data-theme=dark] video,html[data-theme=dark] canvas,html[data-theme=dark] iframe{filter:invert(1) hue-rotate(180deg)}';
+      'html[data-theme=dark] img,html[data-theme=dark] video,html[data-theme=dark] canvas,html[data-theme=dark] iframe{filter:invert(1) hue-rotate(180deg)}' +
+      /* the navy top bar and side menu are already dark: flip them back so they stay dark */
+      'html[data-theme=dark] #yuTop,html[data-theme=dark] #yuSide{filter:invert(.92) hue-rotate(180deg) brightness(1.1)}';
     (document.head || document.documentElement).appendChild(css);
   }
   function apply() {
@@ -40,7 +42,10 @@
       if (!s) return false;
       return client().from('user_settings').select(COLS).eq('user_id', s.user.id).maybeSingle().then(function (x) {
         if (x.error) return false;
-        P = Object.assign(copy(DEF), x.data || {});
+        /* a saved row wins. With no row, keep this phone's choices only if they belong to the same person */
+        if (x.data) P = Object.assign(copy(DEF), x.data);
+        else if (P._uid !== s.user.id) P = copy(DEF);
+        P._uid = s.user.id;
         if (!P.notifications || typeof P.notifications !== 'object') P.notifications = {};
         store(); apply();
         document.dispatchEvent(new CustomEvent('yu-prefs'));
@@ -53,6 +58,7 @@
     document.dispatchEvent(new CustomEvent('yu-prefs'));
     return session().then(function (s) {
       if (!s) return { error: { message: 'Not signed in' } };
+      if (P._uid !== s.user.id) { P._uid = s.user.id; store(); }
       var row = Object.assign({ user_id: s.user.id, updated_at: new Date().toISOString() }, patch);
       return client().from('user_settings').upsert(row, { onConflict: 'user_id' }).then(function (r) { return { error: r.error || null }; });
     }).catch(function (e) { return { error: { message: String(e && e.message || e) } }; });
